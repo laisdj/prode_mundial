@@ -10,9 +10,11 @@ def login_view(request):
     if request.user.is_authenticated:
         return redirect('ranking')
     if request.method == 'POST':
-        user = authenticate(request,
-                            username=request.POST['username'],
-                            password=request.POST['password'])
+        username = request.POST.get('username', '')
+        password = request.POST.get('password', '')
+        print(f'DEBUG login: usuario={username} password={password}')
+        user = authenticate(request, username=username, password=password)
+        print(f'DEBUG authenticate resultado: {user}')
         if user:
             login(request, user)
             return redirect('pronosticos')
