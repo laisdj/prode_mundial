@@ -1,0 +1,44 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card">
+  <h1>⚙️ Cargar resultados reales</h1>
+  <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
+    Solo visible para el administrador. Ingresa el marcador y marca el partido como jugado.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <table>
+      <thead><tr>
+        <th>Grp</th>
+        <th style="text-align:left">Partido</th>
+        <th>Fecha</th>
+        <th>Resultado real</th>
+        <th>Jugado</th>
+      </tr></thead>
+      <tbody>
+      {% for p in partidos %}
+        <tr>
+          <td><span class="grp-badge">{{ p.grupo }}</span></td>
+          <td style="text-align:left">{{ p.local }} vs {{ p.visita }}</td>
+          <td style="font-size:.8rem;color:#666">{{ p.fecha|date:"d/m H:i" }}</td>
+          <td>
+            <input class="inp-score" type="number" min="0" max="20"
+                   name="gl_{{ p.id }}" value="{{ p.goles_l|default:'' }}" placeholder="-"/>
+            <span style="color:#aaa">:</span>
+            <input class="inp-score" type="number" min="0" max="20"
+                   name="gv_{{ p.id }}" value="{{ p.goles_v|default:'' }}" placeholder="-"/>
+          </td>
+          <td>
+            <input type="checkbox" name="jugado_{{ p.id }}"
+                   {% if p.jugado %}checked{% endif %}/>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div style="margin-top:1.25rem">
+      <button class="btn" type="submit">💾 Guardar resultados</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

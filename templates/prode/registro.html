@@ -1,0 +1,14 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card" style="max-width:380px;margin:0 auto">
+  <h1>Crear cuenta</h1>
+  <form method="post">
+    {% csrf_token %}
+    <label>Nombre de usuario</label><br>
+    <input type="text" name="username" autofocus/>
+    <label>Contraseña</label><br>
+    <input type="password" name="password"/>
+    <button class="btn" type="submit">Registrarse</button>
+  </form>
+</div>
+{% endblock %}

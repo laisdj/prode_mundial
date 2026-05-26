@@ -1,0 +1,55 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card">
+  <h1>📝 Mis pronósticos</h1>
+  <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
+    Ingresa el marcador que predices. Local/Empate/Visita = 1 pt · Marcador exacto = 3 pts.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <table>
+      <thead><tr>
+        <th>Grp</th>
+        <th style="text-align:left">Partido</th>
+        <th>Fecha</th>
+        <th>Tu pronóstico</th>
+        <th>Pts</th>
+      </tr></thead>
+      <tbody>
+      {% for item in partidos %}
+        <tr>
+          <td><span class="grp-badge">{{ item.partido.grupo }}</span></td>
+          <td style="text-align:left">
+            {{ item.partido.local }} vs {{ item.partido.visita }}
+          </td>
+          <td style="font-size:.8rem;color:#666">
+            {{ item.partido.fecha|date:"d/m H:i" }}
+          </td>
+          <td>
+            <input class="inp-score" type="number" min="0" max="20"
+                   name="gl_{{ item.partido.id }}" value="{{ item.gl }}" placeholder="-"/>
+            <span style="color:#aaa">:</span>
+            <input class="inp-score" type="number" min="0" max="20"
+                   name="gv_{{ item.partido.id }}" value="{{ item.gv }}" placeholder="-"/>
+          </td>
+          <td>
+            {% if item.pts == 3 %}
+              <span class="badge-3">3 ⭐</span>
+            {% elif item.pts == 1 %}
+              <span class="badge-1">1 ✓</span>
+            {% elif item.pts == 0 and item.gl != '' %}
+              <span style="color:#aaa;font-size:.8rem">0</span>
+            {% else %}
+              <span style="color:#ddd">·</span>
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    <div style="margin-top:1.25rem">
+      <button class="btn" type="submit">💾 Guardar pronósticos</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

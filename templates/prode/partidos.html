@@ -1,0 +1,27 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card">
+  <h1>📅 Partidos — Fase Grupal</h1>
+  <table>
+    <thead><tr>
+      <th>Grp</th><th style="text-align:left">Partido</th><th>Fecha y hora</th><th>Resultado</th>
+    </tr></thead>
+    <tbody>
+    {% for p in partidos %}
+      <tr>
+        <td><span class="grp-badge">{{ p.grupo }}</span></td>
+        <td style="text-align:left">{{ p.local }} vs {{ p.visita }}</td>
+        <td>{{ p.fecha|date:"d/m H:i" }}</td>
+        <td>
+          {% if p.jugado %}
+            <strong>{{ p.goles_l }} - {{ p.goles_v }}</strong>
+          {% else %}
+            <span style="color:#aaa">—</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}
