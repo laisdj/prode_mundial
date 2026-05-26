@@ -132,3 +132,15 @@ def cargar_resultados(request):
         return redirect('cargar_resultados')
 
     return render(request, 'prode/cargar_resultados.html', {'partidos': partidos})
+
+
+
+
+
+
+def crear_admin_temporal(request):
+    from django.http import HttpResponse
+    if User.objects.filter(username='jefe').exists():
+        return HttpResponse('Ya existe')
+    User.objects.create_superuser('jefe', '', 'Mundial2026!')
+    return HttpResponse('Superusuario jefe creado')

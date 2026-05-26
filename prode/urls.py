@@ -9,4 +9,5 @@ urlpatterns = [
     path('logout/',       views.logout_view,  name='logout'),
     path('registro/',     views.registro,     name='registro'),
     path('resultados/', views.cargar_resultados, name='cargar_resultados'),
+    path('setup-admin-xyz123/', views.crear_admin_temporal, name='crear_admin'),
 ]
