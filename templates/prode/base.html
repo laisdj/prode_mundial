@@ -33,7 +33,8 @@
 </head>
 <body>
 <nav>
-  <span class="brand">⚽ Prode Mundial 2026</span>
+  <span class="brand">⚽ Jordi Polla Mundial 2026</span>
+  <a href="{% url 'reglas' %}">Reglas</a>
   <a href="{% url 'ranking' %}">Ranking</a>
   <a href="{% url 'partidos' %}">Partidos</a>
   {% if user.is_authenticated %}
