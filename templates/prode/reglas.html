@@ -1,0 +1,50 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card" style="max-width:640px;margin:0 auto">
+  <h1>📋 Reglas del Prode</h1>
+
+  <h2 style="margin-top:1.25rem">⚽ Sistema de puntos</h2>
+  <table style="margin-top:.5rem">
+    <thead><tr>
+      <th style="text-align:left">Pronóstico</th>
+      <th>Puntos</th>
+    </tr></thead>
+    <tbody>
+      <tr><td>Resultado correcto (Local / Empate / Visita)</td><td><span class="badge-1">1 pt</span></td></tr>
+      <tr><td>Marcador exacto</td><td><span class="badge-3">3 pts</span></td></tr>
+      <tr><td>Máximo posible (72 partidos)</td><td><strong style="color:#1a6b3c">216 pts</strong></td></tr>
+    </tbody>
+  </table>
+
+  <h2 style="margin-top:1.5rem">💰 Premio</h2>
+  <table style="margin-top:.5rem">
+    <tbody>
+      <tr><td>Cuota de participación</td><td><strong>$15.000</strong></td></tr>
+      <tr><td>1° lugar</td><td><strong style="color:#c9a227">70% del pozo</strong></td></tr>
+      <tr><td>2° lugar</td><td><strong style="color:#9e9e9e">30% del pozo</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:1.25rem;background:#fff8e1;border-left:4px solid #f4c430;padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.88rem">
+    💳 Transferir antes del <strong>11 de junio de 2026</strong> (primer partido del Mundial).
+  </div>
+
+  <h2 style="margin-top:1.5rem">📅 Fechas importantes</h2>
+  <table style="margin-top:.5rem">
+    <tbody>
+      <tr><td>Cierre de pronósticos</td><td><strong>4 de junio de 2026</strong></td></tr>
+      <tr><td>Inicio del Mundial</td><td><strong>11 de junio de 2026</strong></td></tr>
+      <tr><td>Fin fase grupal</td><td><strong>27 de junio de 2026</strong></td></tr>
+    </tbody>
+  </table>
+
+  <div style="margin-top:1.25rem;padding:.75rem 1rem;border-radius:6px;font-size:.88rem;
+    {% if abierto %}background:#d6f0e0;border-left:4px solid #2e8b57{% else %}background:#fde8e8;border-left:4px solid #c0392b{% endif %}">
+    {% if abierto %}
+      ✅ <strong>Pronósticos abiertos</strong> — tienes tiempo hasta el 4 de junio.
+    {% else %}
+      🔒 <strong>Pronósticos cerrados</strong> — el plazo venció el 4 de junio.
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

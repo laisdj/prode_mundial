@@ -144,3 +144,11 @@ def crear_admin_temporal(request):
         return HttpResponse('Ya existe')
     User.objects.create_superuser('jefe', '', 'Mundial2026!')
     return HttpResponse('Superusuario jefe creado')
+
+
+def reglas(request):
+    from datetime import date
+    hoy = date.today()
+    cierre = date(2026, 6, 4)
+    abierto = hoy <= cierre
+    return render(request, 'prode/reglas.html', {'abierto': abierto})
