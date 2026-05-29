@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Partido, Pronostico
+from datetime import date
 
 
 def login_view(request):
@@ -12,9 +13,7 @@ def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username', '')
         password = request.POST.get('password', '')
-        print(f'DEBUG login: usuario={username} password={password}')
         user = authenticate(request, username=username, password=password)
-        print(f'DEBUG authenticate resultado: {user}')
         if user:
             login(request, user)
             return redirect('pronosticos')
@@ -65,6 +64,13 @@ def partidos(request):
 
 @login_required(login_url='login')
 def pronosticos(request):
+    if request.user.is_staff:
+        return redirect('ranking')
+
+    hoy = date.today()
+    cierre = date(2026, 6, 4)
+    abierto = hoy <= cierre
+
     partidos = Partido.objects.all()
 
     if request.method == 'POST' and abierto:
@@ -74,7 +80,6 @@ def pronosticos(request):
             nota = request.POST.get(f'nota_{partido.id}', '').strip()
 
             if gl == '' and gv == '':
-                # Borrar pronóstico si existe
                 Pronostico.objects.filter(
                     usuario=request.user, partido=partido
                 ).delete()
@@ -98,7 +103,6 @@ def pronosticos(request):
         messages.success(request, '¡Pronósticos guardados!')
         return redirect('pronosticos')
 
-    # Armar dict con pronósticos existentes
     mis_prons = {
         p.partido_id: p
         for p in Pronostico.objects.filter(usuario=request.user)
@@ -114,11 +118,10 @@ def pronosticos(request):
             'pts': pron.puntos() if pron else None,
         })
 
-    return render(request, 'prode/pronosticos.html', {'partidos': partidos_ctx})
-
-
-
-
+    return render(request, 'prode/pronosticos.html', {
+        'partidos': partidos_ctx,
+        'abierto': abierto,
+    })
 
 
 from django.contrib.admin.views.decorators import staff_member_required
@@ -146,20 +149,7 @@ def cargar_resultados(request):
     return render(request, 'prode/cargar_resultados.html', {'partidos': partidos})
 
 
-
-
-
-
-def crear_admin_temporal(request):
-    from django.http import HttpResponse
-    if User.objects.filter(username='jefe').exists():
-        return HttpResponse('Ya existe')
-    User.objects.create_superuser('jefe', '', 'Mundial2026!')
-    return HttpResponse('Superusuario jefe creado')
-
-
 def reglas(request):
-    from datetime import date
     hoy = date.today()
     cierre = date(2026, 6, 4)
     abierto = hoy <= cierre
