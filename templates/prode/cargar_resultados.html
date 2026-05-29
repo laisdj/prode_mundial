@@ -23,10 +23,14 @@
           <td style="font-size:.8rem;color:#666">{{ p.fecha|date:"d/m H:i" }}</td>
           <td>
             <input class="inp-score" type="number" min="0" max="20"
-                   name="gl_{{ p.id }}" value="{{ p.goles_l|default:'' }}" placeholder="-"/>
+                   name="gl_{{ p.id }}"
+                   {% if p.goles_l != None %}value="{{ p.goles_l }}"{% endif %}
+                   placeholder="-"/>
             <span style="color:#aaa">:</span>
             <input class="inp-score" type="number" min="0" max="20"
-                   name="gv_{{ p.id }}" value="{{ p.goles_v|default:'' }}" placeholder="-"/>
+                   name="gv_{{ p.id }}"
+                   {% if p.goles_v != None %}value="{{ p.goles_v }}"{% endif %}
+                   placeholder="-"/>
           </td>
           <td>
             <input type="checkbox" name="jugado_{{ p.id }}"
