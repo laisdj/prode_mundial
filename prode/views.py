@@ -143,6 +143,11 @@ def cargar_resultados(request):
                     partido.save()
                 except ValueError:
                     pass
+            elif gl == '' and gv == '':
+                partido.goles_l = None
+                partido.goles_v = None
+                partido.jugado = False
+                partido.save()
         messages.success(request, 'Resultados guardados.')
         return redirect('cargar_resultados')
 
