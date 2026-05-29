@@ -79,10 +79,13 @@ def pronosticos(request):
             gv = request.POST.get(f'gv_{partido.id}', '').strip()
             nota = request.POST.get(f'nota_{partido.id}', '').strip()
 
-            if gl == '' or gv == '':
+            if gl == '' and gv == '':
                 Pronostico.objects.filter(
                     usuario=request.user, partido=partido
                 ).delete()
+            elif gl == '' or gv == '':
+                # Solo uno está vacío, ignorar
+                pass
             else:
                 try:
                     gl_int = int(gl)
@@ -137,8 +140,10 @@ def cargar_resultados(request):
             jugado = request.POST.get(f'jugado_{partido.id}')
             if gl != '' and gv != '':
                 try:
-                    partido.goles_l = int(gl)
-                    partido.goles_v = int(gv)
+                    gl_int = int(gl)
+                    gv_int = int(gv)
+                    partido.goles_l = gl_int
+                    partido.goles_v = gv_int
                     partido.jugado = jugado == 'on'
                     partido.save()
                 except ValueError:
