@@ -166,8 +166,6 @@ def reglas(request):
     return render(request, 'prode/reglas.html', {'abierto': abierto})
 
 def clasificacion(request):
-    from collections import defaultdict
-
     grupos = {}
     for letra in 'ABCDEFGHIJKL':
         grupos[letra] = {}
@@ -198,16 +196,39 @@ def clasificacion(request):
             if equipo not in grupos[p.grupo]:
                 grupos[p.grupo][equipo] = {'pj':0,'g':0,'e':0,'p':0,'gf':0,'gc':0}
 
-    # Calcular pts y dg, ordenar
+    # Calcular pts y dg, ordenar cada grupo
     grupos_ordenados = {}
+    terceros = []  # para calcular mejores 8 terceros
+
     for letra, equipos in grupos.items():
         tabla = []
         for nombre, stats in equipos.items():
             stats['pts'] = stats['g'] * 3 + stats['e']
             stats['dg'] = stats['gf'] - stats['gc']
             stats['nombre'] = nombre
+            stats['estado'] = ''  # se llena después
             tabla.append(stats)
         tabla.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
         grupos_ordenados[letra] = tabla
+
+        # Guardar el tercero de este grupo para comparar
+        if len(tabla) >= 3:
+            t = tabla[2].copy()
+            t['grupo'] = letra
+            terceros.append(t)
+
+    # Ordenar terceros y marcar los 8 mejores
+    terceros.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
+    mejores_terceros = set(t['nombre'] for t in terceros[:8])
+
+    # Asignar estado a cada equipo
+    for letra, tabla in grupos_ordenados.items():
+        for i, e in enumerate(tabla):
+            if i == 0 or i == 1:
+                e['estado'] = 'directo'
+            elif i == 2 and e['nombre'] in mejores_terceros:
+                e['estado'] = 'posible'
+            else:
+                e['estado'] = ''
 
     return render(request, 'prode/clasificacion.html', {'grupos': grupos_ordenados})

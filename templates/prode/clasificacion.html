@@ -1,6 +1,10 @@
 {% extends 'prode/base.html' %}
 {% block content %}
-<h1 style="color:#1a6b3c;margin-bottom:1.5rem">🏟️ Clasificación — Fase Grupal</h1>
+<h1 style="color:#1a6b3c;margin-bottom:.5rem">🏟️ Clasificación — Fase Grupal</h1>
+<div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.8rem;color:#666;margin-bottom:1.5rem">
+  <span>🟢 Clasificado directo (1° y 2°)</span>
+  <span>🟡 Posible mejor tercero</span>
+</div>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:1.5rem">
 {% for letra, tabla in grupos.items %}
@@ -8,7 +12,7 @@
   <h2>Grupo {{ letra }}</h2>
   <table>
     <thead><tr>
-      <th style="text-align:left">Equipo</th>
+      <th style="text-align:left;width:40%">Equipo</th>
       <th title="Partidos jugados">PJ</th>
       <th title="Ganados">G</th>
       <th title="Empatados">E</th>
@@ -20,10 +24,14 @@
     </tr></thead>
     <tbody>
     {% for e in tabla %}
-      <tr style="{% if forloop.counter <= 2 %}background:#f0faf4{% endif %}">
-        <td style="text-align:left;font-weight:{% if forloop.counter <= 2 %}700{% else %}400{% endif %}">
-          {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% endif %}
-          {{ e.nombre }}
+      <tr style="{% if e.estado == 'directo' %}background:#f0faf4{% elif e.estado == 'posible' %}background:#fffdf0{% endif %}">
+        <td style="text-align:left">
+          <span style="margin-right:.4rem">
+            {% if e.estado == 'directo' %}🟢
+            {% elif e.estado == 'posible' %}🟡
+            {% else %}&nbsp;{% endif %}
+          </span>
+          <strong>{{ e.nombre }}</strong>
         </td>
         <td>{{ e.pj }}</td>
         <td>{{ e.g }}</td>
