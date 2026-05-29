@@ -6,13 +6,14 @@
   <span>🟡 Posible mejor tercero</span>
 </div>
 
-<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:1.5rem">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem">
 {% for letra, tabla in grupos.items %}
 <div class="card" style="margin-bottom:0">
   <h2>Grupo {{ letra }}</h2>
-  <table>
+  <div class="table-wrap">
+  <table style="min-width:300px">
     <thead><tr>
-      <th style="text-align:left;width:40%">Equipo</th>
+      <th style="text-align:left">Equipo</th>
       <th title="Partidos jugados">PJ</th>
       <th title="Ganados">G</th>
       <th title="Empatados">E</th>
@@ -26,7 +27,7 @@
     {% for e in tabla %}
       <tr style="{% if e.estado == 'directo' %}background:#f0faf4{% elif e.estado == 'posible' %}background:#fffdf0{% endif %}">
         <td style="text-align:left">
-          <span style="margin-right:.4rem">
+          <span style="margin-right:.3rem">
             {% if e.estado == 'directo' %}🟢
             {% elif e.estado == 'posible' %}🟡
             {% else %}&nbsp;{% endif %}
@@ -45,6 +46,7 @@
     {% endfor %}
     </tbody>
   </table>
+  </div>
 </div>
 {% endfor %}
 </div>

@@ -3,6 +3,7 @@
 <div class="card">
   <h1>🏆 Tabla de posiciones</h1>
   {% if tabla %}
+  <div class="table-wrap">
   <table>
     <thead><tr>
       <th>#</th><th>Participante</th><th>Pts</th><th>Exactos ⭐</th><th>Resultados ✓</th>
@@ -19,6 +20,7 @@
     {% endfor %}
     </tbody>
   </table>
+  </div>
   {% else %}
     <p style="color:#888">Aún no hay participantes con pronósticos.</p>
   {% endif %}
