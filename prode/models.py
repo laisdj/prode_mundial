@@ -32,6 +32,7 @@ class Pronostico(models.Model):
     partido = models.ForeignKey(Partido, on_delete=models.CASCADE)
     goles_l = models.IntegerField(null=True, blank=True)
     goles_v = models.IntegerField(null=True, blank=True)
+    nota = models.CharField(max_length=200, blank=True, default='')
 
     def resultado_pred(self):
         if self.goles_l is None or self.goles_v is None:

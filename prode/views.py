@@ -67,11 +67,18 @@ def partidos(request):
 def pronosticos(request):
     partidos = Partido.objects.all()
 
-    if request.method == 'POST':
+    if request.method == 'POST' and abierto:
         for partido in partidos:
             gl = request.POST.get(f'gl_{partido.id}', '').strip()
             gv = request.POST.get(f'gv_{partido.id}', '').strip()
-            if gl != '' and gv != '':
+            nota = request.POST.get(f'nota_{partido.id}', '').strip()
+
+            if gl == '' and gv == '':
+                # Borrar pronóstico si existe
+                Pronostico.objects.filter(
+                    usuario=request.user, partido=partido
+                ).delete()
+            else:
                 try:
                     gl_int = int(gl)
                     gv_int = int(gv)
@@ -80,7 +87,11 @@ def pronosticos(request):
                     Pronostico.objects.update_or_create(
                         usuario=request.user,
                         partido=partido,
-                        defaults={'goles_l': gl_int, 'goles_v': gv_int}
+                        defaults={
+                            'goles_l': gl_int,
+                            'goles_v': gv_int,
+                            'nota': nota,
+                        }
                     )
                 except ValueError:
                     pass
@@ -99,6 +110,7 @@ def pronosticos(request):
             'partido': p,
             'gl': pron.goles_l if pron else '',
             'gv': pron.goles_v if pron else '',
+            'nota': pron.nota if pron else '',
             'pts': pron.puntos() if pron else None,
         })
 

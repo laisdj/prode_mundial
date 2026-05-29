@@ -41,11 +41,14 @@
     {% if not user.is_staff %}
       <a href="{% url 'pronosticos' %}">Mis pronósticos</a>
     {% endif %}
-
     {% if user.is_staff %}
       <a href="{% url 'cargar_resultados' %}"
          style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
         ⚙️ Resultados
+      </a>
+      <a href="#"
+         style="opacity:.4;cursor:default;font-size:.8rem">
+        2da Fase (próximo)
       </a>
     {% endif %}
     <a href="{% url 'logout' %}"
