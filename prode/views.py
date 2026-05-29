@@ -79,7 +79,7 @@ def pronosticos(request):
             gv = request.POST.get(f'gv_{partido.id}', '').strip()
             nota = request.POST.get(f'nota_{partido.id}', '').strip()
 
-            if gl == '' and gv == '':
+            if gl == '' or gv == '':
                 Pronostico.objects.filter(
                     usuario=request.user, partido=partido
                 ).delete()
