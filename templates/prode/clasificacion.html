@@ -30,7 +30,7 @@
           <span style="margin-right:.3rem">
             {% if e.estado == 'directo' %}🟢
             {% elif e.estado == 'posible' %}🟡
-            {% else %}&nbsp;{% endif %}
+            {% else %}🔴{% endif %} 
           </span>
           <strong>{{ e.nombre }}</strong>
         </td>
