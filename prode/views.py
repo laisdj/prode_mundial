@@ -164,3 +164,50 @@ def reglas(request):
     cierre = date(2026, 6, 4)
     abierto = hoy <= cierre
     return render(request, 'prode/reglas.html', {'abierto': abierto})
+
+def clasificacion(request):
+    from collections import defaultdict
+
+    grupos = {}
+    for letra in 'ABCDEFGHIJKL':
+        grupos[letra] = {}
+
+    partidos_jugados = Partido.objects.filter(jugado=True)
+
+    for p in partidos_jugados:
+        g = p.grupo
+        for equipo, gf, gc in [(p.local, p.goles_l, p.goles_v),
+                                (p.visita, p.goles_v, p.goles_l)]:
+            if equipo not in grupos[g]:
+                grupos[g][equipo] = {'pj':0,'g':0,'e':0,'p':0,'gf':0,'gc':0}
+            e = grupos[g][equipo]
+            e['pj'] += 1
+            e['gf'] += gf
+            e['gc'] += gc
+            if gf > gc:
+                e['g'] += 1
+            elif gf == gc:
+                e['e'] += 1
+            else:
+                e['p'] += 1
+
+    # Agregar equipos sin partidos jugados aún
+    todos = Partido.objects.all()
+    for p in todos:
+        for equipo in [p.local, p.visita]:
+            if equipo not in grupos[p.grupo]:
+                grupos[p.grupo][equipo] = {'pj':0,'g':0,'e':0,'p':0,'gf':0,'gc':0}
+
+    # Calcular pts y dg, ordenar
+    grupos_ordenados = {}
+    for letra, equipos in grupos.items():
+        tabla = []
+        for nombre, stats in equipos.items():
+            stats['pts'] = stats['g'] * 3 + stats['e']
+            stats['dg'] = stats['gf'] - stats['gc']
+            stats['nombre'] = nombre
+            tabla.append(stats)
+        tabla.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
+        grupos_ordenados[letra] = tabla
+
+    return render(request, 'prode/clasificacion.html', {'grupos': grupos_ordenados})

@@ -1,0 +1,43 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<h1 style="color:#1a6b3c;margin-bottom:1.5rem">🏟️ Clasificación — Fase Grupal</h1>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:1.5rem">
+{% for letra, tabla in grupos.items %}
+<div class="card" style="margin-bottom:0">
+  <h2>Grupo {{ letra }}</h2>
+  <table>
+    <thead><tr>
+      <th style="text-align:left">Equipo</th>
+      <th title="Partidos jugados">PJ</th>
+      <th title="Ganados">G</th>
+      <th title="Empatados">E</th>
+      <th title="Perdidos">P</th>
+      <th title="Goles a favor">GF</th>
+      <th title="Goles en contra">GC</th>
+      <th title="Diferencia de goles">DG</th>
+      <th title="Puntos"><strong>Pts</strong></th>
+    </tr></thead>
+    <tbody>
+    {% for e in tabla %}
+      <tr style="{% if forloop.counter <= 2 %}background:#f0faf4{% endif %}">
+        <td style="text-align:left;font-weight:{% if forloop.counter <= 2 %}700{% else %}400{% endif %}">
+          {% if forloop.counter == 1 %}🥇{% elif forloop.counter == 2 %}🥈{% endif %}
+          {{ e.nombre }}
+        </td>
+        <td>{{ e.pj }}</td>
+        <td>{{ e.g }}</td>
+        <td>{{ e.e }}</td>
+        <td>{{ e.p }}</td>
+        <td>{{ e.gf }}</td>
+        <td>{{ e.gc }}</td>
+        <td>{% if e.dg > 0 %}+{% endif %}{{ e.dg }}</td>
+        <td><strong style="color:#1a6b3c">{{ e.pts }}</strong></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endfor %}
+</div>
+{% endblock %}
