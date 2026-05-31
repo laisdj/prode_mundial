@@ -1,0 +1,53 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<h1 style="color:#1a6b3c;margin-bottom:1.5rem">🏆 Fase Eliminatoria</h1>
+
+{% regroup partidos by ronda_nombre as partidos_por_ronda %}
+{% for ronda in partidos_por_ronda %}
+  <h2 style="margin-bottom:.75rem">{{ ronda.grouper }}</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:2rem">
+  {% for item in ronda.list %}
+    <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
+      <div style="background:#1a6b3c;color:#fff;font-size:.75rem;padding:.4rem .75rem">
+        Partido {{ item.partido.orden }}
+      </div>
+      <div style="padding:.75rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
+          <span style="font-size:.9rem;font-weight:{% if item.partido.jugado and item.partido.goles_l > item.partido.goles_v %}700{% else %}400{% endif %}">
+            {{ item.local }}
+          </span>
+          <span style="font-size:1.1rem;font-weight:700;color:#1a6b3c;min-width:24px;text-align:right">
+            {% if item.partido.jugado %}{{ item.partido.goles_l }}{% else %}—{% endif %}
+          </span>
+        </div>
+        <div style="text-align:center;font-size:.7rem;color:#aaa;margin:.2rem 0">vs</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.4rem">
+          <span style="font-size:.9rem;font-weight:{% if item.partido.jugado and item.partido.goles_v > item.partido.goles_l %}700{% else %}400{% endif %}">
+            {{ item.visita }}
+          </span>
+          <span style="font-size:1.1rem;font-weight:700;color:#1a6b3c;min-width:24px;text-align:right">
+            {% if item.partido.jugado %}{{ item.partido.goles_v }}{% else %}—{% endif %}
+          </span>
+        </div>
+        {% if item.partido.jugado and item.partido.penales_l != None %}
+          <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #f0f0f0;font-size:.75rem;color:#888;text-align:center">
+            Penales: {{ item.partido.penales_l }} — {{ item.partido.penales_v }}
+          </div>
+        {% endif %}
+        {% if not item.partido.jugado and not item.partido.local %}
+          <div style="margin-top:.5rem;font-size:.75rem;color:#aaa;text-align:center">
+            Por confirmar
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+{% endfor %}
+
+{% if not partidos %}
+  <div style="text-align:center;padding:3rem;color:#888">
+    ⏳ La fase eliminatoria aún no ha comenzado.
+  </div>
+{% endif %}
+{% endblock %}

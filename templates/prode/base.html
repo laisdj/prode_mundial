@@ -65,6 +65,7 @@
   <a href="{% url 'ranking' %}">Ranking</a>
   <a href="{% url 'partidos' %}">Partidos</a>
   <a href="{% url 'clasificacion' %}">Clasificación</a>
+  <a href="{% url 'eliminatoria' %}">Eliminatoria</a>
   {% if user.is_authenticated %}
     {% if not user.is_staff %}
       <a href="{% url 'pronosticos' %}">Mis pronósticos</a>

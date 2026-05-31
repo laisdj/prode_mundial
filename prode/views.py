@@ -428,3 +428,26 @@ def cargar_resultados_eliminatoria(request):
         return redirect('cargar_resultados_eliminatoria')
 
     return render(request, 'prode/cargar_resultados_eliminatoria.html', {'partidos': partidos})
+
+def eliminatoria(request):
+    partidos = PartidoEliminatorio.objects.all().order_by('orden')
+
+    rondas = {
+        'R32': 'Round of 32',
+        'R16': 'Round of 16',
+        'QF':  'Cuartos de final',
+        'SF':  'Semifinal',
+        '3PL': 'Tercer y cuarto lugar',
+        'FIN': 'Final',
+    }
+
+    partidos_ctx = []
+    for p in partidos:
+        partidos_ctx.append({
+            'partido': p,
+            'ronda_nombre': rondas.get(p.ronda, p.ronda),
+            'local': p.local or p.slot_local,
+            'visita': p.visita or p.slot_visita,
+        })
+
+    return render(request, 'prode/eliminatoria.html', {'partidos': partidos_ctx})

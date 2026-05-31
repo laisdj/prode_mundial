@@ -15,4 +15,5 @@ urlpatterns = [
     path('equipos-eliminatoria/', views.cargar_equipos_eliminatoria, name='cargar_equipos_eliminatoria'),
     path('eliminatoria/', views.pronosticos_eliminatoria, name='pronosticos_eliminatoria'),
     path('resultados-eliminatoria/', views.cargar_resultados_eliminatoria, name='cargar_resultados_eliminatoria'),
+    path('eliminatoria-resultados/', views.eliminatoria, name='eliminatoria'),
 ]
