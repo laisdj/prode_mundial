@@ -6,16 +6,34 @@
   <div class="table-wrap">
   <table>
     <thead><tr>
-      <th>#</th><th>Participante</th><th>Pts</th><th>Exactos ⭐</th><th>Resultados ✓</th>
+      <th>#</th>
+      <th style="text-align:left">Participante</th>
+      <th title="Puntos fase grupal">F1</th>
+      <th title="Puntos fase eliminatoria">F2</th>
+      <th title="Bonus final">🎁</th>
+      <th title="Total"><strong>Total</strong></th>
     </tr></thead>
     <tbody>
     {% for row in tabla %}
       <tr>
-        <td><strong>{{ forloop.counter }}</strong></td>
+        <td>
+          {% if forloop.counter == 1 %}🥇
+          {% elif forloop.counter == 2 %}🥈
+          {% elif forloop.counter == 3 %}🥉
+          {% else %}<strong>{{ forloop.counter }}</strong>
+          {% endif %}
+        </td>
         <td>{{ row.usuario.username }}</td>
-        <td><strong style="color:#1a6b3c;font-size:1rem">{{ row.pts }}</strong></td>
-        <td><span class="badge-3">{{ row.exactos }}</span></td>
-        <td><span class="badge-1">{{ row.resultados }}</span></td>
+        <td><span class="badge-1">{{ row.pts_f1 }}</span></td>
+        <td><span class="badge-1">{{ row.pts_f2 }}</span></td>
+        <td>
+          {% if row.bonus > 0 %}
+            <span class="badge-3">+{{ row.bonus }}</span>
+          {% else %}
+            <span style="color:#ddd">—</span>
+          {% endif %}
+        </td>
+        <td><strong style="color:#1a6b3c;font-size:1rem">{{ row.total }}</strong></td>
       </tr>
     {% endfor %}
     </tbody>

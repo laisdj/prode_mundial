@@ -41,20 +41,76 @@ def registro(request):
 
 
 def ranking(request):
+    from .models import PartidoEliminatorio, PronosticoEliminatorio
+
     usuarios = User.objects.filter(is_superuser=False)
+
+    # Resultados reales finales
+    try:
+        final = PartidoEliminatorio.objects.get(ronda='FIN', jugado=True)
+        campeon = final.local if final.goles_l > final.goles_v else final.visita
+        subcampeon = final.visita if final.goles_l > final.goles_v else final.local
+    except PartidoEliminatorio.DoesNotExist:
+        campeon = subcampeon = None
+
+    try:
+        tercero_partido = PartidoEliminatorio.objects.get(ronda='3PL', jugado=True)
+        tercero = tercero_partido.local if tercero_partido.goles_l > tercero_partido.goles_v else tercero_partido.visita
+        cuarto = tercero_partido.visita if tercero_partido.goles_l > tercero_partido.goles_v else tercero_partido.local
+    except PartidoEliminatorio.DoesNotExist:
+        tercero = cuarto = None
+
     tabla = []
     for u in usuarios:
-        prons = Pronostico.objects.filter(usuario=u).select_related('partido')
-        pts_f1 = sum(p.puntos() for p in prons)
-        exactos = sum(1 for p in prons if p.puntos() == 3)
-        resultados = sum(1 for p in prons if p.puntos() == 1)
+        # Puntos fase grupal
+        prons_f1 = Pronostico.objects.filter(usuario=u).select_related('partido')
+        pts_f1 = sum(p.puntos() for p in prons_f1)
+
+        # Puntos fase eliminatoria
+        prons_f2 = PronosticoEliminatorio.objects.filter(usuario=u).select_related('partido')
+        pts_f2 = sum(p.puntos() for p in prons_f2)
+
+        # Bonus
+        bonus = 0
+        if campeon:
+            # Buscar pronóstico de la final
+            try:
+                pron_final = PronosticoEliminatorio.objects.get(
+                    usuario=u,
+                    partido__ronda='FIN'
+                )
+                pred_campeon = pron_final.local if (pron_final.goles_l or 0) > (pron_final.goles_v or 0) else pron_final.visita
+                if pred_campeon == campeon:
+                    bonus += 5
+                elif pred_campeon == subcampeon:
+                    bonus += 3
+            except PronosticoEliminatorio.DoesNotExist:
+                pass
+
+        if tercero:
+            try:
+                pron_3pl = PronosticoEliminatorio.objects.get(
+                    usuario=u,
+                    partido__ronda='3PL'
+                )
+                pred_3 = pron_3pl.local if (pron_3pl.goles_l or 0) > (pron_3pl.goles_v or 0) else pron_3pl.visita
+                if pred_3 == tercero:
+                    bonus += 2
+                elif pred_3 == cuarto:
+                    bonus += 1
+            except PronosticoEliminatorio.DoesNotExist:
+                pass
+
+        total = pts_f1 + pts_f2 + bonus
         tabla.append({
             'usuario': u,
-            'pts': pts_f1,
-            'exactos': exactos,
-            'resultados': resultados,
+            'pts_f1': pts_f1,
+            'pts_f2': pts_f2,
+            'bonus': bonus,
+            'total': total,
         })
-    tabla.sort(key=lambda x: x['pts'], reverse=True)
+
+    tabla.sort(key=lambda x: x['total'], reverse=True)
     return render(request, 'prode/ranking.html', {'tabla': tabla})
 
 
