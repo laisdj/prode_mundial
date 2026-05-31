@@ -499,3 +499,69 @@ def reglas(request):
     cierre = date(2026, 6, 4)
     abierto = hoy <= cierre
     return render(request, 'prode/reglas.html', {'abierto': abierto})
+
+
+def bracket(request):
+    partidos = PartidoEliminatorio.objects.all().order_by('orden')
+
+    def get_equipo(p, lado):
+        nombre = p.local if lado == 'l' else p.visita
+        slot = p.slot_local if lado == 'l' else p.slot_visita
+        return nombre or slot
+
+    def get_goles(p, lado):
+        if not p.jugado:
+            return None
+        return p.goles_l if lado == 'l' else p.goles_v
+
+    def es_ganador(p, lado):
+        if not p.jugado:
+            return False
+        if lado == 'l':
+            return p.goles_l > p.goles_v or (p.penales_l and p.penales_l > p.penales_v)
+        return p.goles_v > p.goles_l or (p.penales_v and p.penales_v > p.penales_l)
+
+    def partido_ctx(p):
+        if not p:
+            return None
+        return {
+            'id': p.id,
+            'orden': p.orden,
+            'local': get_equipo(p, 'l'),
+            'visita': get_equipo(p, 'v'),
+            'goles_l': get_goles(p, 'l'),
+            'goles_v': get_goles(p, 'v'),
+            'penales_l': p.penales_l,
+            'penales_v': p.penales_v,
+            'jugado': p.jugado,
+            'ganador_l': es_ganador(p, 'l'),
+            'ganador_v': es_ganador(p, 'v'),
+        }
+
+    # Organizar por ronda
+    def get_ronda(ronda):
+        return {str(p.orden): partido_ctx(p) for p in partidos if p.ronda == ronda}
+
+    r32 = get_ronda('R32')
+    r16 = get_ronda('R16')
+    qf  = get_ronda('QF')
+    sf  = get_ronda('SF')
+    fin = get_ronda('FIN')
+    tpl = get_ronda('3PL')
+
+    # Lado izquierdo R32: órdenes 1-8, derecho: 9-16
+    izq = [partido_ctx(p) for p in partidos if p.ronda == 'R32' and p.orden <= 8]
+    der = [partido_ctx(p) for p in partidos if p.ronda == 'R32' and p.orden >= 9]
+
+    return render(request, 'prode/bracket.html', {
+        'izq': izq,
+        'der': der,
+        'r16_izq': [partido_ctx(p) for p in partidos if p.ronda == 'R16' and p.orden <= 20],
+        'r16_der': [partido_ctx(p) for p in partidos if p.ronda == 'R16' and p.orden > 20],
+        'qf_izq':  [partido_ctx(p) for p in partidos if p.ronda == 'QF' and p.orden <= 25],
+        'qf_der':  [partido_ctx(p) for p in partidos if p.ronda == 'QF' and p.orden > 25],
+        'sf_izq':  [partido_ctx(p) for p in partidos if p.ronda == 'SF' and p.orden <= 30],
+        'sf_der':  [partido_ctx(p) for p in partidos if p.ronda == 'SF' and p.orden > 30],
+        'final':   partido_ctx(partidos.filter(ronda='FIN').first()),
+        'tercero': partido_ctx(partidos.filter(ronda='3PL').first()),
+    })
