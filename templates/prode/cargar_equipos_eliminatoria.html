@@ -1,49 +1,41 @@
 {% extends 'prode/base.html' %}
 {% block content %}
 <div class="card">
-  <h1>⚙️ Cargar equipos Round of 32</h1>
-  <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
-    Ingresa los equipos clasificados para cada cruce. Los slots se reemplazan con los nombres reales.
+  <h1>⚙️ Equipos Round of 32</h1>
+  <p style="font-size:.85rem;color:#666;margin-bottom:1.5rem">
+    Ingresa los equipos clasificados para cada cruce.
   </p>
   <form method="post">
     {% csrf_token %}
-    <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>M</th>
-        <th style="text-align:left">Slot local</th>
-        <th>Equipo local</th>
-        <th style="text-align:left">Slot visita</th>
-        <th>Equipo visita</th>
-      </tr></thead>
-      <tbody>
-      {% for p in partidos %}
-        <tr>
-          <td><strong>{{ p.orden }}</strong></td>
-          <td style="text-align:left;color:#666;font-size:.8rem">{{ p.slot_local }}</td>
-          <td>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:1.5rem">
+    {% for p in partidos %}
+      <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
+        <div style="background:#1a6b3c;color:#fff;font-size:.75rem;font-weight:700;padding:.4rem .75rem">
+          Partido {{ p.orden }} · {{ p.slot_local }} vs {{ p.slot_visita }}
+        </div>
+        <div style="padding:.75rem">
+          <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem">
+            <span style="font-size:.75rem;color:#888;width:60px;flex-shrink:0">{{ p.slot_local }}</span>
             <input type="text"
                    name="local_{{ p.id }}"
                    value="{{ p.local }}"
-                   placeholder="{{ p.slot_local }}"
-                   style="width:140px;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
-          </td>
-          <td style="text-align:left;color:#666;font-size:.8rem">{{ p.slot_visita }}</td>
-          <td>
+                   placeholder="Equipo local..."
+                   style="flex:1;font-size:.85rem;padding:.35rem .5rem;border:1px solid #ccc;border-radius:6px"/>
+          </div>
+          <div style="text-align:center;font-size:.7rem;color:#aaa;margin:.2rem 0">vs</div>
+          <div style="display:flex;align-items:center;gap:.5rem;margin-top:.6rem">
+            <span style="font-size:.75rem;color:#888;width:60px;flex-shrink:0">{{ p.slot_visita }}</span>
             <input type="text"
                    name="visita_{{ p.id }}"
                    value="{{ p.visita }}"
-                   placeholder="{{ p.slot_visita }}"
-                   style="width:140px;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
+                   placeholder="Equipo visita..."
+                   style="flex:1;font-size:.85rem;padding:.35rem .5rem;border:1px solid #ccc;border-radius:6px"/>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
     </div>
-    <div style="margin-top:1.25rem">
-      <button class="btn" type="submit">💾 Guardar equipos</button>
-    </div>
+    <button class="btn" type="submit">💾 Guardar equipos</button>
   </form>
 </div>
 {% endblock %}
