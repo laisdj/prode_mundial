@@ -1,0 +1,58 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card">
+  <h1>🏆 Mis pronósticos — Fase Eliminatoria</h1>
+  <p style="font-size:.85rem;color:#666;margin-bottom:1.5rem">
+    Ingresa el marcador que predices para cada partido. Local/Empate/Visita = 1 pt · Marcador exacto = 3 pts.
+  </p>
+
+  {% if not partidos %}
+    <div style="text-align:center;padding:2rem;color:#888">
+      ⏳ Los equipos clasificados aún no han sido confirmados. Vuelve cuando termine la fase grupal.
+    </div>
+  {% else %}
+  <form method="post">
+    {% csrf_token %}
+
+    {% regroup partidos by ronda_nombre as partidos_por_ronda %}
+    {% for ronda in partidos_por_ronda %}
+      <h2 style="margin:1.5rem 0 .75rem">{{ ronda.grouper }}</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:1rem">
+      {% for item in ronda.list %}
+        <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
+          <div style="background:#1a6b3c;color:#fff;font-size:.75rem;font-weight:700;padding:.4rem .75rem">
+            Partido {{ item.partido.orden }}
+            {% if item.pts == 3 %} · <span style="color:#f4c430">⭐ 3 pts</span>
+            {% elif item.pts == 1 %} · <span style="color:#90caf9">✓ 1 pt</span>
+            {% elif item.pts == 0 and item.gl != None %} · <span style="color:#ef9a9a">✗ 0 pts</span>
+            {% endif %}
+          </div>
+          <div style="padding:.75rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+              <span style="font-size:.9rem;font-weight:700;flex:1">{{ item.partido.local }}</span>
+              <input class="inp-score" type="number" min="0" max="20"
+                     name="gl_{{ item.partido.id }}"
+                     {% if item.gl != None %}value="{{ item.gl }}"{% endif %}
+                     placeholder="-"/>
+            </div>
+            <div style="text-align:center;font-size:.7rem;color:#aaa;margin:.4rem 0">vs</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
+              <span style="font-size:.9rem;font-weight:700;flex:1">{{ item.partido.visita }}</span>
+              <input class="inp-score" type="number" min="0" max="20"
+                     name="gv_{{ item.partido.id }}"
+                     {% if item.gv != None %}value="{{ item.gv }}"{% endif %}
+                     placeholder="-"/>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      </div>
+    {% endfor %}
+
+    <div style="margin-top:1.5rem">
+      <button class="btn" type="submit">💾 Guardar pronósticos</button>
+    </div>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

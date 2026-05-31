@@ -323,3 +323,73 @@ def cargar_equipos_eliminatoria(request):
         return redirect('cargar_equipos_eliminatoria')
 
     return render(request, 'prode/cargar_equipos_eliminatoria.html', {'partidos': partidos})
+
+
+@login_required(login_url='login')
+def pronosticos_eliminatoria(request):
+    if request.user.is_staff:
+        return redirect('ranking')
+
+    partidos = PartidoEliminatorio.objects.all().order_by('orden')
+
+    # Solo mostrar si tienen equipos cargados
+    partidos_con_equipos = [p for p in partidos if p.local and p.visita]
+
+    if request.method == 'POST':
+        for partido in partidos_con_equipos:
+            gl = request.POST.get(f'gl_{partido.id}', '').strip()
+            gv = request.POST.get(f'gv_{partido.id}', '').strip()
+
+            if gl == '' or gv == '':
+                PronosticoEliminatorio.objects.filter(
+                    usuario=request.user, partido=partido
+                ).delete()
+            else:
+                try:
+                    gl_int = int(gl)
+                    gv_int = int(gv)
+                    if gl_int < 0 or gv_int < 0:
+                        continue
+                    PronosticoEliminatorio.objects.update_or_create(
+                        usuario=request.user,
+                        partido=partido,
+                        defaults={
+                            'goles_l': gl_int,
+                            'goles_v': gv_int,
+                            'local': partido.local,
+                            'visita': partido.visita,
+                        }
+                    )
+                except ValueError:
+                    pass
+        messages.success(request, '¡Pronósticos guardados!')
+        return redirect('pronosticos_eliminatoria')
+
+    mis_prons = {
+        p.partido_id: p
+        for p in PronosticoEliminatorio.objects.filter(usuario=request.user)
+    }
+
+    rondas = {
+        'R32': 'Round of 32',
+        'R16': 'Round of 16',
+        'QF':  'Cuartos de final',
+        'SF':  'Semifinal',
+        '3PL': 'Tercer y cuarto lugar',
+        'FIN': 'Final',
+    }
+
+    partidos_ctx = []
+    for p in partidos_con_equipos:
+        pron = mis_prons.get(p.id)
+        partidos_ctx.append({
+            'partido': p,
+            'ronda_nombre': rondas.get(p.ronda, p.ronda),
+            'gl': pron.goles_l if pron else None,
+            'gv': pron.goles_v if pron else None,
+            'pts': pron.puntos() if pron else None,
+        })
+
+    return render(request, 'prode/pronosticos_eliminatoria.html', {
+        'partidos': partidos_ctx,
+    })
