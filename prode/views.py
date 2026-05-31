@@ -232,3 +232,74 @@ def clasificacion(request):
                 e['estado'] = ''
 
     return render(request, 'prode/clasificacion.html', {'grupos': grupos_ordenados})
+
+@login_required(login_url='login')
+def mi_clasificacion(request):
+    grupos = {}
+    for letra in 'ABCDEFGHIJKL':
+        grupos[letra] = {}
+
+    # Usar pronósticos del usuario en vez de resultados reales
+    mis_prons = Pronostico.objects.filter(
+        usuario=request.user
+    ).select_related('partido')
+
+    for pron in mis_prons:
+        p = pron.partido
+        g = p.grupo
+        if pron.goles_l is None or pron.goles_v is None:
+            continue
+        for equipo, gf, gc in [(p.local, pron.goles_l, pron.goles_v),
+                                (p.visita, pron.goles_v, pron.goles_l)]:
+            if equipo not in grupos[g]:
+                grupos[g][equipo] = {'pj':0,'g':0,'e':0,'p':0,'gf':0,'gc':0}
+            e = grupos[g][equipo]
+            e['pj'] += 1
+            e['gf'] += gf
+            e['gc'] += gc
+            if gf > gc:
+                e['g'] += 1
+            elif gf == gc:
+                e['e'] += 1
+            else:
+                e['p'] += 1
+
+    # Agregar equipos sin pronósticos aún
+    todos = Partido.objects.all()
+    for p in todos:
+        for equipo in [p.local, p.visita]:
+            if equipo not in grupos[p.grupo]:
+                grupos[p.grupo][equipo] = {'pj':0,'g':0,'e':0,'p':0,'gf':0,'gc':0}
+
+    # Calcular pts, dg, ordenar y asignar estado
+    grupos_ordenados = {}
+    terceros = []
+
+    for letra, equipos in grupos.items():
+        tabla = []
+        for nombre, stats in equipos.items():
+            stats['pts'] = stats['g'] * 3 + stats['e']
+            stats['dg'] = stats['gf'] - stats['gc']
+            stats['nombre'] = nombre
+            stats['estado'] = ''
+            tabla.append(stats)
+        tabla.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
+        grupos_ordenados[letra] = tabla
+        if len(tabla) >= 3:
+            t = tabla[2].copy()
+            t['grupo'] = letra
+            terceros.append(t)
+
+    terceros.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
+    mejores_terceros = set(t['nombre'] for t in terceros[:8])
+
+    for letra, tabla in grupos_ordenados.items():
+        for i, e in enumerate(tabla):
+            if i == 0 or i == 1:
+                e['estado'] = 'directo'
+            elif i == 2 and e['nombre'] in mejores_terceros:
+                e['estado'] = 'posible'
+            else:
+                e['estado'] = ''
+
+    return render(request, 'prode/mi_clasificacion.html', {'grupos': grupos_ordenados})

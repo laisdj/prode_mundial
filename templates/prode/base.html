@@ -68,6 +68,7 @@
   {% if user.is_authenticated %}
     {% if not user.is_staff %}
       <a href="{% url 'pronosticos' %}">Mis pronósticos</a>
+      <a href="{% url 'mi_clasificacion' %}">Mi clasificación</a>
     {% endif %}
     {% if user.is_staff %}
       <a href="{% url 'cargar_resultados' %}"

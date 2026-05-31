@@ -1,0 +1,57 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<h1 style="color:#1a6b3c;margin-bottom:.5rem">🔮 Mi clasificación proyectada</h1>
+<p style="font-size:.85rem;color:#666;margin-bottom:.5rem">
+  Basada en tus pronósticos — así quedarían los grupos si tus predicciones son correctas.
+</p>
+<div style="display:flex;gap:1.5rem;flex-wrap:wrap;font-size:.8rem;color:#666;margin-bottom:1.5rem">
+  <span>🟢 Clasificaría directo (1° y 2°)</span>
+  <span>🟡 Posible mejor tercero</span>
+  <span>🔴 Eliminado</span>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:1.5rem">
+{% for letra, tabla in grupos.items %}
+<div class="card" style="margin-bottom:0">
+  <h2>Grupo {{ letra }}</h2>
+  <div class="table-wrap">
+  <table style="min-width:300px">
+    <thead><tr>
+      <th style="text-align:left">Equipo</th>
+      <th title="Partidos jugados">PJ</th>
+      <th title="Ganados">G</th>
+      <th title="Empatados">E</th>
+      <th title="Perdidos">P</th>
+      <th title="Goles a favor">GF</th>
+      <th title="Goles en contra">GC</th>
+      <th title="Diferencia de goles">DG</th>
+      <th title="Puntos"><strong>Pts</strong></th>
+    </tr></thead>
+    <tbody>
+    {% for e in tabla %}
+      <tr style="{% if e.estado == 'directo' %}background:#f0faf4{% elif e.estado == 'posible' %}background:#fffdf0{% endif %}">
+        <td style="text-align:left">
+          <span style="margin-right:.3rem">
+            {% if e.estado == 'directo' %}🟢
+            {% elif e.estado == 'posible' %}🟡
+            {% else %}🔴{% endif %}
+          </span>
+          <strong>{{ e.nombre }}</strong>
+        </td>
+        <td>{{ e.pj }}</td>
+        <td>{{ e.g }}</td>
+        <td>{{ e.e }}</td>
+        <td>{{ e.p }}</td>
+        <td>{{ e.gf }}</td>
+        <td>{{ e.gc }}</td>
+        <td>{% if e.dg > 0 %}+{% endif %}{{ e.dg }}</td>
+        <td><strong style="color:#1a6b3c">{{ e.pts }}</strong></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endfor %}
+</div>
+{% endblock %}

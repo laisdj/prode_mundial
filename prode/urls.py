@@ -11,4 +11,5 @@ urlpatterns = [
     path('resultados/', views.cargar_resultados, name='cargar_resultados'),
     path('reglas/', views.reglas, name='reglas'),
     path('clasificacion/', views.clasificacion, name='clasificacion'),
+    path('mi-clasificacion/', views.mi_clasificacion, name='mi_clasificacion'),
 ]
