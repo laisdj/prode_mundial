@@ -393,3 +393,38 @@ def pronosticos_eliminatoria(request):
     return render(request, 'prode/pronosticos_eliminatoria.html', {
         'partidos': partidos_ctx,
     })
+    
+    
+@staff_member_required
+def cargar_resultados_eliminatoria(request):
+    partidos = PartidoEliminatorio.objects.all().order_by('orden')
+
+    if request.method == 'POST':
+        for partido in partidos:
+            gl = request.POST.get(f'gl_{partido.id}', '').strip()
+            gv = request.POST.get(f'gv_{partido.id}', '').strip()
+            jugado = request.POST.get(f'jugado_{partido.id}')
+            pl = request.POST.get(f'pl_{partido.id}', '').strip()
+            pv = request.POST.get(f'pv_{partido.id}', '').strip()
+
+            if gl != '' and gv != '':
+                try:
+                    partido.goles_l = int(gl)
+                    partido.goles_v = int(gv)
+                    partido.jugado = jugado == 'on'
+                    partido.penales_l = int(pl) if pl != '' else None
+                    partido.penales_v = int(pv) if pv != '' else None
+                    partido.save()
+                except ValueError:
+                    pass
+            elif gl == '' and gv == '':
+                partido.goles_l = None
+                partido.goles_v = None
+                partido.penales_l = None
+                partido.penales_v = None
+                partido.jugado = False
+                partido.save()
+        messages.success(request, 'Resultados eliminatoria guardados.')
+        return redirect('cargar_resultados_eliminatoria')
+
+    return render(request, 'prode/cargar_resultados_eliminatoria.html', {'partidos': partidos})

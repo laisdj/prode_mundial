@@ -1,0 +1,59 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card">
+  <h1>⚙️ Resultados — Fase Eliminatoria</h1>
+  <p style="font-size:.85rem;color:#666;margin-bottom:1.5rem">
+    Ingresa el marcador real. Si hubo penales, completa esos campos también.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-bottom:1.5rem">
+    {% for p in partidos %}
+      <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
+        <div style="background:#1a6b3c;color:#fff;font-size:.75rem;font-weight:700;padding:.4rem .75rem;display:flex;justify-content:space-between;align-items:center">
+          <span>M{{ p.orden }} · {{ p.get_ronda_display }}</span>
+          <label style="display:flex;align-items:center;gap:.3rem;font-weight:400;cursor:pointer">
+            <input type="checkbox" name="jugado_{{ p.id }}" {% if p.jugado %}checked{% endif %}/>
+            Jugado
+          </label>
+        </div>
+        <div style="padding:.75rem">
+          <!-- Equipos y goles -->
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.4rem">
+            <span style="font-size:.88rem;font-weight:700;flex:1">{{ p.local|default:p.slot_local }}</span>
+            <input class="inp-score" type="number" min="0" max="20"
+                   name="gl_{{ p.id }}"
+                   {% if p.goles_l != None %}value="{{ p.goles_l }}"{% endif %}
+                   placeholder="-"/>
+          </div>
+          <div style="text-align:center;font-size:.7rem;color:#aaa;margin:.2rem 0">vs</div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.4rem">
+            <span style="font-size:.88rem;font-weight:700;flex:1">{{ p.visita|default:p.slot_visita }}</span>
+            <input class="inp-score" type="number" min="0" max="20"
+                   name="gv_{{ p.id }}"
+                   {% if p.goles_v != None %}value="{{ p.goles_v }}"{% endif %}
+                   placeholder="-"/>
+          </div>
+          <!-- Penales -->
+          <div style="margin-top:.75rem;padding-top:.75rem;border-top:1px solid #f0f0f0">
+            <div style="font-size:.75rem;color:#888;margin-bottom:.4rem">Penales (si hubo)</div>
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <input class="inp-score" type="number" min="0" max="20"
+                     name="pl_{{ p.id }}"
+                     {% if p.penales_l != None %}value="{{ p.penales_l }}"{% endif %}
+                     placeholder="-"/>
+              <span style="color:#aaa;font-size:.8rem">vs</span>
+              <input class="inp-score" type="number" min="0" max="20"
+                     name="pv_{{ p.id }}"
+                     {% if p.penales_v != None %}value="{{ p.penales_v }}"{% endif %}
+                     placeholder="-"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+    </div>
+    <button class="btn" type="submit">💾 Guardar resultados</button>
+  </form>
+</div>
+{% endblock %}

@@ -71,6 +71,10 @@
       <a href="{% url 'mi_clasificacion' %}">Mi clasificación</a>
     {% endif %}
     {% if user.is_staff %}
+      <a href="{% url 'cargar_resultados_eliminatoria' %}"
+         style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
+  ⚙️ Res. Elim.
+</a>
       <a href="{% url 'cargar_equipos_eliminatoria' %}"
         style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
   🔧 Equipos R32
