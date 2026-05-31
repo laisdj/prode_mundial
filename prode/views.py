@@ -3,9 +3,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Partido, Pronostico
-from datetime import date
+from django.conf import settings
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio
+from datetime import date
 
 
 def login_view(request):
@@ -45,12 +45,12 @@ def ranking(request):
     tabla = []
     for u in usuarios:
         prons = Pronostico.objects.filter(usuario=u).select_related('partido')
-        pts = sum(p.puntos() for p in prons)
+        pts_f1 = sum(p.puntos() for p in prons)
         exactos = sum(1 for p in prons if p.puntos() == 3)
         resultados = sum(1 for p in prons if p.puntos() == 1)
         tabla.append({
             'usuario': u,
-            'pts': pts,
+            'pts': pts_f1,
             'exactos': exactos,
             'resultados': resultados,
         })
@@ -85,7 +85,6 @@ def pronosticos(request):
                     usuario=request.user, partido=partido
                 ).delete()
             elif gl == '' or gv == '':
-                # Solo uno está vacío, ignorar
                 pass
             else:
                 try:
@@ -116,8 +115,8 @@ def pronosticos(request):
         pron = mis_prons.get(p.id)
         partidos_ctx.append({
             'partido': p,
-            'gl': pron.goles_l if pron else '',
-            'gv': pron.goles_v if pron else '',
+            'gl': pron.goles_l if pron else None,
+            'gv': pron.goles_v if pron else None,
             'nota': pron.nota if pron else '',
             'pts': pron.puntos() if pron else None,
         })
@@ -127,44 +126,6 @@ def pronosticos(request):
         'abierto': abierto,
     })
 
-
-from django.contrib.admin.views.decorators import staff_member_required
-
-@staff_member_required
-def cargar_resultados(request):
-    partidos = Partido.objects.all()
-
-    if request.method == 'POST':
-        for partido in partidos:
-            gl = request.POST.get(f'gl_{partido.id}', '').strip()
-            gv = request.POST.get(f'gv_{partido.id}', '').strip()
-            jugado = request.POST.get(f'jugado_{partido.id}')
-            if gl != '' and gv != '':
-                try:
-                    gl_int = int(gl)
-                    gv_int = int(gv)
-                    partido.goles_l = gl_int
-                    partido.goles_v = gv_int
-                    partido.jugado = jugado == 'on'
-                    partido.save()
-                except ValueError:
-                    pass
-            elif gl == '' and gv == '':
-                partido.goles_l = None
-                partido.goles_v = None
-                partido.jugado = False
-                partido.save()
-        messages.success(request, 'Resultados guardados.')
-        return redirect('cargar_resultados')
-
-    return render(request, 'prode/cargar_resultados.html', {'partidos': partidos})
-
-
-def reglas(request):
-    hoy = date.today()
-    cierre = date(2026, 6, 4)
-    abierto = hoy <= cierre
-    return render(request, 'prode/reglas.html', {'abierto': abierto})
 
 def clasificacion(request):
     grupos = {}
@@ -190,16 +151,14 @@ def clasificacion(request):
             else:
                 e['p'] += 1
 
-    # Agregar equipos sin partidos jugados aún
     todos = Partido.objects.all()
     for p in todos:
         for equipo in [p.local, p.visita]:
             if equipo not in grupos[p.grupo]:
                 grupos[p.grupo][equipo] = {'pj':0,'g':0,'e':0,'p':0,'gf':0,'gc':0}
 
-    # Calcular pts y dg, ordenar cada grupo
     grupos_ordenados = {}
-    terceros = []  # para calcular mejores 8 terceros
+    terceros = []
 
     for letra, equipos in grupos.items():
         tabla = []
@@ -207,22 +166,18 @@ def clasificacion(request):
             stats['pts'] = stats['g'] * 3 + stats['e']
             stats['dg'] = stats['gf'] - stats['gc']
             stats['nombre'] = nombre
-            stats['estado'] = ''  # se llena después
+            stats['estado'] = ''
             tabla.append(stats)
         tabla.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
         grupos_ordenados[letra] = tabla
-
-        # Guardar el tercero de este grupo para comparar
         if len(tabla) >= 3:
             t = tabla[2].copy()
             t['grupo'] = letra
             terceros.append(t)
 
-    # Ordenar terceros y marcar los 8 mejores
     terceros.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
     mejores_terceros = set(t['nombre'] for t in terceros[:8])
 
-    # Asignar estado a cada equipo
     for letra, tabla in grupos_ordenados.items():
         for i, e in enumerate(tabla):
             if i == 0 or i == 1:
@@ -234,13 +189,13 @@ def clasificacion(request):
 
     return render(request, 'prode/clasificacion.html', {'grupos': grupos_ordenados})
 
+
 @login_required(login_url='login')
 def mi_clasificacion(request):
     grupos = {}
     for letra in 'ABCDEFGHIJKL':
         grupos[letra] = {}
 
-    # Usar pronósticos del usuario en vez de resultados reales
     mis_prons = Pronostico.objects.filter(
         usuario=request.user
     ).select_related('partido')
@@ -265,14 +220,12 @@ def mi_clasificacion(request):
             else:
                 e['p'] += 1
 
-    # Agregar equipos sin pronósticos aún
     todos = Partido.objects.all()
     for p in todos:
         for equipo in [p.local, p.visita]:
             if equipo not in grupos[p.grupo]:
                 grupos[p.grupo][equipo] = {'pj':0,'g':0,'e':0,'p':0,'gf':0,'gc':0}
 
-    # Calcular pts, dg, ordenar y asignar estado
     grupos_ordenados = {}
     terceros = []
 
@@ -306,6 +259,37 @@ def mi_clasificacion(request):
     return render(request, 'prode/mi_clasificacion.html', {'grupos': grupos_ordenados})
 
 
+from django.contrib.admin.views.decorators import staff_member_required
+
+
+@staff_member_required
+def cargar_resultados(request):
+    partidos = Partido.objects.all()
+
+    if request.method == 'POST':
+        for partido in partidos:
+            gl = request.POST.get(f'gl_{partido.id}', '').strip()
+            gv = request.POST.get(f'gv_{partido.id}', '').strip()
+            jugado = request.POST.get(f'jugado_{partido.id}')
+            if gl != '' and gv != '':
+                try:
+                    partido.goles_l = int(gl)
+                    partido.goles_v = int(gv)
+                    partido.jugado = jugado == 'on'
+                    partido.save()
+                except ValueError:
+                    pass
+            elif gl == '' and gv == '':
+                partido.goles_l = None
+                partido.goles_v = None
+                partido.jugado = False
+                partido.save()
+        messages.success(request, 'Resultados guardados.')
+        return redirect('cargar_resultados')
+
+    return render(request, 'prode/cargar_resultados.html', {'partidos': partidos})
+
+
 @staff_member_required
 def cargar_equipos_eliminatoria(request):
     partidos = PartidoEliminatorio.objects.filter(ronda='R32').order_by('orden')
@@ -325,14 +309,49 @@ def cargar_equipos_eliminatoria(request):
     return render(request, 'prode/cargar_equipos_eliminatoria.html', {'partidos': partidos})
 
 
+@staff_member_required
+def cargar_resultados_eliminatoria(request):
+    partidos = PartidoEliminatorio.objects.all().order_by('orden')
+
+    if request.method == 'POST':
+        for partido in partidos:
+            gl = request.POST.get(f'gl_{partido.id}', '').strip()
+            gv = request.POST.get(f'gv_{partido.id}', '').strip()
+            jugado = request.POST.get(f'jugado_{partido.id}')
+            pl = request.POST.get(f'pl_{partido.id}', '').strip()
+            pv = request.POST.get(f'pv_{partido.id}', '').strip()
+
+            if gl != '' and gv != '':
+                try:
+                    partido.goles_l = int(gl)
+                    partido.goles_v = int(gv)
+                    partido.jugado = jugado == 'on'
+                    partido.penales_l = int(pl) if pl != '' else None
+                    partido.penales_v = int(pv) if pv != '' else None
+                    partido.save()
+                except ValueError:
+                    pass
+            elif gl == '' and gv == '':
+                partido.goles_l = None
+                partido.goles_v = None
+                partido.penales_l = None
+                partido.penales_v = None
+                partido.jugado = False
+                partido.save()
+        messages.success(request, 'Resultados eliminatoria guardados.')
+        return redirect('cargar_resultados_eliminatoria')
+
+    return render(request, 'prode/cargar_resultados_eliminatoria.html', {'partidos': partidos})
+
+
 @login_required(login_url='login')
 def pronosticos_eliminatoria(request):
     if request.user.is_staff:
         return redirect('ranking')
+    if not settings.FASE2_ACTIVA:
+        return redirect('ranking')
 
     partidos = PartidoEliminatorio.objects.all().order_by('orden')
-
-    # Solo mostrar si tienen equipos cargados
     partidos_con_equipos = [p for p in partidos if p.local and p.visita]
 
     if request.method == 'POST':
@@ -393,41 +412,7 @@ def pronosticos_eliminatoria(request):
     return render(request, 'prode/pronosticos_eliminatoria.html', {
         'partidos': partidos_ctx,
     })
-    
-    
-@staff_member_required
-def cargar_resultados_eliminatoria(request):
-    partidos = PartidoEliminatorio.objects.all().order_by('orden')
 
-    if request.method == 'POST':
-        for partido in partidos:
-            gl = request.POST.get(f'gl_{partido.id}', '').strip()
-            gv = request.POST.get(f'gv_{partido.id}', '').strip()
-            jugado = request.POST.get(f'jugado_{partido.id}')
-            pl = request.POST.get(f'pl_{partido.id}', '').strip()
-            pv = request.POST.get(f'pv_{partido.id}', '').strip()
-
-            if gl != '' and gv != '':
-                try:
-                    partido.goles_l = int(gl)
-                    partido.goles_v = int(gv)
-                    partido.jugado = jugado == 'on'
-                    partido.penales_l = int(pl) if pl != '' else None
-                    partido.penales_v = int(pv) if pv != '' else None
-                    partido.save()
-                except ValueError:
-                    pass
-            elif gl == '' and gv == '':
-                partido.goles_l = None
-                partido.goles_v = None
-                partido.penales_l = None
-                partido.penales_v = None
-                partido.jugado = False
-                partido.save()
-        messages.success(request, 'Resultados eliminatoria guardados.')
-        return redirect('cargar_resultados_eliminatoria')
-
-    return render(request, 'prode/cargar_resultados_eliminatoria.html', {'partidos': partidos})
 
 def eliminatoria(request):
     partidos = PartidoEliminatorio.objects.all().order_by('orden')
@@ -451,3 +436,10 @@ def eliminatoria(request):
         })
 
     return render(request, 'prode/eliminatoria.html', {'partidos': partidos_ctx})
+
+
+def reglas(request):
+    hoy = date.today()
+    cierre = date(2026, 6, 4)
+    abierto = hoy <= cierre
+    return render(request, 'prode/reglas.html', {'abierto': abierto})

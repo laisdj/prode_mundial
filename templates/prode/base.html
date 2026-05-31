@@ -7,38 +7,22 @@
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:Arial,sans-serif;background:#f0f4f0;color:#222}
-
-    /* NAV FIJO */
-    nav{
-      background:#1a6b3c;
-      padding:.75rem 1rem;
-      display:flex;
-      flex-wrap:wrap;
-      gap:.6rem;
-      align-items:center;
-      position:sticky;
-      top:0;
-      z-index:100;
-    }
+    nav{background:#1a6b3c;padding:.75rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;position:sticky;top:0;z-index:100}
     nav a{color:#fff;text-decoration:none;font-size:.85rem;white-space:nowrap}
     nav a:hover{text-decoration:underline}
     nav .brand{font-weight:700;font-size:.95rem;margin-right:auto;white-space:nowrap}
-
     .container{max-width:960px;margin:1.5rem auto;padding:0 .75rem}
     .card{background:#fff;border-radius:10px;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:1.5rem}
     h1{font-size:1.3rem;color:#1a6b3c;margin-bottom:1rem}
     h2{font-size:1rem;color:#1a6b3c;margin-bottom:.75rem}
     .msg-ok{background:#d6f0e0;color:#1a6b3c;padding:.6rem 1rem;border-radius:6px;margin-bottom:1rem}
     .msg-err{background:#fde8e8;color:#c0392b;padding:.6rem 1rem;border-radius:6px;margin-bottom:1rem}
-
-    /* TABLAS RESPONSIVAS */
     .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
     table{width:100%;border-collapse:collapse;min-width:420px}
     th{background:#f0f4f0;padding:.5rem;font-size:.78rem;color:#555;text-align:center;white-space:nowrap}
     th:nth-child(2){text-align:left}
     td{padding:.4rem .5rem;font-size:.82rem;border-bottom:1px solid #f0f0f0;text-align:center;white-space:nowrap}
     td:nth-child(2){text-align:left}
-
     .btn{display:inline-block;background:#1a6b3c;color:#fff;border:none;border-radius:6px;padding:.5rem 1.25rem;font-size:.9rem;cursor:pointer;text-decoration:none}
     .btn:hover{background:#145c32}
     input[type=text],input[type=password]{width:100%;padding:.5rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem;margin-bottom:.75rem}
@@ -46,8 +30,6 @@
     .badge-3{background:#d6f0e0;color:#1a6b3c;border-radius:10px;padding:1px 8px;font-size:.75rem;font-weight:700}
     .badge-1{background:#e3f2fd;color:#1565c0;border-radius:10px;padding:1px 8px;font-size:.75rem;font-weight:700}
     .grp-badge{font-size:.7rem;font-weight:700;background:#e8f5e9;color:#1a6b3c;border-radius:4px;padding:1px 5px}
-
-    /* MÓVIL */
     @media(max-width:600px){
       nav .brand{font-size:.85rem}
       nav a{font-size:.78rem}
@@ -70,19 +52,22 @@
     {% if not user.is_staff %}
       <a href="{% url 'pronosticos' %}">Mis pronósticos</a>
       <a href="{% url 'mi_clasificacion' %}">Mi clasificación</a>
+      {% if fase2_activa %}
+        <a href="{% url 'pronosticos_eliminatoria' %}">2da Fase</a>
+      {% endif %}
     {% endif %}
     {% if user.is_staff %}
-      <a href="{% url 'cargar_resultados_eliminatoria' %}"
-         style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
-  ⚙️ Res. Elim.
-</a>
-      <a href="{% url 'cargar_equipos_eliminatoria' %}"
-        style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
-  🔧 Equipos R32
-</a>
       <a href="{% url 'cargar_resultados' %}"
          style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
         ⚙️ Resultados
+      </a>
+      <a href="{% url 'cargar_resultados_eliminatoria' %}"
+         style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
+        ⚙️ Res. Elim.
+      </a>
+      <a href="{% url 'cargar_equipos_eliminatoria' %}"
+         style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
+        🔧 Equipos R32
       </a>
       <a href="#" style="opacity:.4;cursor:default;font-size:.8rem">2da Fase</a>
     {% endif %}

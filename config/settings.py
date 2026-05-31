@@ -49,6 +49,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'prode.context_processors.fase2',
             ],
         },
     },
@@ -92,3 +93,5 @@ CSRF_TRUSTED_ORIGINS = [
     'https://web-production-76389.up.railway.app',
     'https://*.up.railway.app',
 ]
+
+FASE2_ACTIVA = os.getenv('FASE2_ACTIVA', 'False') == 'True'
