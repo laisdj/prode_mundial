@@ -1,7 +1,7 @@
 import requests
 from django.core.management.base import BaseCommand
 from django.conf import settings
-from prode.models import Partido
+from prode.models import Partido, PartidoEliminatorio
 
 TEAM_MAP = {
     'Mexico':                 'México',
@@ -54,9 +54,18 @@ TEAM_MAP = {
     'Colombia':               'Colombia',
 }
 
+RONDA_MAP = {
+    'LAST_32':          'R32',
+    'LAST_16':          'R16',
+    'QUARTER_FINALS':   'QF',
+    'SEMI_FINALS':      'SF',
+    'THIRD_PLACE':      '3PL',
+    'FINAL':            'FIN',
+}
+
 
 class Command(BaseCommand):
-    help = 'Actualiza resultados reales desde football-data.org'
+    help = 'Actualiza resultados desde football-data.org (fase grupal y eliminatoria)'
 
     def handle(self, *args, **kwargs):
         token = settings.FOOTBALL_API_TOKEN
@@ -71,14 +80,14 @@ class Command(BaseCommand):
             return
 
         matches = resp.json().get('matches', [])
-        actualizados = 0
+        grupos = 0
+        elim = 0
 
         for m in matches:
-            if m.get('stage') != 'GROUP_STAGE':
-                continue
             if m.get('status') != 'FINISHED':
                 continue
 
+            stage = m.get('stage', '')
             home_api = m['homeTeam']['name']
             away_api = m['awayTeam']['name']
             home = TEAM_MAP.get(home_api, home_api)
@@ -89,14 +98,36 @@ class Command(BaseCommand):
             if gl is None or gv is None:
                 continue
 
-            try:
-                partido = Partido.objects.get(local=home, visita=away)
-                partido.goles_l = gl
-                partido.goles_v = gv
-                partido.jugado = True
-                partido.save()
-                actualizados += 1
-            except Partido.DoesNotExist:
-                self.stderr.write(f'No encontrado: {home} vs {away}')
+            if stage == 'GROUP_STAGE':
+                try:
+                    partido = Partido.objects.get(local=home, visita=away)
+                    partido.goles_l = gl
+                    partido.goles_v = gv
+                    partido.jugado = True
+                    partido.save()
+                    grupos += 1
+                except Partido.DoesNotExist:
+                    self.stderr.write(f'Grupo no encontrado: {home} vs {away}')
 
-        self.stdout.write(f'{actualizados} partidos actualizados.')
+            elif stage in RONDA_MAP:
+                ronda = RONDA_MAP[stage]
+                try:
+                    partido = PartidoEliminatorio.objects.get(
+                        ronda=ronda, local=home, visita=away
+                    )
+                    partido.goles_l = gl
+                    partido.goles_v = gv
+                    partido.jugado = True
+
+                    # Penales si hubo
+                    penalties = m['score'].get('penalties')
+                    if penalties:
+                        partido.penales_l = penalties.get('home')
+                        partido.penales_v = penalties.get('away')
+
+                    partido.save()
+                    elim += 1
+                except PartidoEliminatorio.DoesNotExist:
+                    self.stderr.write(f'Eliminatoria no encontrado: {home} vs {away} [{ronda}]')
+
+        self.stdout.write(f'{grupos} grupales + {elim} eliminatorios actualizados.')
