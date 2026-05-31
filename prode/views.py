@@ -41,11 +41,8 @@ def registro(request):
 
 
 def ranking(request):
-    from .models import PartidoEliminatorio, PronosticoEliminatorio
-
     usuarios = User.objects.filter(is_superuser=False)
 
-    # Resultados reales finales
     try:
         final = PartidoEliminatorio.objects.get(ronda='FIN', jugado=True)
         campeon = final.local if final.goles_l > final.goles_v else final.visita
@@ -62,22 +59,17 @@ def ranking(request):
 
     tabla = []
     for u in usuarios:
-        # Puntos fase grupal
         prons_f1 = Pronostico.objects.filter(usuario=u).select_related('partido')
         pts_f1 = sum(p.puntos() for p in prons_f1)
 
-        # Puntos fase eliminatoria
         prons_f2 = PronosticoEliminatorio.objects.filter(usuario=u).select_related('partido')
         pts_f2 = sum(p.puntos() for p in prons_f2)
 
-        # Bonus
         bonus = 0
         if campeon:
-            # Buscar pronóstico de la final
             try:
                 pron_final = PronosticoEliminatorio.objects.get(
-                    usuario=u,
-                    partido__ronda='FIN'
+                    usuario=u, partido__ronda='FIN'
                 )
                 pred_campeon = pron_final.local if (pron_final.goles_l or 0) > (pron_final.goles_v or 0) else pron_final.visita
                 if pred_campeon == campeon:
@@ -90,8 +82,7 @@ def ranking(request):
         if tercero:
             try:
                 pron_3pl = PronosticoEliminatorio.objects.get(
-                    usuario=u,
-                    partido__ronda='3PL'
+                    usuario=u, partido__ronda='3PL'
                 )
                 pred_3 = pron_3pl.local if (pron_3pl.goles_l or 0) > (pron_3pl.goles_v or 0) else pron_3pl.visita
                 if pred_3 == tercero:
@@ -117,70 +108,6 @@ def ranking(request):
 def partidos(request):
     partidos = Partido.objects.all()
     return render(request, 'prode/partidos.html', {'partidos': partidos})
-
-
-@login_required(login_url='login')
-def pronosticos(request):
-    if request.user.is_staff:
-        return redirect('ranking')
-
-    hoy = date.today()
-    cierre = date(2026, 6, 4)
-    abierto = hoy <= cierre
-
-    partidos = Partido.objects.all()
-
-    if request.method == 'POST' and abierto:
-        for partido in partidos:
-            gl = request.POST.get(f'gl_{partido.id}', '').strip()
-            gv = request.POST.get(f'gv_{partido.id}', '').strip()
-            nota = request.POST.get(f'nota_{partido.id}', '').strip()
-
-            if gl == '' and gv == '':
-                Pronostico.objects.filter(
-                    usuario=request.user, partido=partido
-                ).delete()
-            elif gl == '' or gv == '':
-                pass
-            else:
-                try:
-                    gl_int = int(gl)
-                    gv_int = int(gv)
-                    if gl_int < 0 or gv_int < 0:
-                        continue
-                    Pronostico.objects.update_or_create(
-                        usuario=request.user,
-                        partido=partido,
-                        defaults={
-                            'goles_l': gl_int,
-                            'goles_v': gv_int,
-                            'nota': nota,
-                        }
-                    )
-                except ValueError:
-                    pass
-        messages.success(request, '¡Pronósticos guardados!')
-        return redirect('pronosticos')
-
-    mis_prons = {
-        p.partido_id: p
-        for p in Pronostico.objects.filter(usuario=request.user)
-    }
-    partidos_ctx = []
-    for p in partidos:
-        pron = mis_prons.get(p.id)
-        partidos_ctx.append({
-            'partido': p,
-            'gl': pron.goles_l if pron else None,
-            'gv': pron.goles_v if pron else None,
-            'nota': pron.nota if pron else '',
-            'pts': pron.puntos() if pron else None,
-        })
-
-    return render(request, 'prode/pronosticos.html', {
-        'partidos': partidos_ctx,
-        'abierto': abierto,
-    })
 
 
 def clasificacion(request):
@@ -313,6 +240,70 @@ def mi_clasificacion(request):
                 e['estado'] = ''
 
     return render(request, 'prode/mi_clasificacion.html', {'grupos': grupos_ordenados})
+
+
+@login_required(login_url='login')
+def pronosticos(request):
+    if request.user.is_staff:
+        return redirect('ranking')
+
+    hoy = date.today()
+    cierre = date(2026, 6, 4)
+    abierto = hoy <= cierre
+
+    partidos = Partido.objects.all()
+
+    if request.method == 'POST' and abierto:
+        for partido in partidos:
+            gl = request.POST.get(f'gl_{partido.id}', '').strip()
+            gv = request.POST.get(f'gv_{partido.id}', '').strip()
+            nota = request.POST.get(f'nota_{partido.id}', '').strip()
+
+            if gl == '' and gv == '':
+                Pronostico.objects.filter(
+                    usuario=request.user, partido=partido
+                ).delete()
+            elif gl == '' or gv == '':
+                pass
+            else:
+                try:
+                    gl_int = int(gl)
+                    gv_int = int(gv)
+                    if gl_int < 0 or gv_int < 0:
+                        continue
+                    Pronostico.objects.update_or_create(
+                        usuario=request.user,
+                        partido=partido,
+                        defaults={
+                            'goles_l': gl_int,
+                            'goles_v': gv_int,
+                            'nota': nota,
+                        }
+                    )
+                except ValueError:
+                    pass
+        messages.success(request, '¡Pronósticos guardados!')
+        return redirect('pronosticos')
+
+    mis_prons = {
+        p.partido_id: p
+        for p in Pronostico.objects.filter(usuario=request.user)
+    }
+    partidos_ctx = []
+    for p in partidos:
+        pron = mis_prons.get(p.id)
+        partidos_ctx.append({
+            'partido': p,
+            'gl': pron.goles_l if pron else None,
+            'gv': pron.goles_v if pron else None,
+            'nota': pron.nota if pron else '',
+            'pts': pron.puntos() if pron else None,
+        })
+
+    return render(request, 'prode/pronosticos.html', {
+        'partidos': partidos_ctx,
+        'abierto': abierto,
+    })
 
 
 from django.contrib.admin.views.decorators import staff_member_required
@@ -494,74 +485,49 @@ def eliminatoria(request):
     return render(request, 'prode/eliminatoria.html', {'partidos': partidos_ctx})
 
 
+def bracket(request):
+    partidos = PartidoEliminatorio.objects.all().order_by('orden')
+
+    def ganador(p):
+        if not p.jugado:
+            return None
+        r = p.resultado_real()
+        return p.local if r == 'L' else p.visita
+
+    def fmt(p):
+        return {
+            'id': p.id,
+            'orden': p.orden,
+            'local': p.local or p.slot_local,
+            'visita': p.visita or p.slot_visita,
+            'gl': p.goles_l,
+            'gv': p.goles_v,
+            'pl': p.penales_l,
+            'pv': p.penales_v,
+            'jugado': p.jugado,
+            'ganador': ganador(p),
+        }
+
+    r32 = {p.orden: fmt(p) for p in partidos.filter(ronda='R32')}
+    r16 = {p.orden: fmt(p) for p in partidos.filter(ronda='R16')}
+    qf  = {p.orden: fmt(p) for p in partidos.filter(ronda='QF')}
+    sf  = {p.orden: fmt(p) for p in partidos.filter(ronda='SF')}
+    fin = partidos.filter(ronda='FIN').first()
+    tpl = partidos.filter(ronda='3PL').first()
+
+    ctx = {
+        'r32': r32,
+        'r16': r16,
+        'qf':  qf,
+        'sf':  sf,
+        'fin': fmt(fin) if fin else None,
+        'tpl': fmt(tpl) if tpl else None,
+    }
+    return render(request, 'prode/bracket.html', ctx)
+
+
 def reglas(request):
     hoy = date.today()
     cierre = date(2026, 6, 4)
     abierto = hoy <= cierre
     return render(request, 'prode/reglas.html', {'abierto': abierto})
-
-
-def bracket(request):
-    partidos = PartidoEliminatorio.objects.all().order_by('orden')
-
-    def get_equipo(p, lado):
-        nombre = p.local if lado == 'l' else p.visita
-        slot = p.slot_local if lado == 'l' else p.slot_visita
-        return nombre or slot
-
-    def get_goles(p, lado):
-        if not p.jugado:
-            return None
-        return p.goles_l if lado == 'l' else p.goles_v
-
-    def es_ganador(p, lado):
-        if not p.jugado:
-            return False
-        if lado == 'l':
-            return p.goles_l > p.goles_v or (p.penales_l and p.penales_l > p.penales_v)
-        return p.goles_v > p.goles_l or (p.penales_v and p.penales_v > p.penales_l)
-
-    def partido_ctx(p):
-        if not p:
-            return None
-        return {
-            'id': p.id,
-            'orden': p.orden,
-            'local': get_equipo(p, 'l'),
-            'visita': get_equipo(p, 'v'),
-            'goles_l': get_goles(p, 'l'),
-            'goles_v': get_goles(p, 'v'),
-            'penales_l': p.penales_l,
-            'penales_v': p.penales_v,
-            'jugado': p.jugado,
-            'ganador_l': es_ganador(p, 'l'),
-            'ganador_v': es_ganador(p, 'v'),
-        }
-
-    # Organizar por ronda
-    def get_ronda(ronda):
-        return {str(p.orden): partido_ctx(p) for p in partidos if p.ronda == ronda}
-
-    r32 = get_ronda('R32')
-    r16 = get_ronda('R16')
-    qf  = get_ronda('QF')
-    sf  = get_ronda('SF')
-    fin = get_ronda('FIN')
-    tpl = get_ronda('3PL')
-
-    # Lado izquierdo R32: órdenes 1-8, derecho: 9-16
-    izq = [partido_ctx(p) for p in partidos if p.ronda == 'R32' and p.orden <= 8]
-    der = [partido_ctx(p) for p in partidos if p.ronda == 'R32' and p.orden >= 9]
-
-    return render(request, 'prode/bracket.html', {
-        'izq': izq,
-        'der': der,
-        'r16_izq': [partido_ctx(p) for p in partidos if p.ronda == 'R16' and p.orden <= 20],
-        'r16_der': [partido_ctx(p) for p in partidos if p.ronda == 'R16' and p.orden > 20],
-        'qf_izq':  [partido_ctx(p) for p in partidos if p.ronda == 'QF' and p.orden <= 25],
-        'qf_der':  [partido_ctx(p) for p in partidos if p.ronda == 'QF' and p.orden > 25],
-        'sf_izq':  [partido_ctx(p) for p in partidos if p.ronda == 'SF' and p.orden <= 30],
-        'sf_der':  [partido_ctx(p) for p in partidos if p.ronda == 'SF' and p.orden > 30],
-        'final':   partido_ctx(partidos.filter(ronda='FIN').first()),
-        'tercero': partido_ctx(partidos.filter(ronda='3PL').first()),
-    })

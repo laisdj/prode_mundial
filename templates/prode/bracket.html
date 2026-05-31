@@ -1,284 +1,249 @@
 {% extends 'prode/base.html' %}
+{% load prode_extras %}
 {% block content %}
 <h1 style="color:#1a6b3c;margin-bottom:1.5rem">🏆 Bracket — Fase Eliminatoria</h1>
 
 <style>
 .bracket-wrap{overflow-x:auto;padding-bottom:1rem}
-.bracket{display:flex;gap:0;min-width:900px;align-items:center;justify-content:center}
-.ronda{display:flex;flex-direction:column;justify-content:space-around;gap:0}
-.ronda-titulo{font-size:.7rem;font-weight:700;color:#1a6b3c;text-align:center;margin-bottom:.5rem;letter-spacing:.05em}
-.partido-card{border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;margin:.25rem 0;min-width:150px;background:#fff}
-.partido-card .equipo{display:flex;justify-content:space-between;align-items:center;padding:.3rem .5rem;font-size:.78rem;border-bottom:1px solid #f0f0f0}
-.partido-card .equipo:last-child{border-bottom:none}
-.partido-card .equipo.ganador{background:#f0faf4;font-weight:700}
-.partido-card .equipo .goles{font-weight:700;color:#1a6b3c;margin-left:.5rem}
-.conector{width:20px;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:1.2rem}
-.final-card{border:2px solid #1a6b3c;border-radius:10px;overflow:hidden;min-width:180px;background:#fff}
-.final-card .equipo{display:flex;justify-content:space-between;align-items:center;padding:.4rem .75rem;font-size:.85rem;border-bottom:1px solid #e0e0e0}
-.final-card .equipo:last-child{border-bottom:none}
-.final-card .equipo.ganador{background:#f0faf4;font-weight:700}
-.final-card .equipo .goles{font-weight:700;color:#1a6b3c;margin-left:.5rem}
-.centro{display:flex;flex-direction:column;align-items:center;gap:1rem;padding:0 1rem}
-.trofeo{font-size:2rem;text-align:center}
-.empty-card{border:1px dashed #ddd;border-radius:8px;padding:.3rem .5rem;font-size:.75rem;color:#bbb;text-align:center;min-width:150px;margin:.25rem 0}
+.bracket{display:flex;gap:0;align-items:center;min-width:900px}
+.ronda{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 4px}
+.ronda-title{text-align:center;font-size:.7rem;font-weight:700;color:#888;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em}
+.match{border:1px solid #e0e0e0;border-radius:6px;overflow:hidden;margin:4px 0;background:#fff;font-size:.78rem}
+.match.jugado{border-color:#2e8b57}
+.match-team{display:flex;justify-content:space-between;align-items:center;padding:.3rem .5rem;gap:.3rem}
+.match-team:first-child{border-bottom:1px solid #f0f0f0}
+.match-team.ganador{background:#f0faf4;font-weight:700}
+.match-team.perdedor{color:#aaa}
+.match-score{font-weight:700;color:#1a6b3c;min-width:16px;text-align:right;font-size:.85rem}
+.match-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.connector{display:flex;flex-direction:column;justify-content:space-around;width:12px;flex-shrink:0}
+.connector-line{border-right:2px solid #e0e0e0;height:50%}
+.center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:0 8px}
+.final-box{border:2px solid #f4c430;border-radius:8px;overflow:hidden;min-width:160px}
+.final-title{background:#f4c430;color:#1a6b3c;font-size:.75rem;font-weight:700;text-align:center;padding:.3rem}
+.tpl-box{border:2px solid #aaa;border-radius:8px;overflow:hidden;min-width:160px}
+.tpl-title{background:#aaa;color:#fff;font-size:.75rem;font-weight:700;text-align:center;padding:.3rem}
 </style>
 
-{% if not izq and not der %}
-  <div style="text-align:center;padding:3rem;color:#888">
-    ⏳ El bracket se habilitará cuando termine la fase grupal.
-  </div>
-{% else %}
 <div class="bracket-wrap">
 <div class="bracket">
 
   <!-- LADO IZQUIERDO -->
-  <div style="display:flex;align-items:center;gap:4px">
 
-    <!-- R32 izquierdo -->
-    <div>
-      <div class="ronda-titulo">ROUND OF 32</div>
-      <div class="ronda">
-        {% for p in izq %}
-          {% if p %}
-            <div class="partido-card">
-              <div class="equipo {% if p.ganador_l %}ganador{% endif %}">
-                <span>{{ p.local }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_l }}{% else %}—{% endif %}</span>
-              </div>
-              <div class="equipo {% if p.ganador_v %}ganador{% endif %}">
-                <span>{{ p.visita }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_v }}{% else %}—{% endif %}</span>
-              </div>
-            </div>
-          {% else %}
-            <div class="empty-card">Por confirmar</div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="conector">›</div>
-
-    <!-- R16 izquierdo -->
-    <div>
-      <div class="ronda-titulo">ROUND OF 16</div>
-      <div class="ronda">
-        {% for p in r16_izq %}
-          {% if p %}
-            <div class="partido-card">
-              <div class="equipo {% if p.ganador_l %}ganador{% endif %}">
-                <span>{{ p.local }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_l }}{% else %}—{% endif %}</span>
-              </div>
-              <div class="equipo {% if p.ganador_v %}ganador{% endif %}">
-                <span>{{ p.visita }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_v }}{% else %}—{% endif %}</span>
-              </div>
-            </div>
-          {% else %}
-            <div class="empty-card">Por definir</div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="conector">›</div>
-
-    <!-- QF izquierdo -->
-    <div>
-      <div class="ronda-titulo">CUARTOS</div>
-      <div class="ronda">
-        {% for p in qf_izq %}
-          {% if p %}
-            <div class="partido-card">
-              <div class="equipo {% if p.ganador_l %}ganador{% endif %}">
-                <span>{{ p.local }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_l }}{% else %}—{% endif %}</span>
-              </div>
-              <div class="equipo {% if p.ganador_v %}ganador{% endif %}">
-                <span>{{ p.visita }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_v }}{% else %}—{% endif %}</span>
-              </div>
-            </div>
-          {% else %}
-            <div class="empty-card">Por definir</div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="conector">›</div>
-
-    <!-- SF izquierdo -->
-    <div>
-      <div class="ronda-titulo">SEMIFINAL</div>
-      <div class="ronda">
-        {% for p in sf_izq %}
-          {% if p %}
-            <div class="partido-card">
-              <div class="equipo {% if p.ganador_l %}ganador{% endif %}">
-                <span>{{ p.local }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_l }}{% else %}—{% endif %}</span>
-              </div>
-              <div class="equipo {% if p.ganador_v %}ganador{% endif %}">
-                <span>{{ p.visita }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_v }}{% else %}—{% endif %}</span>
-              </div>
-            </div>
-          {% else %}
-            <div class="empty-card">Por definir</div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="conector">›</div>
-
-  </div>
-
-  <!-- CENTRO -->
-  <div class="centro">
-    <div>
-      <div class="ronda-titulo">FINAL</div>
-      {% if final %}
-        <div class="final-card">
-          <div class="equipo {% if final.ganador_l %}ganador{% endif %}">
-            <span>{{ final.local }}</span>
-            <span class="goles">{% if final.jugado %}{{ final.goles_l }}{% else %}—{% endif %}</span>
+  <!-- R32 izq (partidos 1-8) -->
+  <div class="ronda">
+    <div class="ronda-title">Round of 32</div>
+    {% for i in "12345678" %}
+      {% with p=r32|default_if_none:None %}
+      {% endwith %}
+    {% endfor %}
+    {% for num in "1,2,3,4,5,6,7,8"|split:"," %}
+      {% with p=r32|get_item:num %}
+      {% if p %}
+        <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.local }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
           </div>
-          <div class="equipo {% if final.ganador_v %}ganador{% endif %}">
-            <span>{{ final.visita }}</span>
-            <span class="goles">{% if final.jugado %}{{ final.goles_v }}{% else %}—{% endif %}</span>
+          <div class="match-team {% if p.ganador == p.visita %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.visita }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gv }}{% endif %}</span>
           </div>
         </div>
-      {% else %}
-        <div class="empty-card" style="min-width:180px;padding:.75rem">Por definir</div>
       {% endif %}
-      <div class="trofeo">🏆</div>
-    </div>
-    {% if tercero %}
-      <div>
-        <div class="ronda-titulo">3° Y 4° LUGAR</div>
-        <div class="partido-card" style="min-width:180px">
-          <div class="equipo {% if tercero.ganador_l %}ganador{% endif %}">
-            <span>{{ tercero.local }}</span>
-            <span class="goles">{% if tercero.jugado %}{{ tercero.goles_l }}{% else %}—{% endif %}</span>
+      {% endwith %}
+    {% endfor %}
+  </div>
+
+  <!-- R16 izq (partidos 1-4) -->
+  <div class="ronda">
+    <div class="ronda-title">Round of 16</div>
+    {% for num in "1,2,3,4"|split:"," %}
+      {% with p=r16|get_item:num %}
+      {% if p %}
+        <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.local }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
           </div>
-          <div class="equipo {% if tercero.ganador_v %}ganador{% endif %}">
-            <span>{{ tercero.visita }}</span>
-            <span class="goles">{% if tercero.jugado %}{{ tercero.goles_v }}{% else %}—{% endif %}</span>
+          <div class="match-team {% if p.ganador == p.visita %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.visita }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gv }}{% endif %}</span>
           </div>
+        </div>
+      {% endif %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+
+  <!-- QF izq (partidos 1-2) -->
+  <div class="ronda">
+    <div class="ronda-title">Cuartos</div>
+    {% for num in "1,2"|split:"," %}
+      {% with p=qf|get_item:num %}
+      {% if p %}
+        <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.local }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
+          </div>
+          <div class="match-team {% if p.ganador == p.visita %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.visita }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gv }}{% endif %}</span>
+          </div>
+        </div>
+      {% endif %}
+      {% endwith %}
+    {% endfor %}
+  </div>
+
+  <!-- SF izq (partido 1) -->
+  <div class="ronda">
+    <div class="ronda-title">Semifinal</div>
+    {% with p=sf|get_item:"1" %}
+    {% if p %}
+      <div class="match {% if p.jugado %}jugado{% endif %}">
+        <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
+          <span class="match-name">{{ p.local }}</span>
+          <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
+        </div>
+        <div class="match-team {% if p.ganador == p.visita %}ganador{% elif p.jugado %}perdedor{% endif %}">
+          <span class="match-name">{{ p.visita }}</span>
+          <span class="match-score">{% if p.jugado %}{{ p.gv }}{% endif %}</span>
+        </div>
+      </div>
+    {% endif %}
+    {% endwith %}
+  </div>
+
+  <!-- CENTRO: FINAL + 3er LUGAR -->
+  <div class="center-col">
+    <div class="ronda-title">Final</div>
+    {% if fin %}
+      <div class="final-box">
+        <div class="final-title">🏆 FINAL</div>
+        <div class="match-team {% if fin.ganador == fin.local %}ganador{% elif fin.jugado %}perdedor{% endif %}"
+             style="padding:.5rem .75rem">
+          <span class="match-name">{{ fin.local }}</span>
+          <span class="match-score">{% if fin.jugado %}{{ fin.gl }}{% endif %}</span>
+        </div>
+        <div class="match-team {% if fin.ganador == fin.visita %}ganador{% elif fin.jugado %}perdedor{% endif %}"
+             style="padding:.5rem .75rem">
+          <span class="match-name">{{ fin.visita }}</span>
+          <span class="match-score">{% if fin.jugado %}{{ fin.gv }}{% endif %}</span>
+        </div>
+        {% if fin.jugado and fin.ganador %}
+          <div style="background:#f4c430;text-align:center;padding:.4rem;font-size:.8rem;font-weight:700;color:#1a6b3c">
+            🥇 {{ fin.ganador }}
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="final-box">
+        <div class="final-title">🏆 FINAL</div>
+        <div style="padding:1rem;text-align:center;color:#aaa;font-size:.8rem">Por definir</div>
+      </div>
+    {% endif %}
+
+    {% if tpl %}
+      <div class="tpl-box">
+        <div class="tpl-title">🥉 3er y 4to lugar</div>
+        <div class="match-team {% if tpl.ganador == tpl.local %}ganador{% elif tpl.jugado %}perdedor{% endif %}"
+             style="padding:.5rem .75rem">
+          <span class="match-name">{{ tpl.local }}</span>
+          <span class="match-score">{% if tpl.jugado %}{{ tpl.gl }}{% endif %}</span>
+        </div>
+        <div class="match-team {% if tpl.ganador == tpl.visita %}ganador{% elif tpl.jugado %}perdedor{% endif %}"
+             style="padding:.5rem .75rem">
+          <span class="match-name">{{ tpl.visita }}</span>
+          <span class="match-score">{% if tpl.jugado %}{{ tpl.gv }}{% endif %}</span>
         </div>
       </div>
     {% endif %}
   </div>
 
-  <!-- LADO DERECHO -->
-  <div style="display:flex;align-items:center;gap:4px">
-
-    <div class="conector">‹</div>
-
-    <!-- SF derecho -->
-    <div>
-      <div class="ronda-titulo">SEMIFINAL</div>
-      <div class="ronda">
-        {% for p in sf_der %}
-          {% if p %}
-            <div class="partido-card">
-              <div class="equipo {% if p.ganador_l %}ganador{% endif %}">
-                <span>{{ p.local }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_l }}{% else %}—{% endif %}</span>
-              </div>
-              <div class="equipo {% if p.ganador_v %}ganador{% endif %}">
-                <span>{{ p.visita }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_v }}{% else %}—{% endif %}</span>
-              </div>
-            </div>
-          {% else %}
-            <div class="empty-card">Por definir</div>
-          {% endif %}
-        {% endfor %}
+  <!-- SF der (partido 2) -->
+  <div class="ronda">
+    <div class="ronda-title">Semifinal</div>
+    {% with p=sf|get_item:"2" %}
+    {% if p %}
+      <div class="match {% if p.jugado %}jugado{% endif %}">
+        <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
+          <span class="match-name">{{ p.local }}</span>
+          <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
+        </div>
+        <div class="match-team {% if p.ganador == p.visita %}ganador{% elif p.jugado %}perdedor{% endif %}">
+          <span class="match-name">{{ p.visita }}</span>
+          <span class="match-score">{% if p.jugado %}{{ p.gv }}{% endif %}</span>
+        </div>
       </div>
-    </div>
+    {% endif %}
+    {% endwith %}
+  </div>
 
-    <div class="conector">‹</div>
+  <!-- QF der (partidos 3-4) -->
+  <div class="ronda">
+    <div class="ronda-title">Cuartos</div>
+    {% for num in "3,4"|split:"," %}
+      {% with p=qf|get_item:num %}
+      {% if p %}
+        <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.local }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
+          </div>
+          <div class="match-team {% if p.ganador == p.visita %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.visita }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gv }}{% endif %}</span>
+          </div>
+        </div>
+      {% endif %}
+      {% endwith %}
+    {% endfor %}
+  </div>
 
-    <!-- QF derecho -->
-    <div>
-      <div class="ronda-titulo">CUARTOS</div>
-      <div class="ronda">
-        {% for p in qf_der %}
-          {% if p %}
-            <div class="partido-card">
-              <div class="equipo {% if p.ganador_l %}ganador{% endif %}">
-                <span>{{ p.local }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_l }}{% else %}—{% endif %}</span>
-              </div>
-              <div class="equipo {% if p.ganador_v %}ganador{% endif %}">
-                <span>{{ p.visita }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_v }}{% else %}—{% endif %}</span>
-              </div>
-            </div>
-          {% else %}
-            <div class="empty-card">Por definir</div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
+  <!-- R16 der (partidos 5-8) -->
+  <div class="ronda">
+    <div class="ronda-title">Round of 16</div>
+    {% for num in "5,6,7,8"|split:"," %}
+      {% with p=r16|get_item:num %}
+      {% if p %}
+        <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.local }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
+          </div>
+          <div class="match-team {% if p.ganador == p.visita %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.visita }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gv }}{% endif %}</span>
+          </div>
+        </div>
+      {% endif %}
+      {% endwith %}
+    {% endfor %}
+  </div>
 
-    <div class="conector">‹</div>
-
-    <!-- R16 derecho -->
-    <div>
-      <div class="ronda-titulo">ROUND OF 16</div>
-      <div class="ronda">
-        {% for p in r16_der %}
-          {% if p %}
-            <div class="partido-card">
-              <div class="equipo {% if p.ganador_l %}ganador{% endif %}">
-                <span>{{ p.local }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_l }}{% else %}—{% endif %}</span>
-              </div>
-              <div class="equipo {% if p.ganador_v %}ganador{% endif %}">
-                <span>{{ p.visita }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_v }}{% else %}—{% endif %}</span>
-              </div>
-            </div>
-          {% else %}
-            <div class="empty-card">Por definir</div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-
-    <div class="conector">‹</div>
-
-    <!-- R32 derecho -->
-    <div>
-      <div class="ronda-titulo">ROUND OF 32</div>
-      <div class="ronda">
-        {% for p in der %}
-          {% if p %}
-            <div class="partido-card">
-              <div class="equipo {% if p.ganador_l %}ganador{% endif %}">
-                <span>{{ p.local }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_l }}{% else %}—{% endif %}</span>
-              </div>
-              <div class="equipo {% if p.ganador_v %}ganador{% endif %}">
-                <span>{{ p.visita }}</span>
-                <span class="goles">{% if p.jugado %}{{ p.goles_v }}{% else %}—{% endif %}</span>
-              </div>
-            </div>
-          {% else %}
-            <div class="empty-card">Por confirmar</div>
-          {% endif %}
-        {% endfor %}
-      </div>
-    </div>
-
+  <!-- R32 der (partidos 9-16) -->
+  <div class="ronda">
+    <div class="ronda-title">Round of 32</div>
+    {% for num in "9,10,11,12,13,14,15,16"|split:"," %}
+      {% with p=r32|get_item:num %}
+      {% if p %}
+        <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.local }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
+          </div>
+          <div class="match-team {% if p.ganador == p.visita %}ganador{% elif p.jugado %}perdedor{% endif %}">
+            <span class="match-name">{{ p.visita }}</span>
+            <span class="match-score">{% if p.jugado %}{{ p.gv }}{% endif %}</span>
+          </div>
+        </div>
+      {% endif %}
+      {% endwith %}
+    {% endfor %}
   </div>
 
 </div>
 </div>
-{% endif %}
 {% endblock %}
