@@ -5,6 +5,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .models import Partido, Pronostico
 from datetime import date
+from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio
 
 
 def login_view(request):
@@ -303,3 +304,22 @@ def mi_clasificacion(request):
                 e['estado'] = ''
 
     return render(request, 'prode/mi_clasificacion.html', {'grupos': grupos_ordenados})
+
+
+@staff_member_required
+def cargar_equipos_eliminatoria(request):
+    partidos = PartidoEliminatorio.objects.filter(ronda='R32').order_by('orden')
+
+    if request.method == 'POST':
+        for partido in partidos:
+            local = request.POST.get(f'local_{partido.id}', '').strip()
+            visita = request.POST.get(f'visita_{partido.id}', '').strip()
+            if local:
+                partido.local = local
+            if visita:
+                partido.visita = visita
+            partido.save()
+        messages.success(request, 'Equipos actualizados.')
+        return redirect('cargar_equipos_eliminatoria')
+
+    return render(request, 'prode/cargar_equipos_eliminatoria.html', {'partidos': partidos})

@@ -1,0 +1,49 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card">
+  <h1>⚙️ Cargar equipos Round of 32</h1>
+  <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
+    Ingresa los equipos clasificados para cada cruce. Los slots se reemplazan con los nombres reales.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <div class="table-wrap">
+    <table>
+      <thead><tr>
+        <th>M</th>
+        <th style="text-align:left">Slot local</th>
+        <th>Equipo local</th>
+        <th style="text-align:left">Slot visita</th>
+        <th>Equipo visita</th>
+      </tr></thead>
+      <tbody>
+      {% for p in partidos %}
+        <tr>
+          <td><strong>{{ p.orden }}</strong></td>
+          <td style="text-align:left;color:#666;font-size:.8rem">{{ p.slot_local }}</td>
+          <td>
+            <input type="text"
+                   name="local_{{ p.id }}"
+                   value="{{ p.local }}"
+                   placeholder="{{ p.slot_local }}"
+                   style="width:140px;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
+          </td>
+          <td style="text-align:left;color:#666;font-size:.8rem">{{ p.slot_visita }}</td>
+          <td>
+            <input type="text"
+                   name="visita_{{ p.id }}"
+                   value="{{ p.visita }}"
+                   placeholder="{{ p.slot_visita }}"
+                   style="width:140px;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+    </div>
+    <div style="margin-top:1.25rem">
+      <button class="btn" type="submit">💾 Guardar equipos</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
