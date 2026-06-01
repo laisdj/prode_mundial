@@ -345,10 +345,8 @@ def cargar_equipos_eliminatoria(request):
         for partido in partidos:
             local = request.POST.get(f'local_{partido.id}', '').strip()
             visita = request.POST.get(f'visita_{partido.id}', '').strip()
-            if local:
-                partido.local = local
-            if visita:
-                partido.visita = visita
+            partido.local = local
+            partido.visita = visita
             partido.save()
         messages.success(request, 'Equipos actualizados.')
         return redirect('cargar_equipos_eliminatoria')
