@@ -17,4 +17,5 @@ urlpatterns = [
     path('resultados-eliminatoria/', views.cargar_resultados_eliminatoria, name='cargar_resultados_eliminatoria'),
     path('eliminatoria-resultados/', views.eliminatoria, name='eliminatoria'),
     path('bracket/', views.bracket, name='bracket'),
+    path('gestionar-eliminatoria/', views.gestionar_eliminatoria, name='gestionar_eliminatoria'),
 ]

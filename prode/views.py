@@ -529,3 +529,81 @@ def reglas(request):
     cierre = date(2026, 6, 4)
     abierto = hoy <= cierre
     return render(request, 'prode/reglas.html', {'abierto': abierto})
+
+
+
+@staff_member_required
+def gestionar_eliminatoria(request):
+    RONDAS = [
+        ('R32', 'Round of 32'),
+        ('R16', 'Round of 16'),
+        ('QF',  'Cuartos de final'),
+        ('SF',  'Semifinal'),
+        ('3PL', 'Tercer y cuarto lugar'),
+        ('FIN', 'Final'),
+    ]
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+
+        if accion == 'agregar':
+            ronda = request.POST.get('ronda')
+            local = request.POST.get('local', '').strip()
+            visita = request.POST.get('visita', '').strip()
+            slot_local = request.POST.get('slot_local', '').strip()
+            slot_visita = request.POST.get('slot_visita', '').strip()
+            if ronda and (local or slot_local) and (visita or slot_visita):
+                ultimo = PartidoEliminatorio.objects.filter(ronda=ronda).count()
+                PartidoEliminatorio.objects.create(
+                    ronda=ronda,
+                    slot_local=slot_local or local,
+                    slot_visita=slot_visita or visita,
+                    local=local,
+                    visita=visita,
+                    orden=PartidoEliminatorio.objects.count() + 1,
+                )
+                messages.success(request, f'Partido agregado al {dict(RONDAS).get(ronda)}.')
+
+        elif accion == 'editar':
+            partido_id = request.POST.get('partido_id')
+            try:
+                partido = PartidoEliminatorio.objects.get(id=partido_id)
+                partido.local  = request.POST.get(f'local_{partido_id}', '').strip()
+                partido.visita = request.POST.get(f'visita_{partido_id}', '').strip()
+                gl = request.POST.get(f'gl_{partido_id}', '').strip()
+                gv = request.POST.get(f'gv_{partido_id}', '').strip()
+                jugado = request.POST.get(f'jugado_{partido_id}')
+                pl = request.POST.get(f'pl_{partido_id}', '').strip()
+                pv = request.POST.get(f'pv_{partido_id}', '').strip()
+                if gl != '' and gv != '':
+                    partido.goles_l = int(gl)
+                    partido.goles_v = int(gv)
+                    partido.jugado = jugado == 'on'
+                    partido.penales_l = int(pl) if pl else None
+                    partido.penales_v = int(pv) if pv else None
+                else:
+                    partido.goles_l = None
+                    partido.goles_v = None
+                    partido.jugado = False
+                    partido.penales_l = None
+                    partido.penales_v = None
+                partido.save()
+                messages.success(request, 'Partido actualizado.')
+            except PartidoEliminatorio.DoesNotExist:
+                pass
+
+        elif accion == 'eliminar':
+            partido_id = request.POST.get('partido_id')
+            PartidoEliminatorio.objects.filter(id=partido_id).delete()
+            messages.success(request, 'Partido eliminado.')
+
+        return redirect('gestionar_eliminatoria')
+
+    partidos_por_ronda = {}
+    for codigo, nombre in RONDAS:
+        partidos_por_ronda[nombre] = PartidoEliminatorio.objects.filter(ronda=codigo).order_by('orden')
+
+    return render(request, 'prode/gestionar_eliminatoria.html', {
+        'partidos_por_ronda': partidos_por_ronda,
+        'rondas': RONDAS,
+    })
