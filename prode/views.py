@@ -747,14 +747,3 @@ def historial_desafios(request):
 
     return render(request, 'prode/historial_desafios.html', {'historial': historial})
 
-def inicio(request):
-    from django.utils import timezone
-    from datetime import date
-    primer_partido = timezone.datetime(2026, 6, 11, 15, 0, 0, tzinfo=timezone.utc)
-    hoy = date.today()
-    cierre = date(2026, 6, 4)
-    abierto = hoy <= cierre
-    return render(request, 'prode/inicio.html', {
-        'primer_partido': primer_partido.isoformat(),
-        'abierto': abierto,
-    })
