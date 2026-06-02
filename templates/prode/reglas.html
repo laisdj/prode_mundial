@@ -3,7 +3,86 @@
 <div class="card" style="max-width:640px;margin:0 auto">
   <h1>📋 Reglas del Prode</h1>
 
-  <h2 style="margin-top:1.25rem">⚽ Fase Grupal — Sistema de puntos</h2>
+  <!-- MANUAL -->
+  <h2 style="margin-top:1.25rem">🗺️ ¿Cómo funciona el sitio?</h2>
+  <div style="margin-top:.75rem;display:flex;flex-direction:column;gap:.6rem">
+
+    <details style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+      <summary style="padding:.6rem .9rem;background:#f0faf4;cursor:pointer;font-size:.88rem;font-weight:700;color:#1a6b3c">
+        📝 Mis pronósticos
+      </summary>
+      <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
+        Aquí predices el marcador de cada uno de los 72 partidos de la fase grupal. Ingresa los goles del local y del visita. Si aciertas el resultado (quién gana o empate) sumas 1 punto. Si aciertas el marcador exacto sumas 3 puntos. Puedes dejar una nota personal por partido para recordar por qué hiciste esa predicción. El botón guardar cierra el <strong>4 de junio</strong> — después de esa fecha no puedes modificar nada.
+      </div>
+    </details>
+
+    <details style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+      <summary style="padding:.6rem .9rem;background:#f0faf4;cursor:pointer;font-size:.88rem;font-weight:700;color:#1a6b3c">
+        🏆 Ranking
+      </summary>
+      <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
+        Muestra la tabla de posiciones del grupo. Se actualiza automáticamente a medida que se juegan los partidos. Verás los puntos de la fase grupal (F1), fase eliminatoria (F2), bonus final y el total.
+      </div>
+    </details>
+
+    <details style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+      <summary style="padding:.6rem .9rem;background:#f0faf4;cursor:pointer;font-size:.88rem;font-weight:700;color:#1a6b3c">
+        📅 Partidos
+      </summary>
+      <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
+        Muestra el fixture completo de la fase grupal con los resultados reales a medida que se van jugando. Se actualiza automáticamente cada 10 minutos desde la API oficial.
+      </div>
+    </details>
+
+    <details style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+      <summary style="padding:.6rem .9rem;background:#f0faf4;cursor:pointer;font-size:.88rem;font-weight:700;color:#1a6b3c">
+        📊 Clasificación
+      </summary>
+      <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
+        Tabla de posiciones real de cada grupo del Mundial — puntos, goles, diferencia de goles. Los equipos con 🟢 clasifican directo, los con 🟡 son posibles mejores terceros y los con 🔴 están eliminados.
+      </div>
+    </details>
+
+    <details style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+      <summary style="padding:.6rem .9rem;background:#f0faf4;cursor:pointer;font-size:.88rem;font-weight:700;color:#1a6b3c">
+        🔮 Mi clasificación
+      </summary>
+      <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
+        Igual que Clasificación pero basada en tus pronósticos — muestra cómo quedarían los grupos si tus predicciones son correctas. Útil para ver si tu equipo favorito clasifica según tus pronósticos.
+      </div>
+    </details>
+
+    <details style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+      <summary style="padding:.6rem .9rem;background:#f0faf4;cursor:pointer;font-size:.88rem;font-weight:700;color:#1a6b3c">
+        🏟️ Eliminatoria y Bracket
+      </summary>
+      <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
+        Muestra los resultados de la fase eliminatoria (Round of 32, 16, Cuartos, Semis y Final) a medida que se juegan. El Bracket es la vista visual tipo llave del torneo. Ambas son públicas — no necesitas estar logueado para verlas.
+      </div>
+    </details>
+
+    <details style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+      <summary style="padding:.6rem .9rem;background:#f0faf4;cursor:pointer;font-size:.88rem;font-weight:700;color:#1a6b3c">
+        ⚔️ Desafíos
+      </summary>
+      <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
+        Puedes retar a otro participante en un partido específico. Eliges el partido, tu pronóstico y el monto a apostar. El retado recibe una notificación (badge rojo en el nav), puede aceptar o rechazar. Si acepta, pone su propio pronóstico. Cuando termina el partido la app muestra automáticamente quién ganó. El pago se coordina fuera de la app.
+      </div>
+    </details>
+
+    <details style="border:1px solid #e0e0e0;border-radius:8px;overflow:hidden">
+      <summary style="padding:.6rem .9rem;background:#f0faf4;cursor:pointer;font-size:.88rem;font-weight:700;color:#1a6b3c">
+        💬 Chat
+      </summary>
+      <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
+        Muro de mensajes del grupo. Puedes dejar comentarios, hacer tallas, llorar cuando pierdes un desafío, etc. Se actualiza cada 30 segundos automáticamente.
+      </div>
+    </details>
+
+  </div>
+
+  <!-- PUNTOS FASE GRUPAL -->
+  <h2 style="margin-top:1.5rem">⚽ Fase Grupal — Sistema de puntos</h2>
   <div class="table-wrap">
   <table style="margin-top:.5rem">
     <thead><tr>
@@ -18,6 +97,7 @@
   </table>
   </div>
 
+  <!-- PUNTOS FASE ELIMINATORIA -->
   <h2 style="margin-top:1.5rem">🏆 Fase Eliminatoria — Sistema de puntos</h2>
   <div class="table-wrap">
   <table style="margin-top:.5rem">
@@ -33,6 +113,7 @@
   </table>
   </div>
 
+  <!-- BONUS -->
   <h2 style="margin-top:1.5rem">🎁 Bonus final</h2>
   <div class="table-wrap">
   <table style="margin-top:.5rem">
@@ -53,6 +134,7 @@
     📊 <strong>Máximo total posible: 314 pts</strong> (216 grupal + 93 eliminatoria + 5 bonus)
   </div>
 
+  <!-- PREMIO -->
   <h2 style="margin-top:1.5rem">💰 Premio</h2>
   <div class="table-wrap">
   <table style="margin-top:.5rem">
@@ -74,6 +156,7 @@
     Enviar comprobante al grupo de WhatsApp Polla Mundial 2026.
   </div>
 
+  <!-- FECHAS -->
   <h2 style="margin-top:1.5rem">📅 Fechas importantes</h2>
   <div class="table-wrap">
   <table style="margin-top:.5rem">
@@ -95,5 +178,6 @@
       🔒 <strong>Pronósticos fase grupal cerrados</strong> — el plazo venció el 4 de junio.
     {% endif %}
   </div>
+
 </div>
 {% endblock %}
