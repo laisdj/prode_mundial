@@ -12,7 +12,7 @@
         📝 Mis pronósticos
       </summary>
       <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
-        Aquí predices el marcador de cada uno de los 72 partidos de la fase grupal. Ingresa los goles del local y del visita. Si aciertas el resultado (quién gana o empate) sumas 1 punto. Si aciertas el marcador exacto sumas 3 puntos. Puedes dejar una nota personal por partido para recordar por qué hiciste esa predicción. El botón guardar cierra el <strong>4 de junio</strong> — después de esa fecha no puedes modificar nada.
+        Aquí predices el marcador de cada uno de los 72 partidos de la fase grupal. Ingresa los goles del equipo de la izquierda (local) y del de la derecha (visita). Si aciertas quién gana o si hay empate, sumas 1 punto. Si aciertas el marcador exacto, sumas 3 puntos. Puedes dejar una nota por partido para recordar por qué hiciste esa predicción — solo tú la ves. Tienes plazo hasta el <strong>4 de junio</strong> para completar tus pronósticos.
       </div>
     </details>
 
@@ -21,7 +21,7 @@
         🏆 Ranking
       </summary>
       <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
-        Muestra la tabla de posiciones del grupo. Se actualiza automáticamente a medida que se juegan los partidos. Verás los puntos de la fase grupal (F1), fase eliminatoria (F2), bonus final y el total.
+        Muestra quién va ganando el prode. Se actualiza solo a medida que se juegan los partidos. Verás los puntos de cada etapa y el total acumulado de cada participante.
       </div>
     </details>
 
@@ -30,7 +30,7 @@
         📅 Partidos
       </summary>
       <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
-        Muestra el fixture completo de la fase grupal con los resultados reales a medida que se van jugando. Se actualiza automáticamente cada 10 minutos desde la API oficial.
+        Muestra todos los partidos de la fase grupal con los resultados reales. Se actualiza solo cada 10 minutos durante el Mundial.
       </div>
     </details>
 
@@ -39,7 +39,7 @@
         📊 Clasificación
       </summary>
       <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
-        Tabla de posiciones real de cada grupo del Mundial — puntos, goles, diferencia de goles. Los equipos con 🟢 clasifican directo, los con 🟡 son posibles mejores terceros y los con 🔴 están eliminados.
+        Muestra cómo van quedando los grupos del Mundial — igual que la tabla que ves en la tele. Los equipos con 🟢 están clasificando, los con 🟡 podrían clasificar como mejores terceros y los con 🔴 están afuera.
       </div>
     </details>
 
@@ -48,7 +48,7 @@
         🔮 Mi clasificación
       </summary>
       <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
-        Igual que Clasificación pero basada en tus pronósticos — muestra cómo quedarían los grupos si tus predicciones son correctas. Útil para ver si tu equipo favorito clasifica según tus pronósticos.
+        Igual que la tabla anterior, pero calculada con tus propios pronósticos. Te muestra cómo quedarían los grupos si tus predicciones son correctas. Es solo para entretenerte — no afecta los puntos.
       </div>
     </details>
 
@@ -57,7 +57,7 @@
         🏟️ Eliminatoria y Bracket
       </summary>
       <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
-        Muestra los resultados de la fase eliminatoria (Round of 32, 16, Cuartos, Semis y Final) a medida que se juegan. El Bracket es la vista visual tipo llave del torneo. Ambas son públicas — no necesitas estar logueado para verlas.
+        Muestra los resultados de la fase eliminatoria (octavos, cuartos, semis y final) a medida que se van jugando. El Bracket es la misma información pero en formato de llave visual, igual a como lo muestran en la tele. Cualquiera puede verlos, no necesitas estar registrado.
       </div>
     </details>
 
@@ -66,7 +66,7 @@
         ⚔️ Desafíos
       </summary>
       <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
-        Puedes retar a otro participante en un partido específico. Eliges el partido, tu pronóstico y el monto a apostar. El retado recibe una notificación (badge rojo en el nav), puede aceptar o rechazar. Si acepta, pone su propio pronóstico. Cuando termina el partido la app muestra automáticamente quién ganó. El pago se coordina fuera de la app.
+        Puedes retar a otro participante en un partido específico. Eliges el partido, tu pronóstico y cuánto quieres apostar. El retado recibe un aviso con un número rojo en el menú, puede aceptar o rechazar. Si acepta, pone su propio pronóstico. Cuando termina el partido el sitio muestra automáticamente quién ganó el desafío. El pago entre ustedes lo coordinan por fuera.
       </div>
     </details>
 
@@ -75,14 +75,14 @@
         💬 Chat
       </summary>
       <div style="padding:.75rem .9rem;font-size:.85rem;color:#444;line-height:1.6">
-        Muro de mensajes del grupo. Puedes dejar comentarios, hacer tallas, llorar cuando pierdes un desafío, etc. Se actualiza cada 30 segundos automáticamente.
+        Un muro de mensajes del grupo donde pueden comentar, hacer tallas o llorar cuando pierden un desafío. Se actualiza solo cada 30 segundos.
       </div>
     </details>
 
   </div>
 
   <!-- PUNTOS FASE GRUPAL -->
-  <h2 style="margin-top:1.5rem">⚽ Fase Grupal — Sistema de puntos</h2>
+  <h2 style="margin-top:1.5rem">⚽ Fase Grupal — Puntos</h2>
   <div class="table-wrap">
   <table style="margin-top:.5rem">
     <thead><tr>
@@ -90,15 +90,15 @@
       <th>Puntos</th>
     </tr></thead>
     <tbody>
-      <tr><td>Resultado correcto (Local / Empate / Visita)</td><td><span class="badge-1">1 pt</span></td></tr>
-      <tr><td>Marcador exacto</td><td><span class="badge-3">3 pts</span></td></tr>
+      <tr><td>Aciertas quién gana o que hay empate</td><td><span class="badge-1">1 pt</span></td></tr>
+      <tr><td>Aciertas el marcador exacto</td><td><span class="badge-3">3 pts</span></td></tr>
       <tr><td>Máximo posible (72 partidos)</td><td><strong style="color:#1a6b3c">216 pts</strong></td></tr>
     </tbody>
   </table>
   </div>
 
   <!-- PUNTOS FASE ELIMINATORIA -->
-  <h2 style="margin-top:1.5rem">🏆 Fase Eliminatoria — Sistema de puntos</h2>
+  <h2 style="margin-top:1.5rem">🏆 Fase Eliminatoria — Puntos</h2>
   <div class="table-wrap">
   <table style="margin-top:.5rem">
     <thead><tr>
@@ -106,32 +106,32 @@
       <th>Puntos</th>
     </tr></thead>
     <tbody>
-      <tr><td>Resultado correcto (Local / Visita)</td><td><span class="badge-1">1 pt</span></td></tr>
-      <tr><td>Marcador exacto</td><td><span class="badge-3">3 pts</span></td></tr>
+      <tr><td>Aciertas quién gana el partido</td><td><span class="badge-1">1 pt</span></td></tr>
+      <tr><td>Aciertas el marcador exacto</td><td><span class="badge-3">3 pts</span></td></tr>
       <tr><td>Máximo posible (31 partidos)</td><td><strong style="color:#1a6b3c">93 pts</strong></td></tr>
     </tbody>
   </table>
   </div>
 
   <!-- BONUS -->
-  <h2 style="margin-top:1.5rem">🎁 Bonus final</h2>
+  <h2 style="margin-top:1.5rem">🎁 Puntos extra (bonus final)</h2>
   <div class="table-wrap">
   <table style="margin-top:.5rem">
     <thead><tr>
-      <th style="text-align:left">Pronóstico correcto</th>
+      <th style="text-align:left">Si predices correctamente...</th>
       <th>Bonus</th>
     </tr></thead>
     <tbody>
-      <tr><td>🥇 Campeón</td><td><span class="badge-3">+5 pts</span></td></tr>
-      <tr><td>🥈 Subcampeón</td><td><span class="badge-3">+3 pts</span></td></tr>
-      <tr><td>🥉 Tercer lugar</td><td><span class="badge-1">+2 pts</span></td></tr>
-      <tr><td>4° lugar</td><td><span class="badge-1">+1 pt</span></td></tr>
+      <tr><td>🥇 Al campeón del Mundial</td><td><span class="badge-3">+5 pts</span></td></tr>
+      <tr><td>🥈 Al subcampeón</td><td><span class="badge-3">+3 pts</span></td></tr>
+      <tr><td>🥉 Al tercer lugar</td><td><span class="badge-1">+2 pts</span></td></tr>
+      <tr><td>Al cuarto lugar</td><td><span class="badge-1">+1 pt</span></td></tr>
     </tbody>
   </table>
   </div>
 
   <div style="margin-top:1rem;background:#f0faf4;border-left:4px solid #2e8b57;padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.85rem">
-    📊 <strong>Máximo total posible: 314 pts</strong> (216 grupal + 93 eliminatoria + 5 bonus)
+    📊 <strong>Máximo total posible: 314 pts</strong> (216 fase grupal + 93 eliminatoria + 5 bonus)
   </div>
 
   <!-- PREMIO -->
@@ -139,7 +139,8 @@
   <div class="table-wrap">
   <table style="margin-top:.5rem">
     <tbody>
-      <tr><td>Cuota de participación</td><td><strong>$15.000</strong></td></tr>
+      <tr><td>Cuota fase grupal</td><td><strong>$15.000</strong></td></tr>
+      <tr><td>Cuota fase eliminatoria</td><td><strong>Por definir</strong></td></tr>
       <tr><td>1° lugar</td><td><strong style="color:#c9a227">65% del pozo</strong></td></tr>
       <tr><td>2° lugar</td><td><strong style="color:#9e9e9e">30% del pozo</strong></td></tr>
       <tr><td>Costo App</td><td><strong style="color:#9e9e9e">5% del pozo</strong></td></tr>
@@ -148,12 +149,12 @@
   </div>
 
   <div style="margin-top:1.25rem;background:#fff8e1;border-left:4px solid #f4c430;padding:.75rem 1rem;border-radius:0 6px 6px 0;font-size:.88rem">
-    💳 Transferir antes del <strong>11 de junio de 2026</strong> (primer partido del Mundial).<br><br>
-    <strong>Datos de transferencia:</strong><br>
+    💳 Transfiere antes del <strong>11 de junio de 2026</strong> (primer partido del Mundial).<br><br>
+    <strong>Datos para transferir:</strong><br>
     Banco Santander<br>
     Cuenta corriente N° <strong>68960460</strong><br>
     RUT <strong>15.640.101-3</strong><br><br>
-    Enviar comprobante al grupo de WhatsApp Polla Mundial 2026.
+    Envía el comprobante al grupo de WhatsApp Polla Mundial 2026.
   </div>
 
   <!-- FECHAS -->
@@ -161,11 +162,12 @@
   <div class="table-wrap">
   <table style="margin-top:.5rem">
     <tbody>
-      <tr><td>Cierre de pronósticos fase grupal</td><td><strong>4 de junio de 2026</strong></td></tr>
+      <tr><td>Último día para ingresar pronósticos</td><td><strong>4 de junio de 2026</strong></td></tr>
+      <tr><td>Último día para transferir</td><td><strong>11 de junio de 2026</strong></td></tr>
       <tr><td>Inicio del Mundial</td><td><strong>11 de junio de 2026</strong></td></tr>
       <tr><td>Fin fase grupal</td><td><strong>27 de junio de 2026</strong></td></tr>
       <tr><td>Inicio fase eliminatoria</td><td><strong>28 de junio de 2026</strong></td></tr>
-      <tr><td>Final</td><td><strong>19 de julio de 2026</strong></td></tr>
+      <tr><td>Final del Mundial</td><td><strong>19 de julio de 2026</strong></td></tr>
     </tbody>
   </table>
   </div>
@@ -173,9 +175,9 @@
   <div style="margin-top:1.25rem;padding:.75rem 1rem;border-radius:6px;font-size:.88rem;
     {% if abierto %}background:#d6f0e0;border-left:4px solid #2e8b57{% else %}background:#fde8e8;border-left:4px solid #c0392b{% endif %}">
     {% if abierto %}
-      ✅ <strong>Pronósticos fase grupal abiertos</strong> — tienes tiempo hasta el 4 de junio.
+      ✅ <strong>Pronósticos abiertos</strong> — tienes tiempo hasta el 4 de junio para completarlos.
     {% else %}
-      🔒 <strong>Pronósticos fase grupal cerrados</strong> — el plazo venció el 4 de junio.
+      🔒 <strong>Pronósticos cerrados</strong> — el plazo venció el 4 de junio.
     {% endif %}
   </div>
 
