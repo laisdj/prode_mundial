@@ -96,3 +96,5 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 FASE2_ACTIVA = os.getenv('FASE2_ACTIVA', 'False') == 'True'
+
+STATICFILES_DIRS = [BASE_DIR / 'static']
