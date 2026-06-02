@@ -25,9 +25,19 @@
           {{ m.usuario.username|first|upper }}
         </div>
         <div style="max-width:75%">
-          <div style="font-size:.7rem;color:#888;margin-bottom:.2rem;
-            {% if m.usuario == request.user %}text-align:right{% endif %}">
-            {{ m.usuario.username }} · {{ m.creado_en|date:"d/m H:i" }}
+          <div style="font-size:.7rem;color:#888;margin-bottom:.2rem;display:flex;align-items:center;gap:.4rem;
+            {% if m.usuario == request.user %}justify-content:flex-end{% endif %}">
+            <span>{{ m.usuario.username }} · {{ m.creado_en|date:"d/m H:i" }}</span>
+            {% if m.usuario == request.user or request.user.is_staff %}
+            <form method="post" action="{% url 'borrar_mensaje' m.id %}" style="margin:0">
+              {% csrf_token %}
+              <button type="submit"
+                      onclick="return confirm('¿Borrar este mensaje?')"
+                      style="background:none;border:none;cursor:pointer;color:#ccc;font-size:.75rem;padding:0;line-height:1">
+                🗑️
+              </button>
+            </form>
+            {% endif %}
           </div>
           <div class="burbuja" data-user="{{ m.usuario.username }}"
                style="padding:.5rem .75rem;border-radius:10px;font-size:.88rem;
@@ -81,7 +91,6 @@ function aplicarColores() {
 
 aplicarColores();
 
-// Auto-refresh cada 30 segundos
 setInterval(() => {
   fetch('{% url "chat_mensajes" %}')
     .then(r => r.json())
@@ -100,8 +109,8 @@ setInterval(() => {
               ${m.usuario[0].toUpperCase()}
             </div>
             <div style="max-width:75%">
-              <div style="font-size:.7rem;color:#888;margin-bottom:.2rem;${esYo ? 'text-align:right' : ''}">
-                ${m.usuario} · ${m.hora}
+              <div style="font-size:.7rem;color:#888;margin-bottom:.2rem;display:flex;align-items:center;gap:.4rem;${esYo ? 'justify-content:flex-end' : ''}">
+                <span>${m.usuario} · ${m.hora}</span>
               </div>
               <div style="padding:.5rem .75rem;font-size:.88rem;
                 background:${esYo ? color : '#f0f4f0'};

@@ -1,7 +1,15 @@
 {% extends 'prode/base.html' %}
 {% block content %}
 <div class="card">
-  <h1>🏆 Tabla de posiciones</h1>
+  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
+    <h1 style="margin-bottom:0">🏆 Tabla de posiciones</h1>
+    <div style="font-size:.85rem;color:#666">
+      ⚽ Partidos jugados: <strong style="color:#1a6b3c">{{ partidos_jugados }}</strong> / {{ total_partidos }}
+      <div style="margin-top:.3rem;background:#e0e0e0;border-radius:4px;height:6px;width:160px">
+        <div style="background:#2e8b57;border-radius:4px;height:6px;width:{% widthratio partidos_jugados total_partidos 160 %}px"></div>
+      </div>
+    </div>
+  </div>
   {% if tabla %}
   <div class="table-wrap">
   <table>

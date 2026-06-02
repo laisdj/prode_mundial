@@ -104,7 +104,15 @@ def ranking(request):
         })
 
     tabla.sort(key=lambda x: x['total'], reverse=True)
-    return render(request, 'prode/ranking.html', {'tabla': tabla})
+
+    partidos_jugados = Partido.objects.filter(jugado=True).count()
+    total_partidos = Partido.objects.count()
+
+    return render(request, 'prode/ranking.html', {
+        'tabla': tabla,
+        'partidos_jugados': partidos_jugados,
+        'total_partidos': total_partidos,
+    })
 
 
 def partidos(request):
@@ -747,3 +755,16 @@ def historial_desafios(request):
 
     return render(request, 'prode/historial_desafios.html', {'historial': historial})
 
+
+@login_required(login_url='login')
+def borrar_mensaje(request, mensaje_id):
+    if request.method == 'POST':
+        try:
+            if request.user.is_staff:
+                m = Mensaje.objects.get(id=mensaje_id)
+            else:
+                m = Mensaje.objects.get(id=mensaje_id, usuario=request.user)
+            m.delete()
+        except Mensaje.DoesNotExist:
+            pass
+    return redirect('chat')
