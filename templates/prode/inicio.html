@@ -1,0 +1,129 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+
+<!-- COUNTDOWN -->
+<div class="card" style="text-align:center;padding:2rem 1rem;background:linear-gradient(135deg,#1a6b3c,#2e8b57);color:#fff;border-radius:12px">
+  <div style="font-size:2rem;margin-bottom:.5rem">⚽</div>
+  <h1 style="color:#fff;font-size:1.5rem;margin-bottom:.25rem">Mundial 2026</h1>
+  <p style="opacity:.85;font-size:.9rem;margin-bottom:1.5rem">México · Canadá · Estados Unidos</p>
+
+  <div id="countdown" style="display:flex;justify-content:center;gap:1rem;flex-wrap:wrap;margin-bottom:1rem">
+    <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:.75rem 1.25rem;min-width:70px">
+      <div id="cd-dias" style="font-size:2rem;font-weight:700">--</div>
+      <div style="font-size:.75rem;opacity:.8">días</div>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:.75rem 1.25rem;min-width:70px">
+      <div id="cd-horas" style="font-size:2rem;font-weight:700">--</div>
+      <div style="font-size:.75rem;opacity:.8">horas</div>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:.75rem 1.25rem;min-width:70px">
+      <div id="cd-min" style="font-size:2rem;font-weight:700">--</div>
+      <div style="font-size:.75rem;opacity:.8">minutos</div>
+    </div>
+    <div style="background:rgba(255,255,255,.15);border-radius:10px;padding:.75rem 1.25rem;min-width:70px">
+      <div id="cd-seg" style="font-size:2rem;font-weight:700">--</div>
+      <div style="font-size:.75rem;opacity:.8">segundos</div>
+    </div>
+  </div>
+  <p style="opacity:.75;font-size:.82rem">Primer partido: Jue 11 de junio · 15:00 hrs</p>
+</div>
+
+<!-- LINKS RÁPIDOS -->
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:1rem;margin-bottom:1.5rem">
+
+  <a href="{% url 'ranking' %}" style="text-decoration:none">
+    <div class="card" style="text-align:center;padding:1.25rem .75rem;margin-bottom:0;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:1.75rem">🏆</div>
+      <div style="font-weight:700;color:#1a6b3c;margin-top:.4rem;font-size:.9rem">Ranking</div>
+      <div style="font-size:.75rem;color:#888;margin-top:.2rem">Tabla de posiciones</div>
+    </div>
+  </a>
+
+  <a href="{% url 'partidos' %}" style="text-decoration:none">
+    <div class="card" style="text-align:center;padding:1.25rem .75rem;margin-bottom:0;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:1.75rem">📅</div>
+      <div style="font-weight:700;color:#1a6b3c;margin-top:.4rem;font-size:.9rem">Partidos</div>
+      <div style="font-size:.75rem;color:#888;margin-top:.2rem">Resultados en vivo</div>
+    </div>
+  </a>
+
+  <a href="{% url 'clasificacion' %}" style="text-decoration:none">
+    <div class="card" style="text-align:center;padding:1.25rem .75rem;margin-bottom:0;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:1.75rem">📊</div>
+      <div style="font-weight:700;color:#1a6b3c;margin-top:.4rem;font-size:.9rem">Clasificación</div>
+      <div style="font-size:.75rem;color:#888;margin-top:.2rem">Tabla de grupos</div>
+    </div>
+  </a>
+
+  <a href="{% url 'bracket' %}" style="text-decoration:none">
+    <div class="card" style="text-align:center;padding:1.25rem .75rem;margin-bottom:0;transition:transform .15s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:1.75rem">🏟️</div>
+      <div style="font-weight:700;color:#1a6b3c;margin-top:.4rem;font-size:.9rem">Bracket</div>
+      <div style="font-size:.75rem;color:#888;margin-top:.2rem">Fase eliminatoria</div>
+    </div>
+  </a>
+
+  {% if user.is_authenticated and not user.is_staff %}
+  <a href="{% url 'pronosticos' %}" style="text-decoration:none">
+    <div class="card" style="text-align:center;padding:1.25rem .75rem;margin-bottom:0;transition:transform .15s;border:2px solid #cce8ff" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:1.75rem">📝</div>
+      <div style="font-weight:700;color:#1565c0;margin-top:.4rem;font-size:.9rem">Mis pronósticos</div>
+      <div style="font-size:.75rem;color:#888;margin-top:.2rem">Llenar predicciones</div>
+    </div>
+  </a>
+
+  <a href="{% url 'desafios' %}" style="text-decoration:none">
+    <div class="card" style="text-align:center;padding:1.25rem .75rem;margin-bottom:0;transition:transform .15s;border:2px solid #ffd199" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:1.75rem">⚔️</div>
+      <div style="font-weight:700;color:#e65100;margin-top:.4rem;font-size:.9rem">Desafíos</div>
+      <div style="font-size:.75rem;color:#888;margin-top:.2rem">Reta a tus amigos</div>
+    </div>
+  </a>
+  {% endif %}
+
+  {% if not user.is_authenticated %}
+  <a href="{% url 'registro' %}" style="text-decoration:none">
+    <div class="card" style="text-align:center;padding:1.25rem .75rem;margin-bottom:0;transition:transform .15s;border:2px solid #d6f0e0" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform=''">
+      <div style="font-size:1.75rem">🎯</div>
+      <div style="font-weight:700;color:#1a6b3c;margin-top:.4rem;font-size:.9rem">¡Únete!</div>
+      <div style="font-size:.75rem;color:#888;margin-top:.2rem">Crea tu cuenta</div>
+    </div>
+  </a>
+  {% endif %}
+
+</div>
+
+<!-- ESTADO PRONÓSTICOS -->
+<div style="padding:.75rem 1rem;border-radius:6px;font-size:.88rem;
+  {% if abierto %}background:#d6f0e0;border-left:4px solid #2e8b57{% else %}background:#fde8e8;border-left:4px solid #c0392b{% endif %}">
+  {% if abierto %}
+    ✅ <strong>Pronósticos abiertos</strong> — tienes tiempo hasta el 4 de junio para completarlos.
+    <a href="{% url 'reglas' %}" style="color:#1a6b3c;margin-left:.5rem">Ver reglas →</a>
+  {% else %}
+    🔒 <strong>Pronósticos cerrados</strong> — el plazo venció el 4 de junio.
+  {% endif %}
+</div>
+
+<script>
+const target = new Date('{{ primer_partido }}');
+function tick() {
+  const now = new Date();
+  const diff = target - now;
+  if (diff <= 0) {
+    document.getElementById('countdown').innerHTML = '<div style="font-size:1.5rem;font-weight:700">⚽ ¡El Mundial ya comenzó!</div>';
+    return;
+  }
+  const dias  = Math.floor(diff / 86400000);
+  const horas = Math.floor((diff % 86400000) / 3600000);
+  const min   = Math.floor((diff % 3600000) / 60000);
+  const seg   = Math.floor((diff % 60000) / 1000);
+  document.getElementById('cd-dias').textContent  = String(dias).padStart(2,'0');
+  document.getElementById('cd-horas').textContent = String(horas).padStart(2,'0');
+  document.getElementById('cd-min').textContent   = String(min).padStart(2,'0');
+  document.getElementById('cd-seg').textContent   = String(seg).padStart(2,'0');
+}
+tick();
+setInterval(tick, 1000);
+</script>
+
+{% endblock %}
