@@ -1,18 +1,21 @@
-{% load static %}
 <!DOCTYPE html>
+{% load static %}
 <html lang="es">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <link rel="icon" href="{% static 'favicon.ico' %}"/>
   <title>⚽ Prode Mundial 2026</title>
+  <link rel="icon" href="{% static 'favicon.ico' %}"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{font-family:Arial,sans-serif;background:#f0f4f0;color:#222}
     nav{background:#1a6b3c;padding:.75rem 1rem;display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;position:sticky;top:0;z-index:100}
-    nav a{color:#fff;text-decoration:none;font-size:.85rem;white-space:nowrap}
-    nav a:hover{text-decoration:underline}
-    nav .brand{font-weight:700;font-size:.95rem;margin-right:auto;white-space:nowrap}
+    nav a{color:#fff;text-decoration:none;font-size:.85rem;white-space:nowrap;padding:.2rem .4rem;border-radius:4px}
+    nav a:hover{text-decoration:none;opacity:.85}
+    nav a.general{color:#fff}
+    nav a.personal{background:rgba(100,180,255,.2);color:#cce8ff}
+    nav a.social{background:rgba(255,160,50,.2);color:#ffd199}
+    nav .brand{font-weight:700;font-size:.95rem;margin-right:auto;white-space:nowrap;color:#fff}
     .container{max-width:960px;margin:1.5rem auto;padding:0 .75rem}
     .card{background:#fff;border-radius:10px;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:1.5rem}
     h1{font-size:1.3rem;color:#1a6b3c;margin-bottom:1rem}
@@ -45,17 +48,17 @@
 <body>
 <nav>
   <span class="brand">⚽ Jordi Polla Mundial 2026</span>
-  <a href="{% url 'reglas' %}">Reglas</a>
-  <a href="{% url 'ranking' %}">Ranking</a>
-  <a href="{% url 'partidos' %}">Partidos</a>
-  <a href="{% url 'clasificacion' %}">Clasificación</a>
-  <a href="{% url 'eliminatoria' %}">Eliminatoria</a>
-  <a href="{% url 'bracket' %}">Bracket</a>
+  <a href="{% url 'reglas' %}" class="general">Reglas</a>
+  <a href="{% url 'ranking' %}" class="general">Ranking</a>
+  <a href="{% url 'partidos' %}" class="general">Partidos</a>
+  <a href="{% url 'clasificacion' %}" class="general">Clasificación</a>
+  <a href="{% url 'eliminatoria' %}" class="general">Eliminatoria</a>
+  <a href="{% url 'bracket' %}" class="general">Bracket</a>
   {% if user.is_authenticated %}
     {% if not user.is_staff %}
-      <a href="{% url 'pronosticos' %}">Mis pronósticos</a>
-      <a href="{% url 'mi_clasificacion' %}">Mi clasificación</a>
-      <a href="{% url 'desafios' %}">
+      <a href="{% url 'pronosticos' %}" class="personal">Mis pronósticos</a>
+      <a href="{% url 'mi_clasificacion' %}" class="personal">Mi clasificación</a>
+      <a href="{% url 'desafios' %}" class="social">
         ⚔️ Desafíos
         {% if desafios_pendientes %}
           <span style="background:#e74c3c;color:#fff;border-radius:10px;padding:1px 6px;font-size:.7rem;font-weight:700;margin-left:2px">
@@ -64,7 +67,7 @@
         {% endif %}
       </a>
       {% if fase2_activa %}
-        <a href="{% url 'pronosticos_eliminatoria' %}">2da Fase</a>
+        <a href="{% url 'pronosticos_eliminatoria' %}" class="personal">2da Fase</a>
       {% endif %}
     {% endif %}
     {% if user.is_staff %}
@@ -82,14 +85,14 @@
       </a>
       <a href="#" style="opacity:.4;cursor:default;font-size:.8rem">2da Fase</a>
     {% endif %}
-    <a href="{% url 'chat' %}">💬 Chat</a>
+    <a href="{% url 'chat' %}" class="social">💬 Chat</a>
     <a href="{% url 'logout' %}"
        style="background:#fff;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
       Salir ({{ user.username }})
     </a>
   {% else %}
-    <a href="{% url 'login' %}">Entrar</a>
-    <a href="{% url 'registro' %}">Registrarse</a>
+    <a href="{% url 'login' %}" class="general">Entrar</a>
+    <a href="{% url 'registro' %}" class="general">Registrarse</a>
   {% endif %}
 </nav>
 <div class="container">
