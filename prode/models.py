@@ -143,3 +143,61 @@ class Mensaje(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username}: {self.texto[:50]}"
+
+class Desafio(models.Model):
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('aceptado',  'Aceptado'),
+        ('rechazado', 'Rechazado'),
+    ]
+
+    retador      = models.ForeignKey(User, on_delete=models.CASCADE, related_name='desafios_enviados')
+    retado       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='desafios_recibidos')
+    partido      = models.ForeignKey(Partido, on_delete=models.CASCADE)
+    monto        = models.IntegerField(default=0)
+    gl_retador   = models.IntegerField(null=True, blank=True)
+    gv_retador   = models.IntegerField(null=True, blank=True)
+    gl_retado    = models.IntegerField(null=True, blank=True)
+    gv_retado    = models.IntegerField(null=True, blank=True)
+    estado       = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='pendiente')
+    creado_en    = models.DateTimeField(auto_now_add=True)
+
+    def resultado_retador(self):
+        if self.gl_retador is None or self.gv_retador is None:
+            return None
+        if self.gl_retador > self.gv_retador: return 'L'
+        if self.gl_retador < self.gv_retador: return 'V'
+        return 'E'
+
+    def resultado_retado(self):
+        if self.gl_retado is None or self.gv_retado is None:
+            return None
+        if self.gl_retado > self.gv_retado: return 'L'
+        if self.gl_retado < self.gv_retado: return 'V'
+        return 'E'
+
+    def ganador(self):
+        if not self.partido.jugado or self.estado != 'aceptado':
+            return None
+        real = self.partido.resultado_real()
+        if real is None:
+            return None
+        pred_retador = self.resultado_retador()
+        pred_retado  = self.resultado_retado()
+        exacto_retador = (self.gl_retador == self.partido.goles_l and
+                          self.gv_retador == self.partido.goles_v)
+        exacto_retado  = (self.gl_retado == self.partido.goles_l and
+                          self.gv_retado == self.partido.goles_v)
+        pts_retador = 3 if exacto_retador else (1 if pred_retador == real else 0)
+        pts_retado  = 3 if exacto_retado  else (1 if pred_retado  == real else 0)
+        if pts_retador > pts_retado:
+            return self.retador
+        if pts_retado > pts_retador:
+            return self.retado
+        return None  # empate
+
+    def __str__(self):
+        return f"{self.retador} vs {self.retado} — {self.partido}"
+
+    class Meta:
+        ordering = ['-creado_en']

@@ -20,4 +20,7 @@ urlpatterns = [
     path('gestionar-eliminatoria/', views.gestionar_eliminatoria, name='gestionar_eliminatoria'),
     path('chat/', views.chat, name='chat'),
     path('chat/mensajes/', views.chat_mensajes, name='chat_mensajes'),
+    path('desafios/', views.desafios, name='desafios'),
+    path('desafios/crear/', views.crear_desafio, name='crear_desafio'),
+    path('desafios/<int:desafio_id>/responder/', views.responder_desafio, name='responder_desafio'),
 ]

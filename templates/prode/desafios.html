@@ -1,0 +1,164 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<h1 style="color:#1a6b3c;margin-bottom:1.5rem">⚔️ Desafíos</h1>
+
+<!-- Crear desafío -->
+<div class="card">
+  <h2>➕ Nuevo desafío</h2>
+  <form method="post" action="{% url 'crear_desafio' %}" style="margin-top:.75rem">
+    {% csrf_token %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-bottom:.75rem">
+      <div>
+        <label style="font-size:.8rem;color:#666;display:block;margin-bottom:.25rem">Retar a</label>
+        <select name="retado" style="width:100%;padding:.4rem .6rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem">
+          {% for u in usuarios %}
+            <option value="{{ u.id }}">{{ u.username }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.8rem;color:#666;display:block;margin-bottom:.25rem">Partido</label>
+        <select name="partido" style="width:100%;padding:.4rem .6rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem">
+          {% for p in partidos %}
+            <option value="{{ p.id }}">[{{ p.grupo }}] {{ p.local }} vs {{ p.visita }} · {{ p.fecha|date:"d/m H:i" }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.8rem;color:#666;display:block;margin-bottom:.25rem">Monto ($)</label>
+        <input type="number" name="monto" min="0" placeholder="ej: 5000"
+               style="width:100%;padding:.4rem .6rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem;margin-bottom:0"/>
+      </div>
+      <div>
+        <label style="font-size:.8rem;color:#666;display:block;margin-bottom:.25rem">Tu pronóstico</label>
+        <div style="display:flex;align-items:center;gap:.4rem">
+          <input class="inp-score" type="number" name="gl" min="0" max="20" placeholder="-"/>
+          <span style="color:#aaa">:</span>
+          <input class="inp-score" type="number" name="gv" min="0" max="20" placeholder="-"/>
+        </div>
+      </div>
+    </div>
+    <button class="btn" type="submit">⚔️ Enviar desafío</button>
+  </form>
+</div>
+
+<!-- Desafíos recibidos -->
+{% if recibidos %}
+<div class="card">
+  <h2>📩 Desafíos recibidos</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:.75rem">
+  {% for d in recibidos %}
+    <div style="border:2px solid {% if d.estado == 'pendiente' %}#f4c430{% elif d.estado == 'aceptado' %}#2e8b57{% else %}#e0e0e0{% endif %};border-radius:10px;overflow:hidden">
+      <div style="background:{% if d.estado == 'pendiente' %}#f4c430{% elif d.estado == 'aceptado' %}#2e8b57{% else %}#e0e0e0{% endif %};padding:.4rem .75rem;font-size:.75rem;font-weight:700;color:{% if d.estado == 'aceptado' %}#fff{% else %}#1a6b3c{% endif %}">
+        {% if d.estado == 'pendiente' %}⏳ Pendiente
+        {% elif d.estado == 'aceptado' %}✅ Aceptado
+        {% else %}❌ Rechazado{% endif %}
+      </div>
+      <div style="padding:.75rem">
+        <div style="font-size:.85rem;margin-bottom:.4rem">
+          <strong>{{ d.retador.username }}</strong> te desafía en:
+        </div>
+        <div style="font-size:.8rem;color:#666;margin-bottom:.4rem">
+          [{{ d.partido.grupo }}] {{ d.partido.local }} vs {{ d.partido.visita }}<br>
+          {{ d.partido.fecha|date:"d/m H:i" }}
+        </div>
+        <div style="font-size:.85rem;margin-bottom:.4rem">
+          💰 Monto: <strong>${{ d.monto|floatformat:"0" }}</strong>
+        </div>
+        <div style="font-size:.85rem;margin-bottom:.75rem">
+          Su pronóstico: <strong>{{ d.gl_retador }} - {{ d.gv_retador }}</strong>
+        </div>
+
+        {% if d.estado == 'pendiente' %}
+        <form method="post" action="{% url 'responder_desafio' d.id %}">
+          {% csrf_token %}
+          <div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.5rem">
+            <span style="font-size:.8rem;color:#666">Tu pronóstico:</span>
+            <input class="inp-score" type="number" name="gl" min="0" max="20" placeholder="-"/>
+            <span style="color:#aaa">:</span>
+            <input class="inp-score" type="number" name="gv" min="0" max="20" placeholder="-"/>
+          </div>
+          <div style="display:flex;gap:.5rem">
+            <button class="btn" type="submit" name="accion" value="aceptar"
+                    style="font-size:.8rem;padding:.35rem .9rem">✅ Aceptar</button>
+            <button type="submit" name="accion" value="rechazar"
+                    style="font-size:.8rem;padding:.35rem .9rem;background:none;border:1px solid #ccc;border-radius:6px;cursor:pointer;color:#666">❌ Rechazar</button>
+          </div>
+        </form>
+        {% elif d.estado == 'aceptado' %}
+          <div style="font-size:.85rem">Tu pronóstico: <strong>{{ d.gl_retado }} - {{ d.gv_retado }}</strong></div>
+          {% if d.partido.jugado %}
+            {% with g=d.ganador %}
+              {% if g %}
+                <div style="margin-top:.5rem;font-weight:700;color:{% if g == request.user %}#1a6b3c{% else %}#c0392b{% endif %}">
+                  {% if g == request.user %}🏆 ¡Ganaste!{% else %}😔 Perdiste{% endif %}
+                </div>
+              {% else %}
+                <div style="margin-top:.5rem;color:#888">🤝 Empate</div>
+              {% endif %}
+            {% endwith %}
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+<!-- Desafíos enviados -->
+{% if enviados %}
+<div class="card">
+  <h2>📤 Desafíos enviados</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:.75rem">
+  {% for d in enviados %}
+    <div style="border:2px solid {% if d.estado == 'pendiente' %}#f4c430{% elif d.estado == 'aceptado' %}#2e8b57{% else %}#e0e0e0{% endif %};border-radius:10px;overflow:hidden">
+      <div style="background:{% if d.estado == 'pendiente' %}#f4c430{% elif d.estado == 'aceptado' %}#2e8b57{% else %}#e0e0e0{% endif %};padding:.4rem .75rem;font-size:.75rem;font-weight:700;color:{% if d.estado == 'aceptado' %}#fff{% else %}#1a6b3c{% endif %}">
+        {% if d.estado == 'pendiente' %}⏳ Esperando respuesta
+        {% elif d.estado == 'aceptado' %}✅ Aceptado
+        {% else %}❌ Rechazado{% endif %}
+      </div>
+      <div style="padding:.75rem">
+        <div style="font-size:.85rem;margin-bottom:.4rem">
+          Desafío a <strong>{{ d.retado.username }}</strong> en:
+        </div>
+        <div style="font-size:.8rem;color:#666;margin-bottom:.4rem">
+          [{{ d.partido.grupo }}] {{ d.partido.local }} vs {{ d.partido.visita }}<br>
+          {{ d.partido.fecha|date:"d/m H:i" }}
+        </div>
+        <div style="font-size:.85rem;margin-bottom:.4rem">
+          💰 Monto: <strong>${{ d.monto|floatformat:"0" }}</strong>
+        </div>
+        <div style="font-size:.85rem">
+          Tu pronóstico: <strong>{{ d.gl_retador }} - {{ d.gv_retador }}</strong>
+        </div>
+        {% if d.estado == 'aceptado' %}
+          <div style="font-size:.85rem;margin-top:.25rem">
+            Su pronóstico: <strong>{{ d.gl_retado }} - {{ d.gv_retado }}</strong>
+          </div>
+          {% if d.partido.jugado %}
+            {% with g=d.ganador %}
+              {% if g %}
+                <div style="margin-top:.5rem;font-weight:700;color:{% if g == request.user %}#1a6b3c{% else %}#c0392b{% endif %}">
+                  {% if g == request.user %}🏆 ¡Ganaste!{% else %}😔 Perdiste{% endif %}
+                </div>
+              {% else %}
+                <div style="margin-top:.5rem;color:#888">🤝 Empate</div>
+              {% endif %}
+            {% endwith %}
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+{% endif %}
+
+{% if not enviados and not recibidos %}
+<div class="card" style="text-align:center;color:#888;padding:2rem">
+  No tienes desafíos aún. ¡Reta a alguien! ⚔️
+</div>
+{% endif %}
+
+{% endblock %}

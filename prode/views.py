@@ -7,6 +7,7 @@ from django.conf import settings
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio
 from datetime import date
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje
+from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje, Desafio
 
 
 def login_view(request):
@@ -634,3 +635,84 @@ def chat_mensajes(request):
         for m in mensajes
     ]
     return JsonResponse({'mensajes': data})
+
+@login_required(login_url='login')
+def desafios(request):
+    enviados = Desafio.objects.filter(retador=request.user).select_related('retado', 'partido')
+    recibidos = Desafio.objects.filter(retado=request.user).select_related('retador', 'partido')
+    usuarios = User.objects.filter(is_superuser=False).exclude(id=request.user.id)
+    partidos = Partido.objects.filter(jugado=False).order_by('fecha')
+
+    return render(request, 'prode/desafios.html', {
+        'enviados': enviados,
+        'recibidos': recibidos,
+        'usuarios': usuarios,
+        'partidos': partidos,
+    })
+
+
+@login_required(login_url='login')
+def crear_desafio(request):
+    if request.method == 'POST':
+        retado_id = request.POST.get('retado')
+        partido_id = request.POST.get('partido')
+        monto = request.POST.get('monto', '0').strip()
+        gl = request.POST.get('gl', '').strip()
+        gv = request.POST.get('gv', '').strip()
+
+        try:
+            retado = User.objects.get(id=retado_id)
+            partido = Partido.objects.get(id=partido_id)
+            gl_int = int(gl)
+            gv_int = int(gv)
+            monto_int = int(monto) if monto else 0
+
+            if retado == request.user:
+                messages.error(request, 'No puedes desafiarte a ti mismo.')
+            elif partido.jugado:
+                messages.error(request, 'Ese partido ya se jugó.')
+            else:
+                Desafio.objects.create(
+                    retador=request.user,
+                    retado=retado,
+                    partido=partido,
+                    monto=monto_int,
+                    gl_retador=gl_int,
+                    gv_retador=gv_int,
+                )
+                messages.success(request, f'¡Desafío enviado a {retado.username}!')
+        except (ValueError, User.DoesNotExist, Partido.DoesNotExist):
+            messages.error(request, 'Datos inválidos.')
+
+    return redirect('desafios')
+
+
+@login_required(login_url='login')
+def responder_desafio(request, desafio_id):
+    try:
+        desafio = Desafio.objects.get(id=desafio_id, retado=request.user)
+    except Desafio.DoesNotExist:
+        messages.error(request, 'Desafío no encontrado.')
+        return redirect('desafios')
+
+    if request.method == 'POST':
+        accion = request.POST.get('accion')
+
+        if accion == 'rechazar':
+            desafio.estado = 'rechazado'
+            desafio.save()
+            messages.success(request, 'Desafío rechazado.')
+
+        elif accion == 'aceptar':
+            gl = request.POST.get('gl', '').strip()
+            gv = request.POST.get('gv', '').strip()
+            try:
+                desafio.gl_retado = int(gl)
+                desafio.gv_retado = int(gv)
+                desafio.estado = 'aceptado'
+                desafio.save()
+                messages.success(request, '¡Desafío aceptado!')
+            except ValueError:
+                messages.error(request, 'Ingresa un marcador válido.')
+
+    return redirect('desafios')
