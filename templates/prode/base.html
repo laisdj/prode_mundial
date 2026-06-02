@@ -16,6 +16,14 @@
     nav a.personal{background:rgba(100,180,255,.2);color:#cce8ff}
     nav a.social{background:rgba(255,160,50,.2);color:#ffd199}
     nav .brand{font-weight:700;font-size:.95rem;margin-right:auto;white-space:nowrap;color:#fff}
+    .hamburger{display:none;background:none;border:none;cursor:pointer;padding:.2rem;color:#fff;font-size:1.4rem}
+    .nav-links{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+    @media(max-width:700px){
+      .hamburger{display:block}
+      .nav-links{display:none;width:100%;flex-direction:column;align-items:flex-start;padding-top:.5rem;gap:.4rem}
+      .nav-links.open{display:flex}
+      .nav-links a{width:100%;padding:.4rem .6rem}
+    }
     .container{max-width:960px;margin:1.5rem auto;padding:0 .75rem}
     .card{background:#fff;border-radius:10px;padding:1.25rem;box-shadow:0 1px 4px rgba(0,0,0,.08);margin-bottom:1.5rem}
     h1{font-size:1.3rem;color:#1a6b3c;margin-bottom:1rem}
@@ -35,71 +43,78 @@
     .badge-3{background:#d6f0e0;color:#1a6b3c;border-radius:10px;padding:1px 8px;font-size:.75rem;font-weight:700}
     .badge-1{background:#e3f2fd;color:#1565c0;border-radius:10px;padding:1px 8px;font-size:.75rem;font-weight:700}
     .grp-badge{font-size:.7rem;font-weight:700;background:#e8f5e9;color:#1a6b3c;border-radius:4px;padding:1px 5px}
-    @media(max-width:600px){
-      nav .brand{font-size:.85rem}
-      nav a{font-size:.78rem}
-      .card{padding:1rem .75rem}
-      h1{font-size:1.1rem}
-      h2{font-size:.95rem}
-      .inp-score{width:32px;font-size:.85rem}
-    }
   </style>
 </head>
 <body>
 <nav>
   <span class="brand">⚽ Jordi Polla Mundial 2026</span>
-  <a href="{% url 'reglas' %}" class="general">Reglas</a>
-  <a href="{% url 'ranking' %}" class="general">Ranking</a>
-  <a href="{% url 'partidos' %}" class="general">Partidos</a>
-  <a href="{% url 'clasificacion' %}" class="general">Clasificación</a>
-  <a href="{% url 'eliminatoria' %}" class="general">Eliminatoria</a>
-  <a href="{% url 'bracket' %}" class="general">Bracket</a>
-  {% if user.is_authenticated %}
-    {% if not user.is_staff %}
-      <a href="{% url 'pronosticos' %}" class="personal">Mis pronósticos</a>
-      <a href="{% url 'mi_clasificacion' %}" class="personal">Mi clasificación</a>
-      <a href="{% url 'desafios' %}" class="social">
-        ⚔️ Desafíos
-        {% if desafios_pendientes %}
-          <span style="background:#e74c3c;color:#fff;border-radius:10px;padding:1px 6px;font-size:.7rem;font-weight:700;margin-left:2px">
-            {{ desafios_pendientes }}
-          </span>
+  <button class="hamburger" onclick="toggleNav()" aria-label="Menú">☰</button>
+  <div class="nav-links" id="nav-links">
+    <a href="{% url 'reglas' %}" class="general">Reglas</a>
+    <a href="{% url 'ranking' %}" class="general">Ranking</a>
+    <a href="{% url 'partidos' %}" class="general">Partidos</a>
+    <a href="{% url 'clasificacion' %}" class="general">Clasificación</a>
+    <a href="{% url 'eliminatoria' %}" class="general">Eliminatoria</a>
+    <a href="{% url 'bracket' %}" class="general">Bracket</a>
+    {% if user.is_authenticated %}
+      {% if not user.is_staff %}
+        <a href="{% url 'pronosticos' %}" class="personal">Mis pronósticos</a>
+        <a href="{% url 'mi_clasificacion' %}" class="personal">Mi clasificación</a>
+        <a href="{% url 'desafios' %}" class="social">
+          ⚔️ Desafíos
+          {% if desafios_pendientes %}
+            <span style="background:#e74c3c;color:#fff;border-radius:10px;padding:1px 6px;font-size:.7rem;font-weight:700;margin-left:2px">
+              {{ desafios_pendientes }}
+            </span>
+          {% endif %}
+        </a>
+        {% if fase2_activa %}
+          <a href="{% url 'pronosticos_eliminatoria' %}" class="personal">2da Fase</a>
         {% endif %}
-      </a>
-      {% if fase2_activa %}
-        <a href="{% url 'pronosticos_eliminatoria' %}" class="personal">2da Fase</a>
       {% endif %}
+      {% if user.is_staff %}
+        <a href="{% url 'cargar_resultados' %}"
+           style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
+          ⚙️ Resultados
+        </a>
+        <a href="{% url 'gestionar_eliminatoria' %}"
+           style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
+          🔧 Eliminatoria
+        </a>
+        <a href="{% url 'cargar_equipos_eliminatoria' %}"
+           style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
+          📋 Equipos R32
+        </a>
+        <a href="#" style="opacity:.4;cursor:default;font-size:.8rem">2da Fase</a>
+      {% endif %}
+      <a href="{% url 'chat' %}" class="social">💬 Chat</a>
+      <a href="{% url 'logout' %}"
+         style="background:#fff;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
+        Salir ({{ user.username }})
+      </a>
+    {% else %}
+      <a href="{% url 'login' %}" class="general">Entrar</a>
+      <a href="{% url 'registro' %}" class="general">Registrarse</a>
     {% endif %}
-    {% if user.is_staff %}
-      <a href="{% url 'cargar_resultados' %}"
-         style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
-        ⚙️ Resultados
-      </a>
-      <a href="{% url 'gestionar_eliminatoria' %}"
-         style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
-        🔧 Eliminatoria
-      </a>
-      <a href="{% url 'cargar_equipos_eliminatoria' %}"
-         style="background:#f4c430;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
-        📋 Equipos R32
-      </a>
-      <a href="#" style="opacity:.4;cursor:default;font-size:.8rem">2da Fase</a>
-    {% endif %}
-    <a href="{% url 'chat' %}" class="social">💬 Chat</a>
-    <a href="{% url 'logout' %}"
-       style="background:#fff;color:#1a6b3c;padding:.3rem .8rem;border-radius:6px;font-weight:700">
-      Salir ({{ user.username }})
-    </a>
-  {% else %}
-    <a href="{% url 'login' %}" class="general">Entrar</a>
-    <a href="{% url 'registro' %}" class="general">Registrarse</a>
-  {% endif %}
+  </div>
 </nav>
+
 <div class="container">
   {% for msg in messages %}
     <div class="{% if msg.tags == 'error' %}msg-err{% else %}msg-ok{% endif %}">{{ msg }}</div>
   {% endfor %}
   {% block content %}{% endblock %}
 </div>
+
+<script>
+function toggleNav() {
+  document.getElementById('nav-links').classList.toggle('open');
+}
+document.querySelectorAll('.nav-links a').forEach(a => {
+  a.addEventListener('click', () => {
+    document.getElementById('nav-links').classList.remove('open');
+  });
+});
+</script>
 </body>
 </html>
