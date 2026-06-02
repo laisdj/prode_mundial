@@ -18,4 +18,6 @@ urlpatterns = [
     path('eliminatoria-resultados/', views.eliminatoria, name='eliminatoria'),
     path('bracket/', views.bracket, name='bracket'),
     path('gestionar-eliminatoria/', views.gestionar_eliminatoria, name='gestionar_eliminatoria'),
+    path('chat/', views.chat, name='chat'),
+    path('chat/mensajes/', views.chat_mensajes, name='chat_mensajes'),
 ]

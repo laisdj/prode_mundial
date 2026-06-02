@@ -132,3 +132,14 @@ class PronosticoEliminatorio(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} — {self.partido}"
+    
+class Mensaje(models.Model):
+    usuario   = models.ForeignKey(User, on_delete=models.CASCADE)
+    texto     = models.CharField(max_length=300)
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-creado_en']
+
+    def __str__(self):
+        return f"{self.usuario.username}: {self.texto[:50]}"

@@ -6,6 +6,7 @@ from django.contrib import messages
 from django.conf import settings
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio
 from datetime import date
+from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje
 
 
 def login_view(request):
@@ -607,3 +608,29 @@ def gestionar_eliminatoria(request):
         'partidos_por_ronda': partidos_por_ronda,
         'rondas': RONDAS,
     })
+    
+@login_required(login_url='login')
+def chat(request):
+    if request.method == 'POST':
+        texto = request.POST.get('texto', '').strip()
+        if texto and len(texto) <= 300:
+            Mensaje.objects.create(usuario=request.user, texto=texto)
+        return redirect('chat')
+
+    mensajes = Mensaje.objects.select_related('usuario').all()[:100]
+    return render(request, 'prode/chat.html', {'mensajes': mensajes})
+
+
+@login_required(login_url='login')
+def chat_mensajes(request):
+    from django.http import JsonResponse
+    mensajes = Mensaje.objects.select_related('usuario').all()[:100]
+    data = [
+        {
+            'usuario': m.usuario.username,
+            'texto': m.texto,
+            'hora': m.creado_en.strftime('%d/%m %H:%M'),
+        }
+        for m in mensajes
+    ]
+    return JsonResponse({'mensajes': data})
