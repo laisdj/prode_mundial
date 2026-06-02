@@ -54,4 +54,30 @@
 </div>
 {% endfor %}
 </div>
+
+<!-- BRACKET PROYECTADO R32 -->
+<h1 style="color:#1a6b3c;margin:2rem 0 1rem">🏟️ Mi bracket proyectado — Round of 32</h1>
+<p style="font-size:.85rem;color:#666;margin-bottom:1.5rem">
+  Así quedarían los cruces del Round of 32 según tus pronósticos.
+</p>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem">
+{% for c in cruces_r32 %}
+  <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
+    <div style="background:#1a6b3c;color:#fff;font-size:.75rem;font-weight:700;padding:.4rem .75rem">
+      Partido {{ c.orden }} · {{ c.slot_local }} vs {{ c.slot_visita }}
+    </div>
+    <div style="padding:.75rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem">
+        <span style="font-size:.9rem;font-weight:700">{{ c.local }}</span>
+      </div>
+      <div style="text-align:center;font-size:.7rem;color:#aaa;margin:.2rem 0">vs</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-top:.3rem">
+        <span style="font-size:.9rem;font-weight:700">{{ c.visita }}</span>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
 {% endblock %}

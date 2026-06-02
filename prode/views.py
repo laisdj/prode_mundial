@@ -182,7 +182,6 @@ def clasificacion(request):
 
     return render(request, 'prode/clasificacion.html', {'grupos': grupos_ordenados})
 
-
 @login_required(login_url='login')
 def mi_clasificacion(request):
     grupos = {}
@@ -221,6 +220,8 @@ def mi_clasificacion(request):
 
     grupos_ordenados = {}
     terceros = []
+    primeros = {}
+    segundos = {}
 
     for letra, equipos in grupos.items():
         tabla = []
@@ -232,6 +233,11 @@ def mi_clasificacion(request):
             tabla.append(stats)
         tabla.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
         grupos_ordenados[letra] = tabla
+
+        if len(tabla) >= 1:
+            primeros[letra] = tabla[0]['nombre']
+        if len(tabla) >= 2:
+            segundos[letra] = tabla[1]['nombre']
         if len(tabla) >= 3:
             t = tabla[2].copy()
             t['grupo'] = letra
@@ -249,7 +255,52 @@ def mi_clasificacion(request):
             else:
                 e['estado'] = ''
 
-    return render(request, 'prode/mi_clasificacion.html', {'grupos': grupos_ordenados})
+    # Armar cruces R32 con equipos proyectados
+    def eq(slot):
+        # slot es ej: "1°A" o "2°B" o "3° A/B/C"
+        if slot.startswith('1°'):
+            g = slot[2:]
+            return primeros.get(g, slot)
+        elif slot.startswith('2°'):
+            g = slot[2:]
+            return segundos.get(g, slot)
+        else:
+            # mejor tercero — dejamos el slot tal cual por ahora
+            return slot
+
+    SLOTS_R32 = [
+        (1,  '2°A',  '2°B'),
+        (2,  '1°E',  '3° A/B/C/D/F'),
+        (3,  '1°F',  '2°C'),
+        (4,  '1°C',  '2°F'),
+        (5,  '1°I',  '3° C/D/F/G/H'),
+        (6,  '2°E',  '2°I'),
+        (7,  '1°A',  '3° C/E/F/H/I'),
+        (8,  '1°L',  '3° E/H/I/J/K'),
+        (9,  '1°D',  '3° B/E/F/I/J'),
+        (10, '1°G',  '3° A/E/H/I/J'),
+        (11, '2°K',  '2°L'),
+        (12, '1°H',  '2°J'),
+        (13, '1°B',  '3° E/F/G/I/J'),
+        (14, '1°J',  '2°H'),
+        (15, '1°K',  '3° D/E/I/J/L'),
+        (16, '2°D',  '2°G'),
+    ]
+
+    cruces_r32 = []
+    for orden, slot_l, slot_v in SLOTS_R32:
+        cruces_r32.append({
+            'orden': orden,
+            'slot_local': slot_l,
+            'slot_visita': slot_v,
+            'local': eq(slot_l),
+            'visita': eq(slot_v),
+        })
+
+    return render(request, 'prode/mi_clasificacion.html', {
+        'grupos': grupos_ordenados,
+        'cruces_r32': cruces_r32,
+    })
 
 
 @login_required(login_url='login')
