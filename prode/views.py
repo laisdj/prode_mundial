@@ -729,3 +729,20 @@ def eliminar_usuario(request, usuario_id):
         except User.DoesNotExist:
             messages.error(request, 'Usuario no encontrado.')
     return redirect('ranking')
+
+
+def historial_desafios(request):
+    desafios = Desafio.objects.filter(
+        estado='aceptado'
+    ).select_related('retador', 'retado', 'partido').order_by('-creado_en')
+
+    historial = []
+    for d in desafios:
+        g = d.ganador()
+        historial.append({
+            'desafio': d,
+            'ganador': g,
+            'empate': g is None and d.partido.jugado,
+        })
+
+    return render(request, 'prode/historial_desafios.html', {'historial': historial})
