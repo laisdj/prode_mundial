@@ -50,6 +50,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'prode.context_processors.fase2',
+                'prode.context_processors.desafios_pendientes',
             ],
         },
     },
