@@ -12,6 +12,7 @@
       <th title="Puntos fase eliminatoria">F2</th>
       <th title="Bonus final">🎁</th>
       <th title="Total"><strong>Total</strong></th>
+      {% if user.is_staff %}<th></th>{% endif %}
     </tr></thead>
     <tbody>
     {% for row in tabla %}
@@ -34,6 +35,18 @@
           {% endif %}
         </td>
         <td><strong style="color:#1a6b3c;font-size:1rem">{{ row.total }}</strong></td>
+        {% if user.is_staff %}
+        <td>
+          <form method="post" action="{% url 'eliminar_usuario' row.usuario.id %}">
+            {% csrf_token %}
+            <button type="submit"
+                    onclick="return confirm('¿Eliminar a {{ row.usuario.username }}? Se borran todos sus pronósticos.')"
+                    style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:.85rem">
+              🗑️
+            </button>
+          </form>
+        </td>
+        {% endif %}
       </tr>
     {% endfor %}
     </tbody>

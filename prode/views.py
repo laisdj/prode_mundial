@@ -716,3 +716,16 @@ def responder_desafio(request, desafio_id):
                 messages.error(request, 'Ingresa un marcador válido.')
 
     return redirect('desafios')
+
+
+@staff_member_required
+def eliminar_usuario(request, usuario_id):
+    if request.method == 'POST':
+        try:
+            u = User.objects.get(id=usuario_id, is_superuser=False)
+            nombre = u.username
+            u.delete()
+            messages.success(request, f'Usuario {nombre} eliminado.')
+        except User.DoesNotExist:
+            messages.error(request, 'Usuario no encontrado.')
+    return redirect('ranking')
