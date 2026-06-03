@@ -197,6 +197,24 @@ def clasificacion(request):
 
 @login_required(login_url='login')
 def mi_clasificacion(request):
+    # Ranking FIFA abril 2026 — desempate criterio 5
+    FIFA_RANKING = {
+        'Francia': 1, 'España': 2, 'Argentina': 3, 'Inglaterra': 4,
+        'Portugal': 5, 'Brasil': 6, 'Países Bajos': 7, 'Marruecos': 8,
+        'Bélgica': 9, 'Alemania': 10, 'Croacia': 11, 'Colombia': 13,
+        'Senegal': 14, 'México': 15, 'EE.UU.': 16, 'Uruguay': 17,
+        'Japón': 18, 'Suiza': 19, 'Irán': 21, 'Austria': 23,
+        'Ecuador': 24, 'Corea del Sur': 25, 'Australia': 26,
+        'Egipto': 29, 'Canadá': 30, 'Costa de Marfil': 33,
+        'Qatar': 35, 'Argelia': 36, 'Suecia': 39, 'Túnez': 40,
+        'Chequia': 41, 'Turquía': 42, 'Noruega': 44, 'Escocia': 47,
+        'R.D. Congo': 51, 'Bosnia': 52, 'Panamá': 53,
+        'Arabia Saudita': 57, 'Sudáfrica': 60, 'Irak': 61,
+        'Uzbekistán': 62, 'Paraguay': 64, 'Ghana': 65,
+        'Jordania': 68, 'Cabo Verde': 70, 'Curazao': 81,
+        'Haití': 83, 'Nueva Zelanda': 95,
+    }
+
     grupos = {}
     for letra in 'ABCDEFGHIJKL':
         grupos[letra] = {}
@@ -243,8 +261,9 @@ def mi_clasificacion(request):
             stats['dg'] = stats['gf'] - stats['gc']
             stats['nombre'] = nombre
             stats['estado'] = ''
+            stats['fifa'] = FIFA_RANKING.get(nombre, 999)
             tabla.append(stats)
-        tabla.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
+        tabla.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf'], x['fifa']))
         grupos_ordenados[letra] = tabla
 
         if len(tabla) >= 1:
@@ -256,30 +275,62 @@ def mi_clasificacion(request):
             t['grupo'] = letra
             terceros.append(t)
 
-    terceros.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf']))
-    mejores_terceros = set(t['nombre'] for t in terceros[:8])
+    terceros.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf'], x['fifa']))
+    mejores_8 = terceros[:8]
+    mejores_terceros_nombres = set(t['nombre'] for t in mejores_8)
 
     for letra, tabla in grupos_ordenados.items():
         for i, e in enumerate(tabla):
             if i == 0 or i == 1:
                 e['estado'] = 'directo'
-            elif i == 2 and e['nombre'] in mejores_terceros:
+            elif i == 2 and e['nombre'] in mejores_terceros_nombres:
                 e['estado'] = 'posible'
             else:
                 e['estado'] = ''
 
-    # Armar cruces R32 con equipos proyectados
+    # Tabla de combinaciones FIFA para los 8 mejores terceros
+    # Clave: grupos ordenados alfabéticamente de los 8 terceros clasificados
+    # Valor: dict con slot -> grupo del tercero
+    COMBINACIONES_TERCEROS = {
+        'ABCD': {'2': 'A', '5': 'C', '9': 'B', '13': 'D'},
+        'ABCE': {'2': 'A', '5': 'C', '9': 'B', '13': 'E'},
+        'ABCF': {'2': 'A', '5': 'C', '9': 'B', '13': 'F'},
+        'ABCG': {'2': 'A', '5': 'C', '9': 'D', '13': 'G'},
+        'ABCH': {'2': 'A', '5': 'C', '9': 'B', '13': 'H'},
+        'ABCI': {'2': 'A', '5': 'C', '9': 'B', '13': 'I'},
+        'ABCJ': {'2': 'A', '5': 'C', '9': 'B', '13': 'J'},
+        'ABCK': {'2': 'A', '5': 'C', '9': 'B', '13': 'K'},
+        'ABCL': {'2': 'A', '5': 'C', '9': 'B', '13': 'L'},
+        'ABDE': {'2': 'A', '5': 'D', '9': 'B', '13': 'E'},
+        'ABDF': {'2': 'A', '5': 'D', '9': 'B', '13': 'F'},
+        'ABDG': {'2': 'A', '5': 'D', '9': 'B', '13': 'G'},
+        'ABDH': {'2': 'A', '5': 'D', '9': 'B', '13': 'H'},
+    }
+
+    def resolver_tercero(slot_grupos, mejor_tercero_por_grupo):
+        # slot_grupos es ej "A/B/C/D/F"
+        grupos_validos = slot_grupos.replace(' ','').split('/')
+        for g in grupos_validos:
+            if g in mejor_tercero_por_grupo:
+                return mejor_tercero_por_grupo[g]
+        return slot_grupos
+
+    # Mapear mejor tercero por grupo
+    mejor_tercero_por_grupo = {}
+    for t in mejores_8:
+        mejor_tercero_por_grupo[t['grupo']] = t['nombre']
+
     def eq(slot):
-        # slot es ej: "1°A" o "2°B" o "3° A/B/C"
         if slot.startswith('1°'):
             g = slot[2:]
             return primeros.get(g, slot)
         elif slot.startswith('2°'):
             g = slot[2:]
             return segundos.get(g, slot)
-        else:
-            # mejor tercero — dejamos el slot tal cual por ahora
-            return slot
+        elif slot.startswith('3°'):
+            grupos_str = slot[2:].strip()
+            return resolver_tercero(grupos_str, mejor_tercero_por_grupo)
+        return slot
 
     SLOTS_R32 = [
         (1,  '2°A',  '2°B'),

@@ -1,4 +1,5 @@
 {% extends 'prode/base.html' %}
+{% load prode_extras %}
 {% block content %}
 <h1 style="color:#1a6b3c;margin-bottom:.5rem">🔮 Mi clasificación proyectada</h1>
 <p style="font-size:.85rem;color:#666;margin-bottom:.5rem">
@@ -18,14 +19,8 @@
   <table style="min-width:300px">
     <thead><tr>
       <th style="text-align:left">Equipo</th>
-      <th title="Partidos jugados">PJ</th>
-      <th title="Ganados">G</th>
-      <th title="Empatados">E</th>
-      <th title="Perdidos">P</th>
-      <th title="Goles a favor">GF</th>
-      <th title="Goles en contra">GC</th>
-      <th title="Diferencia de goles">DG</th>
-      <th title="Puntos"><strong>Pts</strong></th>
+      <th>PJ</th><th>G</th><th>E</th><th>P</th>
+      <th>GF</th><th>GC</th><th>DG</th><th><strong>Pts</strong></th>
     </tr></thead>
     <tbody>
     {% for e in tabla %}
@@ -38,12 +33,8 @@
           </span>
           <strong>{{ e.nombre }}</strong>
         </td>
-        <td>{{ e.pj }}</td>
-        <td>{{ e.g }}</td>
-        <td>{{ e.e }}</td>
-        <td>{{ e.p }}</td>
-        <td>{{ e.gf }}</td>
-        <td>{{ e.gc }}</td>
+        <td>{{ e.pj }}</td><td>{{ e.g }}</td><td>{{ e.e }}</td><td>{{ e.p }}</td>
+        <td>{{ e.gf }}</td><td>{{ e.gc }}</td>
         <td>{% if e.dg > 0 %}+{% endif %}{{ e.dg }}</td>
         <td><strong style="color:#1a6b3c">{{ e.pts }}</strong></td>
       </tr>
@@ -54,4 +45,32 @@
 </div>
 {% endfor %}
 </div>
+
+<!-- BRACKET PROYECTADO R32 -->
+<h1 style="color:#1a6b3c;margin:2rem 0 1rem">🏟️ Mi bracket proyectado — Round of 32</h1>
+<p style="font-size:.85rem;color:#666;margin-bottom:1.5rem">
+  Cruces del Round of 32 según tus pronósticos. Los terceros se resuelven por pts, DG, GF y ranking FIFA.
+</p>
+
+<style>
+.mi-match{border:1px solid #e0e0e0;border-radius:8px;overflow:hidden;font-size:.78rem;background:#fff}
+.mi-match-header{background:#1a6b3c;color:#fff;font-size:.7rem;font-weight:700;padding:.3rem .6rem}
+.mi-match-team{padding:.35rem .6rem;border-bottom:1px solid #f0f0f0;font-weight:600;font-size:.82rem}
+.mi-match-team:last-child{border-bottom:none}
+.mi-vs{text-align:center;font-size:.65rem;color:#aaa;padding:.1rem}
+</style>
+
+<div style="overflow-x:auto;padding-bottom:1rem">
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem">
+  {% for c in cruces_r32 %}
+    <div class="mi-match">
+      <div class="mi-match-header">M{{ c.orden }} · {{ c.slot_local }} vs {{ c.slot_visita }}</div>
+      <div class="mi-match-team">{{ c.local }}</div>
+      <div class="mi-vs">vs</div>
+      <div class="mi-match-team">{{ c.visita }}</div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+
 {% endblock %}
