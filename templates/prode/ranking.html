@@ -64,4 +64,43 @@
     <p style="color:#888">Aún no hay participantes con pronósticos.</p>
   {% endif %}
 </div>
+
+{% if user.is_staff %}
+<div class="card" style="margin-top:1.5rem">
+  <h2>📋 Progreso de pronósticos</h2>
+  <div class="table-wrap">
+  <table>
+    <thead><tr>
+      <th style="text-align:left">Usuario</th>
+      <th>Completados</th>
+      <th>Progreso</th>
+      <th>%</th>
+    </tr></thead>
+    <tbody>
+    {% for p in progreso %}
+      <tr>
+        <td style="text-align:left">{{ p.usuario.username }}</td>
+        <td>{{ p.completados }} / 72</td>
+        <td>
+          <div style="background:#e0e0e0;border-radius:4px;height:8px;width:120px">
+            <div style="background:{% if p.porcentaje == 100 %}#2e8b57{% elif p.porcentaje > 50 %}#f4c430{% else %}#e74c3c{% endif %};border-radius:4px;height:8px;width:{% widthratio p.completados 72 120 %}px"></div>
+          </div>
+        </td>
+        <td>
+          {% if p.porcentaje == 100 %}
+            <span class="badge-3">✅ 100%</span>
+          {% elif p.porcentaje > 50 %}
+            <span class="badge-1">⚠️ {{ p.porcentaje }}%</span>
+          {% else %}
+            <span style="color:#e74c3c;font-size:.8rem">❌ {{ p.porcentaje }}%</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endif %}
+
 {% endblock %}

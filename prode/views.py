@@ -108,11 +108,23 @@ def ranking(request):
 
     partidos_jugados = Partido.objects.filter(jugado=True).count()
     total_partidos = Partido.objects.count()
+    
+    # Progreso de pronósticos por usuario (solo para jefe)
+    progreso = []
+    for u in usuarios:
+        total_prons = Pronostico.objects.filter(usuario=u).count()
+        progreso.append({
+            'usuario': u,
+            'completados': total_prons,
+            'porcentaje': round((total_prons / 72) * 100),
+        })
+    progreso.sort(key=lambda x: x['porcentaje'], reverse=True)
 
     return render(request, 'prode/ranking.html', {
-        'tabla': tabla,
-        'partidos_jugados': partidos_jugados,
-        'total_partidos': total_partidos,
+    'tabla': tabla,
+    'partidos_jugados': partidos_jugados,
+    'total_partidos': total_partidos,
+    'progreso': progreso,
     })
 
 
