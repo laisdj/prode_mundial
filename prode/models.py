@@ -201,3 +201,11 @@ class Desafio(models.Model):
 
     class Meta:
         ordering = ['-creado_en']
+        
+        
+class PerfilUsuario(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    ultima_visita_chat = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Perfil de {self.usuario.username}"

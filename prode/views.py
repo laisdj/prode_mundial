@@ -1,3 +1,4 @@
+from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje, Desafio, PerfilUsuario
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
@@ -671,15 +672,26 @@ def gestionar_eliminatoria(request):
     
 @login_required(login_url='login')
 def chat(request):
+    from django.utils import timezone
+
+    # Obtener o crear perfil
+    perfil, _ = PerfilUsuario.objects.get_or_create(usuario=request.user)
+
     if request.method == 'POST':
         texto = request.POST.get('texto', '').strip()
         if texto and len(texto) <= 300:
             Mensaje.objects.create(usuario=request.user, texto=texto)
+        # Actualizar última visita
+        perfil.ultima_visita_chat = timezone.now()
+        perfil.save()
         return redirect('chat')
+
+    # Actualizar última visita al entrar
+    perfil.ultima_visita_chat = timezone.now()
+    perfil.save()
 
     mensajes = Mensaje.objects.select_related('usuario').all()[:100]
     return render(request, 'prode/chat.html', {'mensajes': mensajes})
-
 
 @login_required(login_url='login')
 def chat_mensajes(request):
@@ -819,3 +831,5 @@ def borrar_mensaje(request, mensaje_id):
         except Mensaje.DoesNotExist:
             pass
     return redirect('chat')
+
+

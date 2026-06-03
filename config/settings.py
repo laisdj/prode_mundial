@@ -51,6 +51,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'prode.context_processors.fase2',
                 'prode.context_processors.desafios_pendientes',
+                'prode.context_processors.mensajes_nuevos',
             ],
         },
     },
