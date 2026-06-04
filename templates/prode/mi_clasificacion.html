@@ -54,63 +54,53 @@
 
 <style>
 .bracket-wrap{overflow-x:auto;padding-bottom:1rem}
-.bracket{display:flex;gap:0;align-items:center;min-width:900px}
-.ronda{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 4px}
+.bracket{display:flex;gap:0;align-items:flex-start;min-width:900px}
+.ronda{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 4px;gap:4px}
 .ronda-title{text-align:center;font-size:.7rem;font-weight:700;color:#888;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em}
-.match{border:1px solid #e0e0e0;border-radius:6px;overflow:hidden;margin:4px 0;background:#fff;font-size:.78rem}
+.match{border:1px solid #e0e0e0;border-radius:6px;overflow:hidden;background:#fff;font-size:.78rem}
 .match-team{display:flex;justify-content:space-between;align-items:center;padding:.3rem .5rem;gap:.3rem}
 .match-team:first-child{border-bottom:1px solid #f0f0f0}
 .match-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:0 8px}
-.final-box{border:2px solid #f4c430;border-radius:8px;overflow:hidden;min-width:160px}
+.match-empty .match-name{color:#ccc}
+.center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:0 8px;min-width:160px}
+.final-box{border:2px solid #f4c430;border-radius:8px;overflow:hidden;width:100%}
 .final-title{background:#f4c430;color:#1a6b3c;font-size:.75rem;font-weight:700;text-align:center;padding:.3rem}
 </style>
 
 <div class="bracket-wrap">
 <div class="bracket">
 
-  <!-- R32 izquierdo (partidos 1-8) -->
+  <!-- R32 izquierdo -->
   <div class="ronda">
     <div class="ronda-title">Round of 32</div>
-    {% for c in cruces_r32 %}
-      {% if c.orden <= 8 %}
-        <div class="match">
-          <div class="match-team"><span class="match-name">{{ c.local }}</span></div>
-          <div class="match-team"><span class="match-name">{{ c.visita }}</span></div>
-        </div>
-      {% endif %}
+    {% for c in cruces_izq %}
+      <div class="match">
+        <div class="match-team"><span class="match-name">{{ c.local }}</span></div>
+        <div class="match-team"><span class="match-name">{{ c.visita }}</span></div>
+      </div>
     {% endfor %}
   </div>
 
   <!-- R16 izq vacío -->
   <div class="ronda">
     <div class="ronda-title">Round of 16</div>
-    {% for i in "1234" %}
-      <div class="match">
-        <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-        <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-      </div>
-    {% endfor %}
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
   </div>
 
   <!-- QF izq vacío -->
   <div class="ronda">
     <div class="ronda-title">Cuartos</div>
-    {% for i in "12" %}
-      <div class="match">
-        <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-        <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-      </div>
-    {% endfor %}
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
   </div>
 
   <!-- SF izq vacío -->
   <div class="ronda">
     <div class="ronda-title">Semifinal</div>
-    <div class="match">
-      <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-      <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-    </div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
   </div>
 
   <!-- CENTRO FINAL -->
@@ -118,63 +108,48 @@
     <div class="ronda-title">Final</div>
     <div class="final-box">
       <div class="final-title">🏆 FINAL</div>
-      <div class="match-team" style="padding:.5rem .75rem">
-        <span class="match-name" style="color:#ccc">Por definir</span>
-      </div>
-      <div class="match-team" style="padding:.5rem .75rem">
-        <span class="match-name" style="color:#ccc">Por definir</span>
-      </div>
+      <div class="match-team" style="padding:.5rem .75rem"><span class="match-name" style="color:#ccc">Por definir</span></div>
+      <div class="match-team" style="padding:.5rem .75rem"><span class="match-name" style="color:#ccc">Por definir</span></div>
     </div>
   </div>
 
   <!-- SF der vacío -->
   <div class="ronda">
     <div class="ronda-title">Semifinal</div>
-    <div class="match">
-      <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-      <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-    </div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
   </div>
 
   <!-- QF der vacío -->
   <div class="ronda">
     <div class="ronda-title">Cuartos</div>
-    {% for i in "12" %}
-      <div class="match">
-        <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-        <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-      </div>
-    {% endfor %}
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
   </div>
 
   <!-- R16 der vacío -->
   <div class="ronda">
     <div class="ronda-title">Round of 16</div>
-    {% for i in "1234" %}
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+    <div class="match match-empty"><div class="match-team"><span class="match-name">Por definir</span></div><div class="match-team"><span class="match-name">Por definir</span></div></div>
+  </div>
+
+  <!-- R32 derecho -->
+  <div class="ronda">
+    <div class="ronda-title">Round of 32</div>
+    {% for c in cruces_der %}
       <div class="match">
-        <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
-        <div class="match-team"><span class="match-name" style="color:#ccc">Por definir</span></div>
+        <div class="match-team"><span class="match-name">{{ c.local }}</span></div>
+        <div class="match-team"><span class="match-name">{{ c.visita }}</span></div>
       </div>
     {% endfor %}
   </div>
 
-  <!-- R32 derecho (partidos 9-16) -->
-  <div class="ronda">
-    <div class="ronda-title">Round of 32</div>
-    {% for c in cruces_r32 %}
-      {% if c.orden >= 9 %}
-        <div class="match">
-          <div class="match-team"><span class="match-name">{{ c.local }}</span></div>
-          <div class="match-team"><span class="match-name">{{ c.visita }}</span></div>
-        </div>
-      {% endif %}
-    {% endfor %}
-  </div>
-
 </div>
 </div>
 
-<!-- Botón exportar PDF -->
+<!-- Botón imprimir -->
 <div style="margin-top:1.5rem;text-align:center">
   <button onclick="window.print()" class="btn">🖨️ Exportar / Imprimir</button>
 </div>

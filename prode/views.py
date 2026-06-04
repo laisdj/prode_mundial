@@ -197,7 +197,6 @@ def clasificacion(request):
 
 @login_required(login_url='login')
 def mi_clasificacion(request):
-    # Ranking FIFA abril 2026 — desempate criterio 5
     FIFA_RANKING = {
         'Francia': 1, 'España': 2, 'Argentina': 3, 'Inglaterra': 4,
         'Portugal': 5, 'Brasil': 6, 'Países Bajos': 7, 'Marruecos': 8,
@@ -278,6 +277,7 @@ def mi_clasificacion(request):
     terceros.sort(key=lambda x: (-x['pts'], -x['dg'], -x['gf'], x['fifa']))
     mejores_8 = terceros[:8]
     mejores_terceros_nombres = set(t['nombre'] for t in mejores_8)
+    mejor_tercero_por_grupo = {t['grupo']: t['nombre'] for t in mejores_8}
 
     for letra, tabla in grupos_ordenados.items():
         for i, e in enumerate(tabla):
@@ -288,48 +288,20 @@ def mi_clasificacion(request):
             else:
                 e['estado'] = ''
 
-    # Tabla de combinaciones FIFA para los 8 mejores terceros
-    # Clave: grupos ordenados alfabéticamente de los 8 terceros clasificados
-    # Valor: dict con slot -> grupo del tercero
-    COMBINACIONES_TERCEROS = {
-        'ABCD': {'2': 'A', '5': 'C', '9': 'B', '13': 'D'},
-        'ABCE': {'2': 'A', '5': 'C', '9': 'B', '13': 'E'},
-        'ABCF': {'2': 'A', '5': 'C', '9': 'B', '13': 'F'},
-        'ABCG': {'2': 'A', '5': 'C', '9': 'D', '13': 'G'},
-        'ABCH': {'2': 'A', '5': 'C', '9': 'B', '13': 'H'},
-        'ABCI': {'2': 'A', '5': 'C', '9': 'B', '13': 'I'},
-        'ABCJ': {'2': 'A', '5': 'C', '9': 'B', '13': 'J'},
-        'ABCK': {'2': 'A', '5': 'C', '9': 'B', '13': 'K'},
-        'ABCL': {'2': 'A', '5': 'C', '9': 'B', '13': 'L'},
-        'ABDE': {'2': 'A', '5': 'D', '9': 'B', '13': 'E'},
-        'ABDF': {'2': 'A', '5': 'D', '9': 'B', '13': 'F'},
-        'ABDG': {'2': 'A', '5': 'D', '9': 'B', '13': 'G'},
-        'ABDH': {'2': 'A', '5': 'D', '9': 'B', '13': 'H'},
-    }
-
-    def resolver_tercero(slot_grupos, mejor_tercero_por_grupo):
-        # slot_grupos es ej "A/B/C/D/F"
-        grupos_validos = slot_grupos.replace(' ','').split('/')
+    def resolver_tercero(slot_grupos):
+        grupos_validos = slot_grupos.replace(' ', '').split('/')
         for g in grupos_validos:
             if g in mejor_tercero_por_grupo:
                 return mejor_tercero_por_grupo[g]
-        return slot_grupos
-
-    # Mapear mejor tercero por grupo
-    mejor_tercero_por_grupo = {}
-    for t in mejores_8:
-        mejor_tercero_por_grupo[t['grupo']] = t['nombre']
+        return '3° ' + slot_grupos
 
     def eq(slot):
         if slot.startswith('1°'):
-            g = slot[2:]
-            return primeros.get(g, slot)
+            return primeros.get(slot[2:], slot)
         elif slot.startswith('2°'):
-            g = slot[2:]
-            return segundos.get(g, slot)
+            return segundos.get(slot[2:], slot)
         elif slot.startswith('3°'):
-            grupos_str = slot[2:].strip()
-            return resolver_tercero(grupos_str, mejor_tercero_por_grupo)
+            return resolver_tercero(slot[2:].strip())
         return slot
 
     SLOTS_R32 = [
@@ -361,9 +333,14 @@ def mi_clasificacion(request):
             'visita': eq(slot_v),
         })
 
+    cruces_izq = [c for c in cruces_r32 if c['orden'] <= 8]
+    cruces_der = [c for c in cruces_r32 if c['orden'] >= 9]
+
     return render(request, 'prode/mi_clasificacion.html', {
         'grupos': grupos_ordenados,
         'cruces_r32': cruces_r32,
+        'cruces_izq': cruces_izq,
+        'cruces_der': cruces_der,
     })
 
 
