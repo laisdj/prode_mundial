@@ -350,7 +350,7 @@ def pronosticos(request):
         return redirect('ranking')
 
     hoy = date.today()
-    cierre = date(2026, 6, 4)
+    cierre = date(2026, 6, 8)
     abierto = hoy <= cierre
 
     partidos = Partido.objects.all()
@@ -628,7 +628,7 @@ def bracket(request):
 
 def reglas(request):
     hoy = date.today()
-    cierre = date(2026, 6, 4)
+    cierre = date(2026, 6, 8)
     abierto = hoy <= cierre
     return render(request, 'prode/reglas.html', {'abierto': abierto})
 
