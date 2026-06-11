@@ -1,133 +1,107 @@
 import requests
 from django.core.management.base import BaseCommand
-from django.conf import settings
-from prode.models import Partido, PartidoEliminatorio
+from prode.models import Partido
 
 TEAM_MAP = {
-    'Mexico':                 'México',
-    'South Africa':           'Sudáfrica',
-    'Korea Republic':         'Corea del Sur',
-    'Czechia':                'Chequia',
-    'Canada':                 'Canadá',
-    'Bosnia and Herzegovina': 'Bosnia',
-    'USA':                    'EE.UU.',
-    'Paraguay':               'Paraguay',
-    'Qatar':                  'Qatar',
-    'Switzerland':            'Suiza',
-    'Brazil':                 'Brasil',
-    'Morocco':                'Marruecos',
-    'Haiti':                  'Haití',
-    'Scotland':               'Escocia',
-    'Australia':              'Australia',
-    'Türkiye':                'Turquía',
-    'Germany':                'Alemania',
-    'Curaçao':                'Curazao',
-    'Netherlands':            'Países Bajos',
-    'Japan':                  'Japón',
-    "Côte d'Ivoire":          'Costa de Marfil',
-    'Ecuador':                'Ecuador',
-    'Sweden':                 'Suecia',
-    'Tunisia':                'Túnez',
-    'Spain':                  'España',
-    'Cape Verde':             'Cabo Verde',
-    'Belgium':                'Bélgica',
-    'Egypt':                  'Egipto',
-    'Saudi Arabia':           'Arabia Saudita',
-    'Uruguay':                'Uruguay',
-    'Iran':                   'Irán',
-    'New Zealand':            'Nueva Zelanda',
-    'France':                 'Francia',
-    'Senegal':                'Senegal',
-    'Iraq':                   'Irak',
-    'Norway':                 'Noruega',
-    'Argentina':              'Argentina',
-    'Algeria':                'Argelia',
-    'Austria':                'Austria',
-    'Jordan':                 'Jordania',
-    'Portugal':               'Portugal',
-    'DR Congo':               'R.D. Congo',
-    'England':                'Inglaterra',
-    'Croatia':                'Croacia',
-    'Ghana':                  'Ghana',
-    'Panama':                 'Panamá',
-    'Uzbekistan':             'Uzbekistán',
-    'Colombia':               'Colombia',
-}
-
-RONDA_MAP = {
-    'LAST_32':          'R32',
-    'LAST_16':          'R16',
-    'QUARTER_FINALS':   'QF',
-    'SEMI_FINALS':      'SF',
-    'THIRD_PLACE':      '3PL',
-    'FINAL':            'FIN',
+    'Mexico':          'México',
+    'South Africa':    'Sudáfrica',
+    'South Korea':     'Corea del Sur',
+    'Czech Republic':  'Chequia',
+    'Czechia':         'Chequia',
+    'Canada':          'Canadá',
+    'Bosnia':          'Bosnia',
+    'USA':             'EE.UU.',
+    'United States':   'EE.UU.',
+    'Qatar':           'Qatar',
+    'Switzerland':     'Suiza',
+    'Brazil':          'Brasil',
+    'Morocco':         'Marruecos',
+    'Haiti':           'Haití',
+    'Scotland':        'Escocia',
+    'Australia':       'Australia',
+    'Turkey':          'Turquía',
+    'Turkiye':         'Turquía',
+    'Germany':         'Alemania',
+    'Curacao':         'Curazao',
+    'Curaçao':         'Curazao',
+    'Netherlands':     'Países Bajos',
+    'Japan':           'Japón',
+    'Ivory Coast':     'Costa de Marfil',
+    "Cote d'Ivoire":   'Costa de Marfil',
+    'Ecuador':         'Ecuador',
+    'Sweden':          'Suecia',
+    'Tunisia':         'Túnez',
+    'Spain':           'España',
+    'Cape Verde':      'Cabo Verde',
+    'Belgium':         'Bélgica',
+    'Egypt':           'Egipto',
+    'Saudi Arabia':    'Arabia Saudita',
+    'Uruguay':         'Uruguay',
+    'Iran':            'Irán',
+    'New Zealand':     'Nueva Zelanda',
+    'France':          'Francia',
+    'Senegal':         'Senegal',
+    'Iraq':            'Irak',
+    'Norway':          'Noruega',
+    'Argentina':       'Argentina',
+    'Algeria':         'Argelia',
+    'Austria':         'Austria',
+    'Jordan':          'Jordania',
+    'Portugal':        'Portugal',
+    'DR Congo':        'R.D. Congo',
+    'Congo DR':        'R.D. Congo',
+    'England':         'Inglaterra',
+    'Croatia':         'Croacia',
+    'Ghana':           'Ghana',
+    'Panama':          'Panamá',
+    'Uzbekistan':      'Uzbekistán',
+    'Colombia':        'Colombia',
+    'Paraguay':        'Paraguay',
 }
 
 
 class Command(BaseCommand):
-    help = 'Actualiza resultados desde football-data.org (fase grupal y eliminatoria)'
+    help = 'Actualiza resultados desde worldcup26.ir'
 
     def handle(self, *args, **kwargs):
-        token = settings.FOOTBALL_API_TOKEN
-        url = 'https://api.football-data.org/v4/competitions/WC/matches?season=2026'
-        headers = {'X-Auth-Token': token}
-
         try:
-            resp = requests.get(url, headers=headers, timeout=10)
+            resp = requests.get('https://worldcup26.ir/get/games', timeout=10)
             resp.raise_for_status()
         except Exception as e:
             self.stderr.write(f'Error consultando API: {e}')
             return
 
-        matches = resp.json().get('matches', [])
-        grupos = 0
-        elim = 0
+        games = resp.json().get('games', [])
+        actualizados = 0
 
-        for m in matches:
-            if m.get('status') != 'FINISHED':
+        for g in games:
+            if g.get('type') != 'group':
                 continue
 
-            stage = m.get('stage', '')
-            home_api = m['homeTeam']['name']
-            away_api = m['awayTeam']['name']
-            home = TEAM_MAP.get(home_api, home_api)
-            away = TEAM_MAP.get(away_api, away_api)
-            gl = m['score']['fullTime']['home']
-            gv = m['score']['fullTime']['away']
-
-            if gl is None or gv is None:
+            time_elapsed = g.get('time_elapsed', '')
+            finished = g.get('finished', '').upper()
+            if time_elapsed != 'FT' and finished != 'TRUE':
                 continue
 
-            if stage == 'GROUP_STAGE':
-                try:
-                    partido = Partido.objects.get(local=home, visita=away)
-                    partido.goles_l = gl
-                    partido.goles_v = gv
-                    partido.jugado = True
-                    partido.save()
-                    grupos += 1
-                except Partido.DoesNotExist:
-                    self.stderr.write(f'Grupo no encontrado: {home} vs {away}')
+            home_en = g.get('home_team_name_en', '')
+            away_en = g.get('away_team_name_en', '')
+            home = TEAM_MAP.get(home_en, home_en)
+            away = TEAM_MAP.get(away_en, away_en)
 
-            elif stage in RONDA_MAP:
-                ronda = RONDA_MAP[stage]
-                try:
-                    partido = PartidoEliminatorio.objects.get(
-                        ronda=ronda, local=home, visita=away
-                    )
-                    partido.goles_l = gl
-                    partido.goles_v = gv
-                    partido.jugado = True
+            try:
+                gl = int(g.get('home_score', 0))
+                gv = int(g.get('away_score', 0))
+            except (ValueError, TypeError):
+                continue
 
-                    # Penales si hubo
-                    penalties = m['score'].get('penalties')
-                    if penalties:
-                        partido.penales_l = penalties.get('home')
-                        partido.penales_v = penalties.get('away')
+            try:
+                partido = Partido.objects.get(local=home, visita=away)
+                partido.goles_l = gl
+                partido.goles_v = gv
+                partido.jugado = True
+                partido.save()
+                actualizados += 1
+            except Partido.DoesNotExist:
+                self.stderr.write(f'No encontrado: {home} vs {away}')
 
-                    partido.save()
-                    elim += 1
-                except PartidoEliminatorio.DoesNotExist:
-                    self.stderr.write(f'Eliminatoria no encontrado: {home} vs {away} [{ronda}]')
-
-        self.stdout.write(f'{grupos} grupales + {elim} eliminatorios actualizados.')
+        self.stdout.write(f'{actualizados} partidos actualizados.')
