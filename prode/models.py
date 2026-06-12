@@ -12,6 +12,7 @@ class Partido(models.Model):
     goles_l = models.IntegerField(null=True, blank=True)
     goles_v = models.IntegerField(null=True, blank=True)
     jugado  = models.BooleanField(default=False)
+    en_vivo = models.BooleanField(default=False)
 
     def resultado_real(self):
         if not self.jugado or self.goles_l is None:

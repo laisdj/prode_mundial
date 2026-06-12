@@ -16,6 +16,8 @@
         <td>
           {% if p.jugado %}
             <strong>{{ p.goles_l }} - {{ p.goles_v }}</strong>
+          {% elif p.en_vivo %}
+            <span style="color:#e74c3c;font-weight:700">🔴 {{ p.goles_l }} - {{ p.goles_v }}</span>
           {% else %}
             <span style="color:#aaa">—</span>
           {% endif %}

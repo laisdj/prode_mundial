@@ -80,7 +80,9 @@ class Command(BaseCommand):
 
             time_elapsed = g.get('time_elapsed', '')
             finished = g.get('finished', '').upper()
-            if time_elapsed not in ('FT', 'finished') and finished != 'TRUE':
+            en_vivo = time_elapsed in ('live', '1H', '2H', 'HT', 'ET', 'P')
+            terminado = time_elapsed in ('finished', 'FT') or finished == 'TRUE'
+            if not en_vivo and not terminado:
                 continue
 
             home_en = g.get('home_team_name_en', '')
@@ -98,7 +100,8 @@ class Command(BaseCommand):
                 partido = Partido.objects.get(local=home, visita=away)
                 partido.goles_l = gl
                 partido.goles_v = gv
-                partido.jugado = True
+                partido.jugado = terminado  # solo marca jugado si terminó
+                partido.en_vivo = en_vivo
                 partido.save()
                 actualizados += 1
             except Partido.DoesNotExist:
