@@ -103,4 +103,45 @@
 </div>
 {% endif %}
 
+{% if desafios %}
+<div class="card" style="margin-top:1.5rem">
+  <h2>⚔️ Desafíos en juego</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:.75rem">
+  {% for item in desafios %}
+    <div style="border:2px solid {% if item.pendiente %}#f4c430{% elif item.empate %}#aaa{% elif item.ganador %}#2e8b57{% else %}#e0e0e0{% endif %};border-radius:10px;overflow:hidden">
+      <div style="padding:.4rem .75rem;font-size:.75rem;font-weight:700;
+        background:{% if item.pendiente %}#f4c430{% elif item.empate %}#aaa{% elif item.ganador %}#2e8b57{% else %}#e0e0e0{% endif %};
+        color:{% if item.ganador %}#fff{% else %}#1a6b3c{% endif %}">
+        {% if item.pendiente %}⏳ En juego
+        {% elif item.empate %}🤝 Empate
+        {% elif item.ganador %}🏆 Ganó {{ item.ganador.username }}
+        {% endif %}
+      </div>
+      <div style="padding:.75rem;font-size:.85rem">
+        <div style="margin-bottom:.4rem">
+          <strong>{{ item.desafio.retador.username }}</strong> 
+          <span style="color:#888;font-size:.8rem">({{ item.desafio.gl_retador }}-{{ item.desafio.gv_retador }})</span>
+          vs
+          <strong>{{ item.desafio.retado.username }}</strong>
+          <span style="color:#888;font-size:.8rem">({{ item.desafio.gl_retado }}-{{ item.desafio.gv_retado }})</span>
+        </div>
+        <div style="font-size:.8rem;color:#666;margin-bottom:.4rem">
+          {{ item.desafio.partido.local }} vs {{ item.desafio.partido.visita }}
+        </div>
+        <div style="font-size:.85rem">
+          💰 <strong>${{ item.desafio.monto|floatformat:"0" }}</strong>
+          {% if item.desafio.partido.jugado %}
+            · Real: <strong>{{ item.desafio.partido.goles_l }}-{{ item.desafio.partido.goles_v }}</strong>
+          {% endif %}
+          {% if item.desafio.pagado %}
+            · <span style="color:#2e8b57;font-size:.8rem">✅ Pagado</span>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+  </div>
+</div>
+{% endif %}
+
 {% endblock %}

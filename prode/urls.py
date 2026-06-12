@@ -25,5 +25,5 @@ urlpatterns = [
     path('desafios/<int:desafio_id>/responder/', views.responder_desafio, name='responder_desafio'),
     path('usuario/<int:usuario_id>/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),path('desafios/historial/', views.historial_desafios, name='historial_desafios'),
     path('chat/borrar/<int:mensaje_id>/', views.borrar_mensaje, name='borrar_mensaje'),
-    
+    path('desafios/<int:desafio_id>/pagado/', views.marcar_pagado, name='marcar_pagado'),
 ]

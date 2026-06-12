@@ -119,12 +119,29 @@ def ranking(request):
             'porcentaje': round((total_prons / 72) * 100),
         })
     progreso.sort(key=lambda x: x['porcentaje'], reverse=True)
+    
+    
+    # Desafíos para el popup
+    desafios_activos = Desafio.objects.filter(
+        estado='aceptado'
+    ).select_related('retador', 'retado', 'partido').order_by('-creado_en')
+
+    desafios_ctx = []
+    for d in desafios_activos:
+        g = d.ganador()
+        desafios_ctx.append({
+            'desafio': d,
+            'ganador': g,
+            'empate': g is None and d.partido.jugado,
+            'pendiente': not d.partido.jugado,
+        })
 
     return render(request, 'prode/ranking.html', {
     'tabla': tabla,
     'partidos_jugados': partidos_jugados,
     'total_partidos': total_partidos,
     'progreso': progreso,
+    'desafios': desafios_ctx,
     })
 
 
@@ -873,3 +890,14 @@ def borrar_mensaje(request, mensaje_id):
     return redirect('chat')
 
 
+@login_required(login_url='login')
+def marcar_pagado(request, desafio_id):
+    if request.method == 'POST':
+        try:
+            d = Desafio.objects.get(id=desafio_id)
+            if request.user == d.retador or request.user == d.retado or request.user.is_staff:
+                d.pagado = not d.pagado
+                d.save()
+        except Desafio.DoesNotExist:
+            pass
+    return redirect('historial_desafios')

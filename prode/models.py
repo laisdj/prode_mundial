@@ -161,6 +161,7 @@ class Desafio(models.Model):
     gv_retado    = models.IntegerField(null=True, blank=True)
     estado       = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='pendiente')
     creado_en    = models.DateTimeField(auto_now_add=True)
+    pagado = models.BooleanField(default=False)
 
     def resultado_retador(self):
         if self.gl_retador is None or self.gv_retador is None:

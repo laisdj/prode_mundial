@@ -12,9 +12,10 @@
       <th>Pronóstico</th>
       <th>Retado</th>
       <th>Pronóstico</th>
-      <th>Resultado real</th>
+      <th>Resultado</th>
       <th>Monto</th>
       <th>Ganador</th>
+      <th>Pagado</th>
     </tr></thead>
     <tbody>
     {% for item in historial %}
@@ -42,6 +43,22 @@
             <span style="color:#888">🤝 Empate</span>
           {% elif item.ganador %}
             <span style="color:#1a6b3c;font-weight:700">🏆 {{ item.ganador.username }}</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if user.is_authenticated %}
+          <form method="post" action="{% url 'marcar_pagado' item.desafio.id %}">
+            {% csrf_token %}
+            <button type="submit"
+                    style="background:none;border:1px solid {% if item.desafio.pagado %}#2e8b57{% else %}#ccc{% endif %};
+                           border-radius:6px;padding:.2rem .6rem;cursor:pointer;font-size:.8rem;
+                           color:{% if item.desafio.pagado %}#2e8b57{% else %}#aaa{% endif %}">
+              {% if item.desafio.pagado %}✅ Pagado{% else %}⬜ Pendiente{% endif %}
+            </button>
+          </form>
+          {% else %}
+            {% if item.desafio.pagado %}<span style="color:#2e8b57;font-size:.8rem">✅ Pagado</span>
+            {% else %}<span style="color:#aaa;font-size:.8rem">⬜ Pendiente</span>{% endif %}
           {% endif %}
         </td>
       </tr>
