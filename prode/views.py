@@ -902,3 +902,15 @@ def marcar_pagado(request, desafio_id):
         except Desafio.DoesNotExist:
             pass
     return redirect('historial_desafios')
+
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def api_actualizar(request):
+    from django.core.management import call_command
+    from io import StringIO
+    out = StringIO()
+    call_command('actualizar_resultados', stdout=out)
+    return JsonResponse({'resultado': out.getvalue()})

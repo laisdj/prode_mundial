@@ -26,4 +26,5 @@ urlpatterns = [
     path('usuario/<int:usuario_id>/eliminar/', views.eliminar_usuario, name='eliminar_usuario'),path('desafios/historial/', views.historial_desafios, name='historial_desafios'),
     path('chat/borrar/<int:mensaje_id>/', views.borrar_mensaje, name='borrar_mensaje'),
     path('desafios/<int:desafio_id>/pagado/', views.marcar_pagado, name='marcar_pagado'),
+    path('api/actualizar/', views.api_actualizar, name='api_actualizar'),
 ]
