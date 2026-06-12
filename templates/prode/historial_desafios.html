@@ -19,7 +19,7 @@
     </tr></thead>
     <tbody>
     {% for item in historial %}
-      <tr>
+      <tr style="border-left:4px solid {% if item.desafio.pagado %}#2e8b57{% else %}#e74c3c{% endif %}">
         <td style="text-align:left;font-size:.8rem">
           {{ item.desafio.partido.local }} vs {{ item.desafio.partido.visita }}<br>
           <span style="color:#aaa;font-size:.75rem">{{ item.desafio.partido.fecha|date:"d/m H:i" }}</span>
