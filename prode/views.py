@@ -98,7 +98,7 @@ def ranking(request):
                     bonus += 1
             except PronosticoEliminatorio.DoesNotExist:
                 pass
-
+        total = pts_f1 + pts_f2 + bonus
         tabla.append({
             'usuario': u,
             'pts_f1': pts_f1,
