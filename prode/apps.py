@@ -6,5 +6,6 @@ class ProdeConfig(AppConfig):
     name = 'prode'
 
     def ready(self):
-        from .scheduler import start
-        start()
+        pass
+        # from .scheduler import start
+        # start()
