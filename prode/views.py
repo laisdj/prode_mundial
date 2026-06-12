@@ -64,9 +64,13 @@ def ranking(request):
     for u in usuarios:
         prons_f1 = Pronostico.objects.filter(usuario=u).select_related('partido')
         pts_f1 = sum(p.puntos() for p in prons_f1)
+        exactos_f1 = sum(1 for p in prons_f1 if p.puntos() == 3)
+        resultados_f1 = sum(1 for p in prons_f1 if p.puntos() == 1)
 
         prons_f2 = PronosticoEliminatorio.objects.filter(usuario=u).select_related('partido')
         pts_f2 = sum(p.puntos() for p in prons_f2)
+        exactos_f2 = sum(1 for p in prons_f2 if p.puntos() == 3)
+        resultados_f2 = sum(1 for p in prons_f2 if p.puntos() == 1)
 
         bonus = 0
         if campeon:
@@ -95,13 +99,17 @@ def ranking(request):
             except PronosticoEliminatorio.DoesNotExist:
                 pass
 
-        total = pts_f1 + pts_f2 + bonus
         tabla.append({
             'usuario': u,
             'pts_f1': pts_f1,
+            'exactos_f1': exactos_f1,
+            'resultados_f1': resultados_f1,
             'pts_f2': pts_f2,
+            'exactos_f2': exactos_f2,
+            'resultados_f2': resultados_f2,
             'bonus': bonus,
             'total': total,
+            'pos_anterior': None,  # para la flecha
         })
 
     tabla.sort(key=lambda x: x['total'], reverse=True)
@@ -135,6 +143,26 @@ def ranking(request):
             'empate': g is None and d.partido.jugado,
             'pendiente': not d.partido.jugado,
         })
+        
+        # Calcular flechas
+    ranking_anterior = request.session.get('ranking_anterior', {})
+    for i, row in enumerate(tabla):
+        pos_actual = i + 1
+        pos_ant = ranking_anterior.get(row['usuario'].username)
+        if pos_ant is None:
+            row['flecha'] = '—'
+        elif pos_actual < pos_ant:
+            row['flecha'] = '⬆️'
+        elif pos_actual > pos_ant:
+            row['flecha'] = '⬇️'
+        else:
+            row['flecha'] = '➡️'
+
+    # Guardar posiciones actuales en sesión
+    request.session['ranking_anterior'] = {
+        row['usuario'].username: i + 1
+        for i, row in enumerate(tabla)
+    }
 
     return render(request, 'prode/ranking.html', {
     'tabla': tabla,

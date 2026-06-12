@@ -15,9 +15,14 @@
   <table>
     <thead><tr>
       <th>#</th>
+      <th></th>
       <th style="text-align:left">Participante</th>
-      <th title="Puntos fase grupal">F1</th>
-      <th title="Puntos fase eliminatoria">F2</th>
+      <th title="Plenos fase grupal">⭐F1</th>
+      <th title="Resultados fase grupal">✓F1</th>
+      <th title="Puntos fase grupal">PtsF1</th>
+      <th title="Plenos fase eliminatoria">⭐F2</th>
+      <th title="Resultados fase eliminatoria">✓F2</th>
+      <th title="Puntos fase eliminatoria">PtsF2</th>
       <th title="Bonus final">🎁</th>
       <th title="Total"><strong>Total</strong></th>
       {% if user.is_staff %}<th></th>{% endif %}
@@ -32,9 +37,14 @@
           {% else %}<strong>{{ forloop.counter }}</strong>
           {% endif %}
         </td>
-        <td>{{ row.usuario.username }}</td>
-        <td><span class="badge-1">{{ row.pts_f1 }}</span></td>
-        <td><span class="badge-1">{{ row.pts_f2 }}</span></td>
+        <td style="font-size:.85rem">{{ row.flecha }}</td>
+        <td style="text-align:left">{{ row.usuario.username }}</td>
+        <td><span class="badge-3">{{ row.exactos_f1 }}</span></td>
+        <td><span class="badge-1">{{ row.resultados_f1 }}</span></td>
+        <td><strong style="color:#1a6b3c">{{ row.pts_f1 }}</strong></td>
+        <td><span class="badge-3">{{ row.exactos_f2 }}</span></td>
+        <td><span class="badge-1">{{ row.resultados_f2 }}</span></td>
+        <td><strong style="color:#1a6b3c">{{ row.pts_f2 }}</strong></td>
         <td>
           {% if row.bonus > 0 %}
             <span class="badge-3">+{{ row.bonus }}</span>
@@ -48,7 +58,7 @@
           <form method="post" action="{% url 'eliminar_usuario' row.usuario.id %}">
             {% csrf_token %}
             <button type="submit"
-                    onclick="return confirm('¿Eliminar a {{ row.usuario.username }}? Se borran todos sus pronósticos.')"
+                    onclick="return confirm('¿Eliminar a {{ row.usuario.username }}?')"
                     style="background:none;border:none;cursor:pointer;color:#c0392b;font-size:.85rem">
               🗑️
             </button>
@@ -108,7 +118,7 @@
   <h2>⚔️ Desafíos en juego</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:.75rem">
   {% for item in desafios %}
-    <div style="border:2px solid {% if item.pendiente %}#f4c430{% elif item.empate %}#aaa{% elif item.ganador %}#2e8b57{% else %}#e0e0e0{% endif %};border-radius:10px;overflow:hidden">
+    <div style="border:2px solid {% if item.pendiente %}#f4c430{% elif item.empate %}#1565c0{% elif item.ganador %}#2e8b57{% else %}#e0e0e0{% endif %};border-radius:10px;overflow:hidden">
       <div style="padding:.4rem .75rem;font-size:.75rem;font-weight:700;
         background:{% if item.pendiente %}#f4c430{% elif item.empate %}#aaa{% elif item.ganador %}#2e8b57{% else %}#e0e0e0{% endif %};
         color:{% if item.ganador %}#fff{% else %}#1a6b3c{% endif %}">
@@ -119,7 +129,7 @@
       </div>
       <div style="padding:.75rem;font-size:.85rem">
         <div style="margin-bottom:.4rem">
-          <strong>{{ item.desafio.retador.username }}</strong> 
+          <strong>{{ item.desafio.retador.username }}</strong>
           <span style="color:#888;font-size:.8rem">({{ item.desafio.gl_retador }}-{{ item.desafio.gv_retador }})</span>
           vs
           <strong>{{ item.desafio.retado.username }}</strong>
