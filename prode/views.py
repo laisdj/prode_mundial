@@ -895,7 +895,8 @@ def marcar_pagado(request, desafio_id):
     if request.method == 'POST':
         try:
             d = Desafio.objects.get(id=desafio_id)
-            if request.user == d.retador or request.user == d.retado or request.user.is_staff:
+            ganador = d.ganador()
+            if request.user == ganador or request.user.is_staff:
                 d.pagado = not d.pagado
                 d.save()
         except Desafio.DoesNotExist:
