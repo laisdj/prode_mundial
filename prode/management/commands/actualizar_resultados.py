@@ -80,7 +80,7 @@ class Command(BaseCommand):
 
             time_elapsed = g.get('time_elapsed', '')
             finished = g.get('finished', '').upper()
-            if time_elapsed != 'FT' and finished != 'TRUE':
+            if time_elapsed not in ('FT', 'finished') and finished != 'TRUE':
                 continue
 
             home_en = g.get('home_team_name_en', '')
