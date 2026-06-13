@@ -14,20 +14,25 @@
   <div class="table-wrap">
   <table>
     <thead><tr>
-      <th>#</th>
-      <th></th>
-      <th style="text-align:left">Participante</th>
-      <th title="Plenos fase grupal">⭐F1</th>
-      <th title="Resultados fase grupal">✓F1</th>
-      <th title="Puntos fase grupal">PtsF1</th>
-      <th title="Rendimiento">%</th>
-      <th title="Plenos fase eliminatoria">⭐F2</th>
-      <th title="Resultados fase eliminatoria">✓F2</th>
-      <th title="Puntos fase eliminatoria">PtsF2</th>
-      <th title="Bonus final">🎁</th>
-      <th title="Total"><strong>Total</strong></th>
-      {% if user.is_staff %}<th></th>{% endif %}
-    </tr></thead>
+  <th>#</th>
+  <th></th>
+  <th style="text-align:left">Participante</th>
+  <th title="Plenos fase grupal">⭐F1</th>
+  <th title="Resultados fase grupal">✓F1</th>
+  <th title="Puntos fase grupal">PtsF1</th>
+  <th title="Rendimiento">%</th>
+
+  {# <th title="Plenos fase eliminatoria">⭐F2</th> #}
+  {# <th title="Resultados fase eliminatoria">✓F2</th> #}
+  {# <th title="Puntos fase eliminatoria">PtsF2</th> #}
+  {# <th title="Bonus final">🎁</th> #}
+
+  <th title="Total"><strong>Total</strong></th>
+
+  {% if user.is_staff %}
+    <th></th>
+  {% endif %}
+</tr></thead>
     <tbody>
     {% for row in tabla %}
       <tr>
@@ -44,9 +49,11 @@
         <td><span class="badge-1">{{ row.resultados_f1 }}</span></td>
         <td><strong style="color:#1a6b3c">{{ row.pts_f1 }}</strong></td>
         <td style="font-size:.75rem;color:#888">{{ row.pct }}%</td>
+        {#
         <td><span class="badge-3">{{ row.exactos_f2 }}</span></td>
         <td><span class="badge-1">{{ row.resultados_f2 }}</span></td>
         <td><strong style="color:#1a6b3c">{{ row.pts_f2 }}</strong></td>
+
         <td>
           {% if row.bonus > 0 %}
             <span class="badge-3">+{{ row.bonus }}</span>
@@ -54,6 +61,7 @@
             <span style="color:#ddd">—</span>
           {% endif %}
         </td>
+        #}
         <td><strong style="color:#1a6b3c;font-size:1rem">{{ row.total }}</strong></td>
         {% if user.is_staff %}
         <td>
