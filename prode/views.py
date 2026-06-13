@@ -45,8 +45,6 @@ def registro(request):
 
 def ranking(request):
     usuarios = User.objects.filter(is_superuser=False)
-    partidos_con_resultado = Partido.objects.filter(jugado=True).count()
-    pct = round((pts_f1 / (partidos_con_resultado * 3)) * 100) if partidos_con_resultado > 0 else 0
 
     try:
         final = PartidoEliminatorio.objects.get(ronda='FIN', jugado=True)
@@ -62,12 +60,15 @@ def ranking(request):
     except PartidoEliminatorio.DoesNotExist:
         tercero = cuarto = None
 
+    partidos_con_resultado = Partido.objects.filter(jugado=True).count()
+
     tabla = []
     for u in usuarios:
         prons_f1 = Pronostico.objects.filter(usuario=u).select_related('partido')
         pts_f1 = sum(p.puntos() for p in prons_f1)
         exactos_f1 = sum(1 for p in prons_f1 if p.puntos() == 3)
         resultados_f1 = sum(1 for p in prons_f1 if p.puntos() == 1)
+        pct = round((pts_f1 / (partidos_con_resultado * 3)) * 100) if partidos_con_resultado > 0 else 0
 
         prons_f2 = PronosticoEliminatorio.objects.filter(usuario=u).select_related('partido')
         pts_f2 = sum(p.puntos() for p in prons_f2)
@@ -77,9 +78,7 @@ def ranking(request):
         bonus = 0
         if campeon:
             try:
-                pron_final = PronosticoEliminatorio.objects.get(
-                    usuario=u, partido__ronda='FIN'
-                )
+                pron_final = PronosticoEliminatorio.objects.get(usuario=u, partido__ronda='FIN')
                 pred_campeon = pron_final.local if (pron_final.goles_l or 0) > (pron_final.goles_v or 0) else pron_final.visita
                 if pred_campeon == campeon:
                     bonus += 5
@@ -90,9 +89,7 @@ def ranking(request):
 
         if tercero:
             try:
-                pron_3pl = PronosticoEliminatorio.objects.get(
-                    usuario=u, partido__ronda='3PL'
-                )
+                pron_3pl = PronosticoEliminatorio.objects.get(usuario=u, partido__ronda='3PL')
                 pred_3 = pron_3pl.local if (pron_3pl.goles_l or 0) > (pron_3pl.goles_v or 0) else pron_3pl.visita
                 if pred_3 == tercero:
                     bonus += 2
@@ -100,6 +97,7 @@ def ranking(request):
                     bonus += 1
             except PronosticoEliminatorio.DoesNotExist:
                 pass
+
         total = pts_f1 + pts_f2 + bonus
         tabla.append({
             'usuario': u,
@@ -111,43 +109,12 @@ def ranking(request):
             'resultados_f2': resultados_f2,
             'bonus': bonus,
             'total': total,
-            'pos_anterior': None,  # para la flecha
             'pct': pct,
         })
 
     tabla.sort(key=lambda x: x['total'], reverse=True)
 
-    partidos_jugados = Partido.objects.filter(jugado=True).count()
-    total_partidos = Partido.objects.count()
-    
-    # Progreso de pronósticos por usuario (solo para jefe)
-    progreso = []
-    for u in usuarios:
-        total_prons = Pronostico.objects.filter(usuario=u).count()
-        progreso.append({
-            'usuario': u,
-            'completados': total_prons,
-            'porcentaje': round((total_prons / 72) * 100),
-        })
-    progreso.sort(key=lambda x: x['porcentaje'], reverse=True)
-    
-    
-    # Desafíos para el popup
-    desafios_activos = Desafio.objects.filter(
-        estado='aceptado'
-    ).select_related('retador', 'retado', 'partido').order_by('-creado_en')
-
-    desafios_ctx = []
-    for d in desafios_activos:
-        g = d.ganador()
-        desafios_ctx.append({
-            'desafio': d,
-            'ganador': g,
-            'empate': g is None and d.partido.jugado,
-            'pendiente': not d.partido.jugado,
-        })
-        
-        # Calcular flechas
+    # Flechas
     ranking_anterior = request.session.get('ranking_anterior', {})
     for i, row in enumerate(tabla):
         pos_actual = i + 1
@@ -161,18 +128,54 @@ def ranking(request):
         else:
             row['flecha'] = '➡️'
 
-    # Guardar posiciones actuales en sesión
     request.session['ranking_anterior'] = {
         row['usuario'].username: i + 1
         for i, row in enumerate(tabla)
     }
 
+    partidos_jugados = Partido.objects.filter(jugado=True).count()
+    total_partidos = Partido.objects.count()
+
+    progreso = []
+    for u in usuarios:
+        total_prons = Pronostico.objects.filter(usuario=u).count()
+        progreso.append({
+            'usuario': u,
+            'completados': total_prons,
+            'porcentaje': round((total_prons / 72) * 100),
+        })
+    progreso.sort(key=lambda x: x['porcentaje'], reverse=True)
+
+    desafios_activos = Desafio.objects.filter(
+        estado='aceptado'
+    ).select_related('retador', 'retado', 'partido').order_by('-creado_en')
+
+    desafios_ctx = []
+    for d in desafios_activos:
+        g = d.ganador()
+        votos = d.votos.all()
+        total_votos = votos.count()
+        v1 = votos.filter(voto='1').count()
+        v2 = votos.filter(voto='2').count()
+        v0 = votos.filter(voto='0').count()
+        desafios_ctx.append({
+            'desafio': d,
+            'ganador': g,
+            'empate': g is None and d.partido.jugado,
+            'pendiente': not d.partido.jugado,
+            'total_votos': total_votos,
+            'pct1': round((v1/total_votos)*100) if total_votos else 0,
+            'pct2': round((v2/total_votos)*100) if total_votos else 0,
+            'pct0': round((v0/total_votos)*100) if total_votos else 0,
+            'v1': v1, 'v2': v2, 'v0': v0,
+        })
+
     return render(request, 'prode/ranking.html', {
-    'tabla': tabla,
-    'partidos_jugados': partidos_jugados,
-    'total_partidos': total_partidos,
-    'progreso': progreso,
-    'desafios': desafios_ctx,
+        'tabla': tabla,
+        'partidos_jugados': partidos_jugados,
+        'total_partidos': total_partidos,
+        'progreso': progreso,
+        'desafios': desafios_ctx,
     })
 
 
