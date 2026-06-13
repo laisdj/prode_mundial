@@ -8,7 +8,7 @@ from django.conf import settings
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio
 from datetime import date
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje
-from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje, Desafio
+from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje, Desafio, PerfilUsuario, VotoDesafio
 
 
 def login_view(request):
@@ -45,6 +45,8 @@ def registro(request):
 
 def ranking(request):
     usuarios = User.objects.filter(is_superuser=False)
+    partidos_con_resultado = Partido.objects.filter(jugado=True).count()
+    pct = round((pts_f1 / (partidos_con_resultado * 3)) * 100) if partidos_con_resultado > 0 else 0
 
     try:
         final = PartidoEliminatorio.objects.get(ronda='FIN', jugado=True)
@@ -110,6 +112,7 @@ def ranking(request):
             'bonus': bonus,
             'total': total,
             'pos_anterior': None,  # para la flecha
+            'pct': pct,
         })
 
     tabla.sort(key=lambda x: x['total'], reverse=True)
@@ -942,3 +945,58 @@ def api_actualizar(request):
     out = StringIO()
     call_command('actualizar_resultados', stdout=out)
     return JsonResponse({'resultado': out.getvalue()})
+
+@login_required(login_url='login')
+def votar_desafio(request, desafio_id):
+    if request.method == 'POST':
+        try:
+            desafio = Desafio.objects.get(id=desafio_id)
+            voto = request.POST.get('voto')
+            comentario = request.POST.get('comentario', '').strip()
+            if voto in ('0', '1', '2'):
+                VotoDesafio.objects.update_or_create(
+                    desafio=desafio,
+                    usuario=request.user,
+                    defaults={'voto': voto, 'comentario': comentario}
+                )
+                messages.success(request, '¡Voto registrado!')
+        except Desafio.DoesNotExist:
+            pass
+    return redirect('detalle_desafio', desafio_id=desafio_id)
+
+
+def detalle_desafio(request, desafio_id):
+    try:
+        desafio = Desafio.objects.get(id=desafio_id)
+    except Desafio.DoesNotExist:
+        return redirect('desafios')
+
+    votos = VotoDesafio.objects.filter(desafio=desafio).select_related('usuario')
+    total_votos = votos.count()
+
+    v1 = votos.filter(voto='1').count()
+    v2 = votos.filter(voto='2').count()
+    v0 = votos.filter(voto='0').count()
+
+    pct1 = round((v1 / total_votos) * 100) if total_votos else 0
+    pct2 = round((v2 / total_votos) * 100) if total_votos else 0
+    pct0 = round((v0 / total_votos) * 100) if total_votos else 0
+
+    mi_voto = None
+    if request.user.is_authenticated:
+        try:
+            mi_voto = VotoDesafio.objects.get(desafio=desafio, usuario=request.user)
+        except VotoDesafio.DoesNotExist:
+            pass
+
+    ganador = desafio.ganador()
+
+    return render(request, 'prode/detalle_desafio.html', {
+        'desafio': desafio,
+        'votos': votos,
+        'total_votos': total_votos,
+        'v1': v1, 'v2': v2, 'v0': v0,
+        'pct1': pct1, 'pct2': pct2, 'pct0': pct0,
+        'mi_voto': mi_voto,
+        'ganador': ganador,
+    })

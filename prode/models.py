@@ -211,3 +211,21 @@ class PerfilUsuario(models.Model):
 
     def __str__(self):
         return f"Perfil de {self.usuario.username}"
+    
+class VotoDesafio(models.Model):
+    VOTO_CHOICES = [
+        ('1', 'Gana retador'),
+        ('2', 'Gana retado'),
+        ('0', 'Empate'),
+    ]
+    desafio  = models.ForeignKey(Desafio, on_delete=models.CASCADE, related_name='votos')
+    usuario  = models.ForeignKey(User, on_delete=models.CASCADE)
+    voto     = models.CharField(max_length=1, choices=VOTO_CHOICES)
+    comentario = models.CharField(max_length=200, blank=True, default='')
+    creado_en = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('desafio', 'usuario')
+
+    def __str__(self):
+        return f"{self.usuario.username} vota {self.voto} en {self.desafio}"

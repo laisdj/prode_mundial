@@ -73,7 +73,6 @@
         <div style="font-size:.85rem;margin-bottom:.75rem">
           Su pronóstico: <strong>{{ d.gl_retador }} - {{ d.gv_retador }}</strong>
         </div>
-
         {% if d.estado == 'pendiente' %}
         <form method="post" action="{% url 'responder_desafio' d.id %}">
           {% csrf_token %}
@@ -103,6 +102,11 @@
               {% endif %}
             {% endwith %}
           {% endif %}
+          <div style="margin-top:.75rem">
+            <a href="{% url 'detalle_desafio' d.id %}" style="font-size:.8rem;color:#1a6b3c">
+              🗳️ Ver votos / comentar →
+            </a>
+          </div>
         {% endif %}
       </div>
     </div>
@@ -152,6 +156,11 @@
               {% endif %}
             {% endwith %}
           {% endif %}
+          <div style="margin-top:.75rem">
+            <a href="{% url 'detalle_desafio' d.id %}" style="font-size:.8rem;color:#1a6b3c">
+              🗳️ Ver votos / comentar →
+            </a>
+          </div>
         {% endif %}
       </div>
     </div>

@@ -1,0 +1,127 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<div class="card" style="max-width:640px;margin:0 auto">
+
+  <h1>⚔️ Desafío</h1>
+
+  <!-- Info del desafío -->
+  <div style="background:#f0faf4;border-radius:8px;padding:1rem;margin-bottom:1.25rem">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.5rem">
+      <div style="font-size:1rem">
+        <strong>{{ desafio.retador.username }}</strong>
+        <span style="color:#888;font-size:.85rem">({{ desafio.gl_retador }}-{{ desafio.gv_retador }})</span>
+        <span style="color:#1a6b3c;font-weight:700;margin:0 .5rem">VS</span>
+        <strong>{{ desafio.retado.username }}</strong>
+        <span style="color:#888;font-size:.85rem">({{ desafio.gl_retado }}-{{ desafio.gv_retado }})</span>
+      </div>
+    </div>
+    <div style="font-size:.85rem;color:#666">
+      ⚽ {{ desafio.partido.local }} vs {{ desafio.partido.visita }} · {{ desafio.partido.fecha|date:"d/m H:i" }}
+    </div>
+    <div style="font-size:.85rem;margin-top:.4rem">
+      💰 Monto: <strong>${{ desafio.monto|floatformat:"0" }}</strong>
+      {% if desafio.partido.jugado %}
+        · Resultado real: <strong>{{ desafio.partido.goles_l }}-{{ desafio.partido.goles_v }}</strong>
+      {% endif %}
+    </div>
+    {% if ganador %}
+      <div style="margin-top:.5rem;font-weight:700;color:#1a6b3c;font-size:1rem">🏆 Ganó {{ ganador.username }}</div>
+    {% elif desafio.partido.jugado %}
+      <div style="margin-top:.5rem;color:#888">🤝 Empate</div>
+    {% endif %}
+  </div>
+
+  <!-- Votos -->
+  <h2>🗳️ ¿Quién crees que gana? <span style="font-size:.8rem;color:#888">({{ total_votos }} votos)</span></h2>
+
+  <div style="margin:.75rem 0 1rem">
+    <!-- Retador -->
+    <div style="margin-bottom:.5rem">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:.2rem">
+        <span>{{ desafio.retador.username }}</span>
+        <span>{{ pct1 }}% ({{ v1 }})</span>
+      </div>
+      <div style="background:#e0e0e0;border-radius:4px;height:10px">
+        <div style="background:#1a6b3c;border-radius:4px;height:10px;width:{{ pct1 }}%"></div>
+      </div>
+    </div>
+    <!-- Retado -->
+    <div style="margin-bottom:.5rem">
+      <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:.2rem">
+        <span>{{ desafio.retado.username }}</span>
+        <span>{{ pct2 }}% ({{ v2 }})</span>
+      </div>
+      <div style="background:#e0e0e0;border-radius:4px;height:10px">
+        <div style="background:#1565c0;border-radius:4px;height:10px;width:{{ pct2 }}%"></div>
+      </div>
+    </div>
+    <!-- Empate -->
+    <div>
+      <div style="display:flex;justify-content:space-between;font-size:.85rem;margin-bottom:.2rem">
+        <span>Ninguno (empate)</span>
+        <span>{{ pct0 }}% ({{ v0 }})</span>
+      </div>
+      <div style="background:#e0e0e0;border-radius:4px;height:10px">
+        <div style="background:#888;border-radius:4px;height:10px;width:{{ pct0 }}%"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Formulario de voto -->
+  {% if user.is_authenticated %}
+  <form method="post" action="{% url 'votar_desafio' desafio.id %}" style="margin-bottom:1.25rem">
+    {% csrf_token %}
+    <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:.5rem">
+      <button type="submit" name="voto" value="1"
+              style="flex:1;padding:.5rem;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:700;
+              border:2px solid #1a6b3c;background:{% if mi_voto.voto == '1' %}#1a6b3c{% else %}transparent{% endif %};
+              color:{% if mi_voto.voto == '1' %}#fff{% else %}#1a6b3c{% endif %}">
+        🟢 {{ desafio.retador.username }}
+      </button>
+      <button type="submit" name="voto" value="2"
+              style="flex:1;padding:.5rem;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:700;
+              border:2px solid #1565c0;background:{% if mi_voto.voto == '2' %}#1565c0{% else %}transparent{% endif %};
+              color:{% if mi_voto.voto == '2' %}#fff{% else %}#1565c0{% endif %}">
+        🔵 {{ desafio.retado.username }}
+      </button>
+      <button type="submit" name="voto" value="0"
+              style="flex:1;padding:.5rem;border-radius:6px;cursor:pointer;font-size:.85rem;font-weight:700;
+              border:2px solid #888;background:{% if mi_voto.voto == '0' %}#888{% else %}transparent{% endif %};
+              color:{% if mi_voto.voto == '0' %}#fff{% else %}#888{% endif %}">
+        ⚪ Ninguno
+      </button>
+    </div>
+    <input type="text" name="comentario"
+           value="{% if mi_voto %}{{ mi_voto.comentario }}{% endif %}"
+           placeholder="Deja un comentario (opcional)..."
+           style="margin-bottom:.5rem"/>
+    <button class="btn" type="submit" name="voto" value="{% if mi_voto %}{{ mi_voto.voto }}{% else %}1{% endif %}">
+      💾 Guardar voto
+    </button>
+  </form>
+  {% endif %}
+
+  <!-- Lista de votos y comentarios -->
+  {% if votos %}
+  <h2>💬 Comentarios</h2>
+  <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.75rem">
+  {% for v in votos %}
+    {% if v.comentario %}
+    <div style="background:#f0f4f0;border-radius:8px;padding:.6rem .9rem;font-size:.85rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:.2rem">
+        <strong>{{ v.usuario.username }}</strong>
+        <span style="color:#888;font-size:.75rem">
+          {% if v.voto == '1' %}🟢 {{ desafio.retador.username }}
+          {% elif v.voto == '2' %}🔵 {{ desafio.retado.username }}
+          {% else %}⚪ Ninguno{% endif %}
+        </span>
+      </div>
+      {{ v.comentario }}
+    </div>
+    {% endif %}
+  {% endfor %}
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}
