@@ -10,29 +10,26 @@
       </div>
     </div>
   </div>
+
   {% if tabla %}
   <div class="table-wrap">
   <table>
-    <thead><tr>
-  <th>#</th>
-  <th></th>
-  <th style="text-align:left">Participante</th>
-  <th title="Plenos fase grupal">⭐F1</th>
-  <th title="Resultados fase grupal">✓F1</th>
-  <th title="Puntos fase grupal">PtsF1</th>
-  <th title="Rendimiento">%</th>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th></th>
+        <th style="text-align:left">Participante</th>
+        <th title="Plenos fase grupal">⭐F1</th>
+        <th title="Resultados fase grupal">✓F1</th>
+        <th title="Puntos fase grupal">PtsF1</th>
+        <td style="font-size:.75rem;color:#888">{{ row.pct }}%</td>
+        <th title="Bonus final">🎁</th>
+        <th title="Total"><strong>Total</strong></th>
+        
+        {% if user.is_staff %}<th></th>{% endif %}
+      </tr>
+    </thead>
 
-  {# <th title="Plenos fase eliminatoria">⭐F2</th> #}
-  {# <th title="Resultados fase eliminatoria">✓F2</th> #}
-  {# <th title="Puntos fase eliminatoria">PtsF2</th> #}
-  {# <th title="Bonus final">🎁</th> #}
-
-  <th title="Total"><strong>Total</strong></th>
-
-  {% if user.is_staff %}
-    <th></th>
-  {% endif %}
-</tr></thead>
     <tbody>
     {% for row in tabla %}
       <tr>
@@ -43,16 +40,24 @@
           {% else %}<strong>{{ forloop.counter }}</strong>
           {% endif %}
         </td>
+
         <td style="font-size:.85rem">{{ row.flecha }}</td>
-        <td style="text-align:left">{{ row.usuario.username }}</td>
-        <td><span class="badge-3">{{ row.exactos_f1 }}</span></td>
-        <td><span class="badge-1">{{ row.resultados_f1 }}</span></td>
-        <td><strong style="color:#1a6b3c">{{ row.pts_f1 }}</strong></td>
-        <td style="font-size:.75rem;color:#888">{{ row.pct }}%</td>
-        {#
-        <td><span class="badge-3">{{ row.exactos_f2 }}</span></td>
-        <td><span class="badge-1">{{ row.resultados_f2 }}</span></td>
-        <td><strong style="color:#1a6b3c">{{ row.pts_f2 }}</strong></td>
+
+        <td style="text-align:left">
+          {{ row.usuario.username }}
+        </td>
+
+        <td>
+          <span class="badge-3">{{ row.exactos_f1 }}</span>
+        </td>
+
+        <td>
+          <span class="badge-1">{{ row.resultados_f1 }}</span>
+        </td>
+
+        <td>
+          <strong style="color:#1a6b3c">{{ row.pts_f1 }}</strong>
+        </td>
 
         <td>
           {% if row.bonus > 0 %}
@@ -61,8 +66,13 @@
             <span style="color:#ddd">—</span>
           {% endif %}
         </td>
-        #}
-        <td><strong style="color:#1a6b3c;font-size:1rem">{{ row.total }}</strong></td>
+
+        <td>
+          <strong style="color:#1a6b3c;font-size:1rem">
+            {{ row.total }}
+          </strong>
+        </td>
+
         {% if user.is_staff %}
         <td>
           <form method="post" action="{% url 'eliminar_usuario' row.usuario.id %}">
@@ -80,36 +90,47 @@
     </tbody>
   </table>
   </div>
+
   {% else %}
     <p style="color:#888">Aún no hay participantes con pronósticos.</p>
   {% endif %}
 </div>
 
 {% if user.is_staff %}
-<div class="card">
+<div class="card" style="margin-top:1.5rem">
   <h2>📋 Progreso de pronósticos</h2>
+
   <div class="table-wrap">
   <table>
-    <thead><tr>
-      <th style="text-align:left">Usuario</th>
-      <th>Completados</th>
-      <th>Progreso</th>
-      <th>%</th>
-    </tr></thead>
+    <thead>
+      <tr>
+        <th style="text-align:left">Usuario</th>
+        <th>Completados</th>
+        <th>Progreso</th>
+        <th>%</th>
+      </tr>
+    </thead>
+
     <tbody>
     {% for p in progreso %}
       <tr>
         <td style="text-align:left">{{ p.usuario.username }}</td>
+
         <td>{{ p.completados }} / 72</td>
+
         <td>
           <div style="background:#e0e0e0;border-radius:4px;height:8px;width:120px">
             <div style="background:{% if p.porcentaje == 100 %}#2e8b57{% elif p.porcentaje > 50 %}#f4c430{% else %}#e74c3c{% endif %};border-radius:4px;height:8px;width:{% widthratio p.completados 72 120 %}px"></div>
           </div>
         </td>
+
         <td>
-          {% if p.porcentaje == 100 %}<span class="badge-3">✅ 100%</span>
-          {% elif p.porcentaje > 50 %}<span class="badge-1">⚠️ {{ p.porcentaje }}%</span>
-          {% else %}<span style="color:#e74c3c;font-size:.8rem">❌ {{ p.porcentaje }}%</span>
+          {% if p.porcentaje == 100 %}
+            <span class="badge-3">✅ 100%</span>
+          {% elif p.porcentaje > 50 %}
+            <span class="badge-1">⚠️ {{ p.porcentaje }}%</span>
+          {% else %}
+            <span style="color:#e74c3c;font-size:.8rem">❌ {{ p.porcentaje }}%</span>
           {% endif %}
         </td>
       </tr>
@@ -121,96 +142,61 @@
 {% endif %}
 
 {% if desafios %}
-<div class="card">
+<div class="card" style="margin-top:1.5rem">
   <h2>⚔️ Desafíos en juego</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:.75rem">
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-top:.75rem">
   {% for item in desafios %}
     <div style="border:2px solid {% if item.pendiente %}#f4c430{% elif item.empate %}#1565c0{% elif item.ganador %}#2e8b57{% else %}#e0e0e0{% endif %};border-radius:10px;overflow:hidden">
+
       <div style="padding:.4rem .75rem;font-size:.75rem;font-weight:700;
         background:{% if item.pendiente %}#f4c430{% elif item.empate %}#aaa{% elif item.ganador %}#2e8b57{% else %}#e0e0e0{% endif %};
         color:{% if item.ganador %}#fff{% else %}#1a6b3c{% endif %}">
-        {% if item.pendiente %}⏳ En juego
-        {% elif item.empate %}🤝 Empate
-        {% elif item.ganador %}🏆 Ganó {{ item.ganador.username }}
+
+        {% if item.pendiente %}
+          ⏳ En juego
+        {% elif item.empate %}
+          🤝 Empate
+        {% elif item.ganador %}
+          🏆 Ganó {{ item.ganador.username }}
         {% endif %}
       </div>
-      <div style="padding:.75rem">
-        <div style="font-size:.85rem;margin-bottom:.4rem">
+
+      <div style="padding:.75rem;font-size:.85rem">
+
+        <div style="margin-bottom:.4rem">
           <strong>{{ item.desafio.retador.username }}</strong>
-          <span style="color:#888;font-size:.8rem">({{ item.desafio.gl_retador }}-{{ item.desafio.gv_retador }})</span>
+          <span style="color:#888;font-size:.8rem">
+            ({{ item.desafio.gl_retador }}-{{ item.desafio.gv_retador }})
+          </span>
+
           vs
+
           <strong>{{ item.desafio.retado.username }}</strong>
-          <span style="color:#888;font-size:.8rem">({{ item.desafio.gl_retado }}-{{ item.desafio.gv_retado }})</span>
+          <span style="color:#888;font-size:.8rem">
+            ({{ item.desafio.gl_retado }}-{{ item.desafio.gv_retado }})
+          </span>
         </div>
+
         <div style="font-size:.8rem;color:#666;margin-bottom:.4rem">
           {{ item.desafio.partido.local }} vs {{ item.desafio.partido.visita }}
         </div>
-        <div style="font-size:.85rem;margin-bottom:.75rem">
+
+        <div style="font-size:.85rem">
           💰 <strong>${{ item.desafio.monto|floatformat:"0" }}</strong>
+
           {% if item.desafio.partido.jugado %}
-            · Real: <strong>{{ item.desafio.partido.goles_l }}-{{ item.desafio.partido.goles_v }}</strong>
+            · Real:
+            <strong>
+              {{ item.desafio.partido.goles_l }}-{{ item.desafio.partido.goles_v }}
+            </strong>
           {% endif %}
+
           {% if item.desafio.pagado %}
-            · <span style="color:#2e8b57">✅ Pagado</span>
+            · <span style="color:#2e8b57;font-size:.8rem">✅ Pagado</span>
           {% endif %}
         </div>
 
-        <!-- Votos inline -->
-        {% if item.total_votos > 0 %}
-        <div style="margin-bottom:.6rem;font-size:.78rem;color:#666">
-          🗳️ {{ item.total_votos }} votos
-          <div style="margin-top:.3rem">
-            <div style="display:flex;justify-content:space-between;margin-bottom:.1rem">
-              <span>{{ item.desafio.retador.username }}</span><span>{{ item.pct1 }}%</span>
-            </div>
-            <div style="background:#e0e0e0;border-radius:3px;height:6px;margin-bottom:.3rem">
-              <div style="background:#1a6b3c;border-radius:3px;height:6px;width:{{ item.pct1 }}%"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:.1rem">
-              <span>{{ item.desafio.retado.username }}</span><span>{{ item.pct2 }}%</span>
-            </div>
-            <div style="background:#e0e0e0;border-radius:3px;height:6px;margin-bottom:.3rem">
-              <div style="background:#1565c0;border-radius:3px;height:6px;width:{{ item.pct2 }}%"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;margin-bottom:.1rem">
-              <span>Ninguno</span><span>{{ item.pct0 }}%</span>
-            </div>
-            <div style="background:#e0e0e0;border-radius:3px;height:6px">
-              <div style="background:#888;border-radius:3px;height:6px;width:{{ item.pct0 }}%"></div>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-
-        <!-- Votar inline -->
-        {% if user.is_authenticated and not item.desafio.partido.jugado %}
-        <form method="post" action="{% url 'votar_desafio' item.desafio.id %}">
-          {% csrf_token %}
-          <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.4rem">
-            <button type="submit" name="voto" value="1"
-                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;
-                    border:1px solid #1a6b3c;background:transparent;color:#1a6b3c">
-              🟢 {{ item.desafio.retador.username }}
-            </button>
-            <button type="submit" name="voto" value="2"
-                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;
-                    border:1px solid #1565c0;background:transparent;color:#1565c0">
-              🔵 {{ item.desafio.retado.username }}
-            </button>
-            <button type="submit" name="voto" value="0"
-                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;
-                    border:1px solid #888;background:transparent;color:#888">
-              ⚪ Ninguno
-            </button>
-          </div>
-          <input type="text" name="comentario" placeholder="Comentario opcional..."
-                 style="width:100%;font-size:.78rem;padding:.25rem .4rem;border:1px solid #ccc;border-radius:4px;margin-bottom:.4rem"/>
-        </form>
-        {% endif %}
-
-        <a href="{% url 'detalle_desafio' item.desafio.id %}" style="font-size:.78rem;color:#1a6b3c">
-          Ver detalle →
-        </a>
       </div>
     </div>
   {% endfor %}
