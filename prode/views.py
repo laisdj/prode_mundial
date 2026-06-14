@@ -154,6 +154,7 @@ def ranking(request):
     for d in desafios_activos:
         g = d.ganador()
         votos = d.votos.all()
+        comentarios = [v for v in votos if v.comentario]
         total_votos = votos.count()
         v1 = votos.filter(voto='1').count()
         v2 = votos.filter(voto='2').count()
@@ -168,6 +169,7 @@ def ranking(request):
             'pct2': round((v2/total_votos)*100) if total_votos else 0,
             'pct0': round((v0/total_votos)*100) if total_votos else 0,
             'v1': v1, 'v2': v2, 'v0': v0,
+            'comentarios': comentarios,
         })
 
     return render(request, 'prode/ranking.html', {

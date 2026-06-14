@@ -147,7 +147,7 @@
           {% endif %}
         </div>
 
-        <!-- Votos inline -->
+        <!-- Barras de votos -->
         {% if item.total_votos > 0 %}
         <div style="margin-bottom:.6rem;font-size:.78rem;color:#666">
           🗳️ {{ item.total_votos }} votos
@@ -171,6 +171,21 @@
               <div style="background:#888;border-radius:3px;height:6px;width:{{ item.pct0 }}%"></div>
             </div>
           </div>
+        </div>
+        {% endif %}
+
+        <!-- Comentarios -->
+        {% if item.comentarios %}
+        <div style="margin-bottom:.6rem;border-top:1px solid #f0f0f0;padding-top:.5rem">
+          {% for v in item.comentarios %}
+            <div style="font-size:.75rem;margin-bottom:.3rem;background:#f0f4f0;border-radius:6px;padding:.3rem .5rem">
+              <strong>{{ v.usuario.username }}</strong>
+              <span style="color:#888;font-size:.7rem">
+                {% if v.voto == '1' %}🟢{% elif v.voto == '2' %}🔵{% else %}⚪{% endif %}
+              </span>
+              — {{ v.comentario }}
+            </div>
+          {% endfor %}
         </div>
         {% endif %}
 

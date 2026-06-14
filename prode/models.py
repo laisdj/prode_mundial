@@ -181,22 +181,15 @@ class Desafio(models.Model):
     def ganador(self):
         if not self.partido.jugado or self.estado != 'aceptado':
             return None
-        real = self.partido.resultado_real()
-        if real is None:
-            return None
-        pred_retador = self.resultado_retador()
-        pred_retado  = self.resultado_retado()
         exacto_retador = (self.gl_retador == self.partido.goles_l and
-                          self.gv_retador == self.partido.goles_v)
+                        self.gv_retador == self.partido.goles_v)
         exacto_retado  = (self.gl_retado == self.partido.goles_l and
-                          self.gv_retado == self.partido.goles_v)
-        pts_retador = 3 if exacto_retador else (1 if pred_retador == real else 0)
-        pts_retado  = 3 if exacto_retado  else (1 if pred_retado  == real else 0)
-        if pts_retador > pts_retado:
+                        self.gv_retado == self.partido.goles_v)
+        if exacto_retador and not exacto_retado:
             return self.retador
-        if pts_retado > pts_retador:
+        if exacto_retado and not exacto_retador:
             return self.retado
-        return None  # empate
+        return None
 
     def __str__(self):
         return f"{self.retador} vs {self.retado} — {self.partido}"
