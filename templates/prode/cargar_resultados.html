@@ -3,7 +3,7 @@
 <div class="card">
   <h1>⚙️ Cargar resultados reales</h1>
   <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
-    Solo visible para el administrador. Ingresa el marcador y marca el partido como jugado.
+    Solo visible para el administrador. Ingresa el marcador — se marca como jugado automáticamente.
   </p>
   <form method="post">
     {% csrf_token %}
@@ -14,7 +14,6 @@
         <th style="text-align:left">Partido</th>
         <th>Fecha</th>
         <th>Resultado real</th>
-        <th>Jugado</th>
       </tr></thead>
       <tbody>
       {% for p in partidos %}
@@ -32,10 +31,6 @@
                    name="gv_{{ p.id }}"
                    {% if p.goles_v != None %}value="{{ p.goles_v }}"{% endif %}
                    placeholder="-"/>
-          </td>
-          <td>
-            <input type="checkbox" name="jugado_{{ p.id }}"
-                   {% if p.jugado %}checked{% endif %}/>
           </td>
         </tr>
       {% endfor %}

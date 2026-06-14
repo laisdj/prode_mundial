@@ -475,7 +475,7 @@ def cargar_resultados(request):
                 try:
                     partido.goles_l = int(gl)
                     partido.goles_v = int(gv)
-                    partido.jugado = jugado == 'on'
+                    partido.jugado = True
                     partido.save()
                 except ValueError:
                     pass
