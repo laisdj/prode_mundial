@@ -57,7 +57,10 @@ TEAM_MAP = {
     'Uzbekistan':      'Uzbekistán',
     'Colombia':        'Colombia',
     'Paraguay':        'Paraguay',
-}
+    'Democratic Republic of the Congo': 'R.D. Congo',
+    'Bosnia and Herzegovina': 'Bosnia',
+    'Ivory Coast': 'Costa de Marfil',
+    }
 
 
 class Command(BaseCommand):
@@ -65,7 +68,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            resp = requests.get('https://worldcup26.ir/get/games', timeout=10)
+            resp = requests.get('https://worldcup26.ir/get/games', timeout=30)
             resp.raise_for_status()
         except Exception as e:
             self.stderr.write(f'Error consultando API: {e}')
