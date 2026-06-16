@@ -182,8 +182,27 @@ def ranking(request):
 
 
 def partidos(request):
-    partidos = Partido.objects.all()
-    return render(request, 'prode/partidos.html', {'partidos': partidos})
+    todos = Partido.objects.all()
+    
+    mis_prons = {}
+    if request.user.is_authenticated:
+        for p in Pronostico.objects.filter(usuario=request.user).select_related('partido'):
+            mis_prons[p.partido_id] = p
+
+    partidos_ctx = []
+    for p in todos:
+        pron = mis_prons.get(p.id)
+        pts = pron.puntos() if pron else None
+        pred = None
+        if pron:
+            pred = f"{pron.goles_l}-{pron.goles_v}"
+        partidos_ctx.append({
+            'partido': p,
+            'pred': pred,
+            'pts': pts,
+        })
+
+    return render(request, 'prode/partidos.html', {'partidos': partidos_ctx})
 
 
 def clasificacion(request):

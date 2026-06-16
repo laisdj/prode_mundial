@@ -5,23 +5,48 @@
   <div class="table-wrap">
   <table>
     <thead><tr>
-      <th>Grp</th><th style="text-align:left">Partido</th><th>Fecha y hora</th><th>Resultado</th>
+      <th>Grp</th>
+      <th style="text-align:left">Partido</th>
+      <th>Fecha y hora</th>
+      <th>Resultado</th>
+      {% if user.is_authenticated %}
+      <th>Mi pred.</th>
+      <th>Pts</th>
+      {% endif %}
     </tr></thead>
     <tbody>
-    {% for p in partidos %}
+    {% for item in partidos %}
       <tr>
-        <td><span class="grp-badge">{{ p.grupo }}</span></td>
-        <td style="text-align:left">{{ p.local }} vs {{ p.visita }}</td>
-        <td>{{ p.fecha|date:"d/m H:i" }}</td>
+        <td><span class="grp-badge">{{ item.partido.grupo }}</span></td>
+        <td style="text-align:left">{{ item.partido.local }} vs {{ item.partido.visita }}</td>
+        <td>{{ item.partido.fecha|date:"d/m H:i" }}</td>
         <td>
-          {% if p.jugado %}
-            <strong>{{ p.goles_l }} - {{ p.goles_v }}</strong>
-          {% elif p.en_vivo %}
-            <span style="color:#e74c3c;font-weight:700">🔴 {{ p.goles_l }} - {{ p.goles_v }}</span>
+          {% if item.partido.jugado %}
+            <strong>{{ item.partido.goles_l }} - {{ item.partido.goles_v }}</strong>
           {% else %}
             <span style="color:#aaa">—</span>
           {% endif %}
         </td>
+        {% if user.is_authenticated %}
+        <td>
+          {% if item.pred %}
+            <span style="font-size:.82rem">{{ item.pred }}</span>
+          {% else %}
+            <span style="color:#ddd">—</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if item.pts == 3 %}
+            <span class="badge-3">3 ⭐</span>
+          {% elif item.pts == 1 %}
+            <span class="badge-1">1 ✓</span>
+          {% elif item.pts == 0 and item.pred %}
+            <span style="color:#e74c3c;font-size:.8rem">0 ✗</span>
+          {% else %}
+            <span style="color:#ddd">—</span>
+          {% endif %}
+        </td>
+        {% endif %}
       </tr>
     {% endfor %}
     </tbody>
