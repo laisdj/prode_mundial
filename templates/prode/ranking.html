@@ -135,7 +135,8 @@
           <span style="color:#888;font-size:.8rem">({{ item.desafio.gl_retado }}-{{ item.desafio.gv_retado }})</span>
         </div>
         <div style="font-size:.8rem;color:#666;margin-bottom:.4rem">
-          {{ item.desafio.partido.local }} vs {{ item.desafio.partido.visita }}
+          {{ item.desafio.partido.local }} vs {{ item.desafio.partido.visita }}<br>
+          <span style="font-size:.75rem;color:#aaa">{{ item.desafio.partido.fecha|date:"d/m H:i" }}</span>
         </div>
         <div style="font-size:.85rem;margin-bottom:.75rem">
           💰 <strong>${{ item.desafio.monto|floatformat:"0" }}</strong>

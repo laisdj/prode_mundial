@@ -183,23 +183,31 @@ def ranking(request):
 
 def partidos(request):
     todos = Partido.objects.all()
+    usuarios = User.objects.filter(is_superuser=False)
     
-    mis_prons = {}
-    if request.user.is_authenticated:
-        for p in Pronostico.objects.filter(usuario=request.user).select_related('partido'):
-            mis_prons[p.partido_id] = p
+    # Cargar todos los pronósticos de todos los usuarios
+    todos_prons = {}
+    for pron in Pronostico.objects.select_related('usuario', 'partido').all():
+        if pron.partido_id not in todos_prons:
+            todos_prons[pron.partido_id] = []
+        todos_prons[pron.partido_id].append(pron)
 
     partidos_ctx = []
     for p in todos:
-        pron = mis_prons.get(p.id)
-        pts = pron.puntos() if pron else None
-        pred = None
-        if pron:
-            pred = f"{pron.goles_l}-{pron.goles_v}"
+        prons_partido = todos_prons.get(p.id, [])
+        plenos = []
+        resultados = []
+        for pron in prons_partido:
+            pts = pron.puntos()
+            inicial = pron.usuario.username[0].upper()
+            if pts == 3:
+                plenos.append(inicial)
+            elif pts == 1:
+                resultados.append(inicial)
         partidos_ctx.append({
             'partido': p,
-            'pred': pred,
-            'pts': pts,
+            'plenos': plenos,
+            'resultados': resultados,
         })
 
     return render(request, 'prode/partidos.html', {'partidos': partidos_ctx})

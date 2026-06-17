@@ -9,10 +9,8 @@
       <th style="text-align:left">Partido</th>
       <th>Fecha y hora</th>
       <th>Resultado</th>
-      {% if user.is_authenticated %}
-      <th>Mi pred.</th>
-      <th>Pts</th>
-      {% endif %}
+      <th style="text-align:left">⭐ Plenos</th>
+      <th style="text-align:left">✓ Resultado</th>
     </tr></thead>
     <tbody>
     {% for item in partidos %}
@@ -27,26 +25,28 @@
             <span style="color:#aaa">—</span>
           {% endif %}
         </td>
-        {% if user.is_authenticated %}
         <td>
-          {% if item.pred %}
-            <span style="font-size:.82rem">{{ item.pred }}</span>
+          {% if item.plenos %}
+            {% for i in item.plenos %}
+              <span style="display:inline-flex;align-items:center;justify-content:center;
+                background:#1a6b3c;color:#fff;border-radius:50%;width:22px;height:22px;
+                font-size:.7rem;font-weight:700;margin-right:2px">{{ i }}</span>
+            {% endfor %}
           {% else %}
             <span style="color:#ddd">—</span>
           {% endif %}
         </td>
         <td>
-          {% if item.pts == 3 %}
-            <span class="badge-3">3 ⭐</span>
-          {% elif item.pts == 1 %}
-            <span class="badge-1">1 ✓</span>
-          {% elif item.pts == 0 and item.pred %}
-            <span style="color:#e74c3c;font-size:.8rem">0 ✗</span>
+          {% if item.resultados %}
+            {% for i in item.resultados %}
+              <span style="display:inline-flex;align-items:center;justify-content:center;
+                background:#1565c0;color:#fff;border-radius:50%;width:22px;height:22px;
+                font-size:.7rem;font-weight:700;margin-right:2px">{{ i }}</span>
+            {% endfor %}
           {% else %}
             <span style="color:#ddd">—</span>
           {% endif %}
         </td>
-        {% endif %}
       </tr>
     {% endfor %}
     </tbody>
