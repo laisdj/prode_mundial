@@ -7,7 +7,7 @@
     <thead><tr>
       <th>Grp</th>
       <th style="text-align:left">Partido</th>
-      <th>Fecha y hora</th>
+      <th>Fecha</th>
       <th>Resultado</th>
       <th style="text-align:left">⭐ Plenos</th>
       <th style="text-align:left">✓ Resultado</th>
@@ -16,32 +16,36 @@
     {% for item in partidos %}
       <tr>
         <td><span class="grp-badge">{{ item.partido.grupo }}</span></td>
-        <td style="text-align:left">{{ item.partido.local }} vs {{ item.partido.visita }}</td>
-        <td>{{ item.partido.fecha|date:"d/m H:i" }}</td>
-        <td>
+        <td style="text-align:left;white-space:normal">
+          {{ item.partido.local }} vs {{ item.partido.visita }}
+        </td>
+        <td style="font-size:.78rem;color:#666;white-space:nowrap">
+          {{ item.partido.fecha|date:"d/m H:i" }}
+        </td>
+        <td style="white-space:nowrap">
           {% if item.partido.jugado %}
-            <strong>{{ item.partido.goles_l }} - {{ item.partido.goles_v }}</strong>
+            <strong>{{ item.partido.goles_l }}-{{ item.partido.goles_v }}</strong>
           {% else %}
             <span style="color:#aaa">—</span>
           {% endif %}
         </td>
-        <td>
+        <td style="white-space:normal;min-width:80px">
           {% if item.plenos %}
             {% for i in item.plenos %}
               <span style="display:inline-flex;align-items:center;justify-content:center;
-                background:#1a6b3c;color:#fff;border-radius:50%;width:22px;height:22px;
-                font-size:.7rem;font-weight:700;margin-right:2px">{{ i }}</span>
+                background:#1a6b3c;color:#fff;border-radius:50%;width:26px;height:26px;
+                font-size:.65rem;font-weight:700;margin:1px">{{ i }}</span>
             {% endfor %}
           {% else %}
             <span style="color:#ddd">—</span>
           {% endif %}
         </td>
-        <td>
+        <td style="white-space:normal;min-width:80px">
           {% if item.resultados %}
             {% for i in item.resultados %}
               <span style="display:inline-flex;align-items:center;justify-content:center;
-                background:#1565c0;color:#fff;border-radius:50%;width:22px;height:22px;
-                font-size:.7rem;font-weight:700;margin-right:2px">{{ i }}</span>
+                background:#1565c0;color:#fff;border-radius:50%;width:26px;height:26px;
+                font-size:.65rem;font-weight:700;margin:1px">{{ i }}</span>
             {% endfor %}
           {% else %}
             <span style="color:#ddd">—</span>

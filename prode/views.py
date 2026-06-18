@@ -199,7 +199,7 @@ def partidos(request):
         resultados = []
         for pron in prons_partido:
             pts = pron.puntos()
-            inicial = pron.usuario.username[0].upper()
+            inicial = pron.usuario.username[:2].capitalize()
             if pts == 3:
                 plenos.append(inicial)
             elif pts == 1:
