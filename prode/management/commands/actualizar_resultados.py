@@ -50,6 +50,7 @@ TEAM_MAP = {
     'Portugal':        'Portugal',
     'DR Congo':        'R.D. Congo',
     'Congo DR':        'R.D. Congo',
+    'Democratic Republic of the Congo': 'R.D. Congo',
     'England':         'Inglaterra',
     'Croatia':         'Croacia',
     'Ghana':           'Ghana',
@@ -57,10 +58,8 @@ TEAM_MAP = {
     'Uzbekistan':      'Uzbekistán',
     'Colombia':        'Colombia',
     'Paraguay':        'Paraguay',
-    'Democratic Republic of the Congo': 'R.D. Congo',
     'Bosnia and Herzegovina': 'Bosnia',
-    'Ivory Coast': 'Costa de Marfil',
-    }
+}
 
 
 class Command(BaseCommand):
@@ -68,7 +67,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         try:
-            resp = requests.get('https://worldcup26.ir/get/games', timeout=30)
+            resp = requests.get(
+                'https://worldcup26.ir/get/games',
+                timeout=30,
+                verify=False  # fix SSL error
+            )
             resp.raise_for_status()
         except Exception as e:
             self.stderr.write(f'Error consultando API: {e}')
@@ -84,7 +87,8 @@ class Command(BaseCommand):
             time_elapsed = g.get('time_elapsed', '')
             finished = g.get('finished', '').upper()
             terminado = time_elapsed in ('finished', 'FT') or finished == 'TRUE'
-            if not en_vivo and not terminado:
+
+            if not terminado:
                 continue
 
             home_en = g.get('home_team_name_en', '')
@@ -102,7 +106,7 @@ class Command(BaseCommand):
                 partido = Partido.objects.get(local=home, visita=away)
                 partido.goles_l = gl
                 partido.goles_v = gv
-                partido.jugado = terminado
+                partido.jugado = True
                 partido.save()
                 actualizados += 1
             except Partido.DoesNotExist:
