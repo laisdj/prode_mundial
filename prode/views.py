@@ -1032,3 +1032,15 @@ def detalle_desafio(request, desafio_id):
         'mi_voto': mi_voto,
         'ganador': ganador,
     })
+    
+@login_required(login_url='login')
+def borrar_desafio(request, desafio_id):
+    if request.method == 'POST':
+        try:
+            d = Desafio.objects.get(id=desafio_id)
+            if request.user == d.retador or request.user.is_staff:
+                d.delete()
+                messages.success(request, 'Desafío eliminado.')
+        except Desafio.DoesNotExist:
+            pass
+    return redirect('desafios')

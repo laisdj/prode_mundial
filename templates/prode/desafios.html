@@ -162,6 +162,16 @@
             </a>
           </div>
         {% endif %}
+        {% if d.estado == 'pendiente' %}
+        <form method="post" action="{% url 'borrar_desafio' d.id %}" style="margin-top:.75rem">
+          {% csrf_token %}
+          <button type="submit"
+                  onclick="return confirm('¿Borrar este desafío?')"
+                  style="background:none;border:1px solid #c0392b;color:#c0392b;border-radius:6px;padding:.3rem .8rem;cursor:pointer;font-size:.8rem">
+            🗑️ Borrar
+          </button>
+        </form>
+        {% endif %}
       </div>
     </div>
   {% endfor %}
