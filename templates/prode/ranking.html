@@ -10,7 +10,18 @@
       </div>
     </div>
   </div>
+
   {% if tabla %}
+  <div style="background:linear-gradient(135deg,#1a6b3c,#2e8b57);color:#fff;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;text-align:center">
+    <div style="font-size:1.5rem;margin-bottom:.25rem">🎉🏆🎉</div>
+    <div style="font-size:1rem;font-weight:700">
+      ¡Felicitaciones {{ tabla.0.usuario.username }}!
+    </div>
+    <div style="font-size:.85rem;opacity:.9;margin-top:.2rem">
+      Vas liderando el Prode con {{ tabla.0.total }} puntos
+    </div>
+  </div>
+
   <div class="table-wrap">
   <table>
     <thead><tr>
@@ -148,7 +159,6 @@
           {% endif %}
         </div>
 
-        <!-- Barras de votos -->
         {% if item.total_votos > 0 %}
         <div style="margin-bottom:.6rem;font-size:.78rem;color:#666">
           🗳️ {{ item.total_votos }} votos
@@ -175,7 +185,6 @@
         </div>
         {% endif %}
 
-        <!-- Comentarios -->
         {% if item.comentarios %}
         <div style="margin-bottom:.6rem;border-top:1px solid #f0f0f0;padding-top:.5rem">
           {% for v in item.comentarios %}
@@ -190,7 +199,6 @@
         </div>
         {% endif %}
 
-        <!-- Votar inline -->
         {% if user.is_authenticated and not item.desafio.partido.jugado %}
         <form method="post" action="{% url 'votar_desafio' item.desafio.id %}">
           {% csrf_token %}

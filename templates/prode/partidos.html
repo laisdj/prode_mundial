@@ -9,6 +9,9 @@
       <th style="text-align:left">Partido</th>
       <th>Fecha</th>
       <th>Resultado</th>
+      {% if user.is_authenticated %}
+      <th>Mi pred.</th>
+      {% endif %}
       <th style="text-align:left">⭐ Plenos</th>
       <th style="text-align:left">✓ Resultado</th>
     </tr></thead>
@@ -29,6 +32,22 @@
             <span style="color:#aaa">—</span>
           {% endif %}
         </td>
+        {% if user.is_authenticated %}
+        <td style="white-space:nowrap">
+          {% if item.mi_pred %}
+            <span style="font-size:.82rem">{{ item.mi_pred }}</span>
+            {% if item.mi_pts == 3 %}
+              <span class="badge-3" style="margin-left:3px">⭐</span>
+            {% elif item.mi_pts == 1 %}
+              <span class="badge-1" style="margin-left:3px">✓</span>
+            {% elif item.mi_pts == 0 %}
+              <span style="color:#e74c3c;font-size:.75rem;margin-left:3px">✗</span>
+            {% endif %}
+          {% else %}
+            <span style="color:#ddd">—</span>
+          {% endif %}
+        </td>
+        {% endif %}
         <td style="white-space:normal;min-width:80px">
           {% if item.plenos %}
             {% for i in item.plenos %}
