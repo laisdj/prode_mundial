@@ -108,6 +108,7 @@ class PronosticoEliminatorio(models.Model):
     visita  = models.CharField(max_length=50, blank=True, default='')
     goles_l = models.IntegerField(null=True, blank=True)
     goles_v = models.IntegerField(null=True, blank=True)
+    ganador_penales = models.CharField(max_length=50, blank=True, default='')
 
     def resultado_pred(self):
         if self.goles_l is None or self.goles_v is None:

@@ -594,6 +594,7 @@ def pronosticos_eliminatoria(request):
         for partido in partidos_con_equipos:
             gl = request.POST.get(f'gl_{partido.id}', '').strip()
             gv = request.POST.get(f'gv_{partido.id}', '').strip()
+            ganador_empate = request.POST.get(f'gan_{partido.id}', '').strip()
 
             if gl == '' or gv == '':
                 PronosticoEliminatorio.objects.filter(
@@ -605,14 +606,18 @@ def pronosticos_eliminatoria(request):
                     gv_int = int(gv)
                     if gl_int < 0 or gv_int < 0:
                         continue
+                    # Si hay empate, necesita elegir quién pasa
+                    local_final = partido.local
+                    visita_final = partido.visita
                     PronosticoEliminatorio.objects.update_or_create(
                         usuario=request.user,
                         partido=partido,
                         defaults={
                             'goles_l': gl_int,
                             'goles_v': gv_int,
-                            'local': partido.local,
-                            'visita': partido.visita,
+                            'local': local_final,
+                            'visita': visita_final,
+                            'ganador_penales': ganador_empate if gl_int == gv_int else '',
                         }
                     )
                 except ValueError:
@@ -642,6 +647,7 @@ def pronosticos_eliminatoria(request):
             'ronda_nombre': rondas.get(p.ronda, p.ronda),
             'gl': pron.goles_l if pron else None,
             'gv': pron.goles_v if pron else None,
+            'ganador_penales': pron.ganador_penales if pron else '',
             'pts': pron.puntos() if pron else None,
         })
 

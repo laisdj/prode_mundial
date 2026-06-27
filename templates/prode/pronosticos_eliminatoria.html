@@ -4,6 +4,7 @@
   <h1>🏆 Mis pronósticos — Fase Eliminatoria</h1>
   <p style="font-size:.85rem;color:#666;margin-bottom:1.5rem">
     Ingresa el marcador que predices para cada partido. Local/Empate/Visita = 1 pt · Marcador exacto = 3 pts.
+    Si predices empate, elige quién pasa en penales.
   </p>
 
   {% if not partidos %}
@@ -19,7 +20,7 @@
       <h2 style="margin:1.5rem 0 .75rem">{{ ronda.grouper }}</h2>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:1rem">
       {% for item in ronda.list %}
-        <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
+        <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden" class="match-card" data-pid="{{ item.partido.id }}">
           <div style="background:#1a6b3c;color:#fff;font-size:.75rem;font-weight:700;padding:.4rem .75rem">
             Partido {{ item.partido.orden }}
             {% if item.pts == 3 %} · <span style="color:#f4c430">⭐ 3 pts</span>
@@ -30,7 +31,7 @@
           <div style="padding:.75rem">
             <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
               <span style="font-size:.9rem;font-weight:700;flex:1">{{ item.partido.local }}</span>
-              <input class="inp-score" type="number" min="0" max="20"
+              <input class="inp-score gl-input" type="number" min="0" max="20"
                      name="gl_{{ item.partido.id }}"
                      {% if item.gl != None %}value="{{ item.gl }}"{% endif %}
                      placeholder="-"/>
@@ -38,10 +39,27 @@
             <div style="text-align:center;font-size:.7rem;color:#aaa;margin:.4rem 0">vs</div>
             <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem">
               <span style="font-size:.9rem;font-weight:700;flex:1">{{ item.partido.visita }}</span>
-              <input class="inp-score" type="number" min="0" max="20"
+              <input class="inp-score gv-input" type="number" min="0" max="20"
                      name="gv_{{ item.partido.id }}"
                      {% if item.gv != None %}value="{{ item.gv }}"{% endif %}
                      placeholder="-"/>
+            </div>
+
+            <!-- Selector de penales, solo visible si hay empate -->
+            <div class="penales-wrap" style="margin-top:.6rem;padding-top:.6rem;border-top:1px solid #f0f0f0;display:none">
+              <div style="font-size:.78rem;color:#666;margin-bottom:.4rem">⚽ ¿Quién pasa en penales?</div>
+              <div style="display:flex;gap:.4rem">
+                <label style="flex:1;display:flex;align-items:center;gap:.3rem;font-size:.8rem;cursor:pointer;border:1px solid #ccc;border-radius:6px;padding:.3rem .5rem">
+                  <input type="radio" name="gan_{{ item.partido.id }}" value="{{ item.partido.local }}"
+                         {% if item.ganador_penales == item.partido.local %}checked{% endif %}/>
+                  {{ item.partido.local }}
+                </label>
+                <label style="flex:1;display:flex;align-items:center;gap:.3rem;font-size:.8rem;cursor:pointer;border:1px solid #ccc;border-radius:6px;padding:.3rem .5rem">
+                  <input type="radio" name="gan_{{ item.partido.id }}" value="{{ item.partido.visita }}"
+                         {% if item.ganador_penales == item.partido.visita %}checked{% endif %}/>
+                  {{ item.partido.visita }}
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -55,4 +73,25 @@
   </form>
   {% endif %}
 </div>
+
+<script>
+function actualizarPenales(card) {
+  const gl = card.querySelector('.gl-input').value;
+  const gv = card.querySelector('.gv-input').value;
+  const wrap = card.querySelector('.penales-wrap');
+  if (gl !== '' && gv !== '' && gl === gv) {
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+}
+
+document.querySelectorAll('.match-card').forEach(card => {
+  const glInput = card.querySelector('.gl-input');
+  const gvInput = card.querySelector('.gv-input');
+  glInput.addEventListener('input', () => actualizarPenales(card));
+  gvInput.addEventListener('input', () => actualizarPenales(card));
+  actualizarPenales(card); // estado inicial
+});
+</script>
 {% endblock %}
