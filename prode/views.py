@@ -185,46 +185,6 @@ def ranking(request):
         'progreso': progreso,
         'desafios': desafios_ctx,
     })
-def partidos(request):
-    todos = Partido.objects.all()
-
-    todos_prons = {}
-    for pron in Pronostico.objects.select_related('usuario', 'partido').all():
-        if pron.partido_id not in todos_prons:
-            todos_prons[pron.partido_id] = []
-        todos_prons[pron.partido_id].append(pron)
-
-    mi_pron = {}
-    if request.user.is_authenticated:
-        for pron in Pronostico.objects.filter(usuario=request.user).select_related('partido'):
-            mi_pron[pron.partido_id] = pron
-
-    partidos_ctx = []
-    for p in todos:
-        prons_partido = todos_prons.get(p.id, [])
-        plenos = []
-        resultados = []
-        for pron in prons_partido:
-            pts = pron.puntos()
-            inicial = pron.usuario.username[:2].capitalize()
-            if pts == 3:
-                plenos.append(inicial)
-            elif pts == 1:
-                resultados.append(inicial)
-
-        mi = mi_pron.get(p.id)
-        mi_pred = f"{mi.goles_l}-{mi.goles_v}" if mi else None
-        mi_pts = mi.puntos() if mi else None
-
-        partidos_ctx.append({
-            'partido': p,
-            'plenos': plenos,
-            'resultados': resultados,
-            'mi_pred': mi_pred,
-            'mi_pts': mi_pts,
-        })
-
-    return render(request, 'prode/partidos.html', {'partidos': partidos_ctx})
 
 
 def clasificacion(request):
