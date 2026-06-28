@@ -611,17 +611,14 @@ def pronosticos_eliminatoria(request):
                     gv_int = int(gv)
                     if gl_int < 0 or gv_int < 0:
                         continue
-                    # Si hay empate, necesita elegir quién pasa
-                    local_final = partido.local
-                    visita_final = partido.visita
                     PronosticoEliminatorio.objects.update_or_create(
                         usuario=request.user,
                         partido=partido,
                         defaults={
                             'goles_l': gl_int,
                             'goles_v': gv_int,
-                            'local': local_final,
-                            'visita': visita_final,
+                            'local': partido.local,
+                            'visita': partido.visita,
                             'ganador_penales': ganador_empate if gl_int == gv_int else '',
                         }
                     )
@@ -635,6 +632,12 @@ def pronosticos_eliminatoria(request):
         for p in PronosticoEliminatorio.objects.filter(usuario=request.user)
     }
 
+    todos_prons = {}
+    for pron in PronosticoEliminatorio.objects.select_related('usuario', 'partido').all():
+        if pron.partido_id not in todos_prons:
+            todos_prons[pron.partido_id] = []
+        todos_prons[pron.partido_id].append(pron)
+
     rondas = {
         'R32': 'Round of 32',
         'R16': 'Round of 16',
@@ -647,6 +650,18 @@ def pronosticos_eliminatoria(request):
     partidos_ctx = []
     for p in partidos_con_equipos:
         pron = mis_prons.get(p.id)
+
+        prons_partido = todos_prons.get(p.id, [])
+        plenos = []
+        resultados = []
+        for otro_pron in prons_partido:
+            pts = otro_pron.puntos()
+            inicial = otro_pron.usuario.username[:2].capitalize()
+            if pts == 3:
+                plenos.append(inicial)
+            elif pts == 1:
+                resultados.append(inicial)
+
         partidos_ctx.append({
             'partido': p,
             'ronda_nombre': rondas.get(p.ronda, p.ronda),
@@ -654,6 +669,8 @@ def pronosticos_eliminatoria(request):
             'gv': pron.goles_v if pron else None,
             'ganador_penales': pron.ganador_penales if pron else '',
             'pts': pron.puntos() if pron else None,
+            'plenos': plenos,
+            'resultados': resultados,
         })
 
     return render(request, 'prode/pronosticos_eliminatoria.html', {
