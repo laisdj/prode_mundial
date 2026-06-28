@@ -23,11 +23,16 @@
       </div>
       <div>
         <label style="font-size:.8rem;color:#666;display:block;margin-bottom:.25rem">Partido</label>
-        <select name="partido" style="width:100%;padding:.4rem .6rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem">
+        <select name="partido_combo" id="partido-combo" style="width:100%;padding:.4rem .6rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem">
           {% for p in partidos %}
-            <option value="{{ p.id }}">[{{ p.grupo }}] {{ p.local }} vs {{ p.visita }} · {{ p.fecha|date:"d/m H:i" }}</option>
+            <option value="F1:{{ p.id }}">[F1-{{ p.grupo }}] {{ p.local }} vs {{ p.visita }} · {{ p.fecha|date:"d/m H:i" }}</option>
+          {% endfor %}
+          {% for p in partidos_elim %}
+            <option value="F2:{{ p.id }}">[F2] {{ p.local }} vs {{ p.visita }} · {{ p.fecha|date:"d/m H:i" }}</option>
           {% endfor %}
         </select>
+        <input type="hidden" name="partido" id="partido-hidden"/>
+        <input type="hidden" name="partido_elim" id="partido-elim-hidden"/>
       </div>
       <div>
         <label style="font-size:.8rem;color:#666;display:block;margin-bottom:.25rem">Monto ($)</label>
@@ -184,5 +189,16 @@
   No tienes desafíos aún. ¡Reta a alguien! ⚔️
 </div>
 {% endif %}
+
+<script>
+document.querySelector('#partido-combo').addEventListener('change', function() {
+  const [tipo, id] = this.value.split(':');
+  document.getElementById('partido-hidden').value = tipo === 'F1' ? id : '';
+  document.getElementById('partido-elim-hidden').value = tipo === 'F2' ? id : '';
+});
+window.addEventListener('DOMContentLoaded', function() {
+  document.querySelector('#partido-combo').dispatchEvent(new Event('change'));
+});
+</script>
 
 {% endblock %}

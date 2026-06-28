@@ -103,13 +103,23 @@ def ranking(request):
     partidos_con_resultado = Partido.objects.filter(jugado=True).count()
     partidos_elim_jugados = PartidoEliminatorio.objects.filter(jugado=True).count()
 
-    tabla = []
+    tabla_f1 = []
+    tabla_f2 = []
+
     for u in usuarios:
         prons_f1 = Pronostico.objects.filter(usuario=u).select_related('partido')
         pts_f1 = sum(p.puntos() for p in prons_f1)
         exactos_f1 = sum(1 for p in prons_f1 if p.puntos() == 3)
         resultados_f1 = sum(1 for p in prons_f1 if p.puntos() == 1)
         pct = round((pts_f1 / (partidos_con_resultado * 3)) * 100) if partidos_con_resultado > 0 else 0
+
+        tabla_f1.append({
+            'usuario': u,
+            'exactos_f1': exactos_f1,
+            'resultados_f1': resultados_f1,
+            'pts_f1': pts_f1,
+            'pct': pct,
+        })
 
         prons_f2 = PronosticoEliminatorio.objects.filter(usuario=u).select_related('partido')
         pts_f2 = sum(p.puntos() for p in prons_f2)
@@ -140,29 +150,23 @@ def ranking(request):
             except PronosticoEliminatorio.DoesNotExist:
                 pass
 
-        total = pts_f1 + pts_f2 + bonus
-        total_jugados = partidos_con_resultado + partidos_elim_jugados
-        pct_total = round((total / (total_jugados * 3 + 5)) * 100) if total_jugados > 0 else 0
+        total_f2 = pts_f2 + bonus
 
-        tabla.append({
+        tabla_f2.append({
             'usuario': u,
-            'pts_f1': pts_f1,
-            'exactos_f1': exactos_f1,
-            'resultados_f1': resultados_f1,
-            'pts_f2': pts_f2,
             'exactos_f2': exactos_f2,
             'resultados_f2': resultados_f2,
-            'bonus': bonus,
-            'total': total,
-            'pct': pct,
+            'pts_f2': pts_f2,
             'pct_f2': pct_f2,
-            'pct_total': pct_total,
+            'bonus': bonus,
+            'total_f2': total_f2,
         })
 
-    tabla.sort(key=lambda x: x['total'], reverse=True)
+    tabla_f1.sort(key=lambda x: x['pts_f1'], reverse=True)
+    tabla_f2.sort(key=lambda x: x['total_f2'], reverse=True)
 
     ranking_anterior = request.session.get('ranking_anterior', {})
-    for i, row in enumerate(tabla):
+    for i, row in enumerate(tabla_f2):
         pos_actual = i + 1
         pos_ant = ranking_anterior.get(row['usuario'].username)
         if pos_ant is None:
@@ -176,7 +180,7 @@ def ranking(request):
 
     request.session['ranking_anterior'] = {
         row['usuario'].username: i + 1
-        for i, row in enumerate(tabla)
+        for i, row in enumerate(tabla_f2)
     }
 
     partidos_jugados = Partido.objects.filter(jugado=True).count()
@@ -194,10 +198,13 @@ def ranking(request):
 
     desafios_activos = Desafio.objects.filter(
         estado='aceptado'
-    ).select_related('retador', 'retado', 'partido').order_by('-creado_en')
+    ).select_related('retador', 'retado', 'partido', 'partido_elim').order_by('-creado_en')
 
     desafios_ctx = []
     for d in desafios_activos:
+        p = d.get_partido()
+        if not p:
+            continue
         g = d.ganador()
         votos = d.votos.all()
         comentarios = [v for v in votos if v.comentario]
@@ -207,9 +214,10 @@ def ranking(request):
         v0 = votos.filter(voto='0').count()
         desafios_ctx.append({
             'desafio': d,
+            'partido_obj': p,
             'ganador': g,
-            'empate': g is None and d.partido.jugado,
-            'pendiente': not d.partido.jugado,
+            'empate': g is None and p.jugado,
+            'pendiente': not p.jugado,
             'total_votos': total_votos,
             'pct1': round((v1/total_votos)*100) if total_votos else 0,
             'pct2': round((v2/total_votos)*100) if total_votos else 0,
@@ -219,7 +227,8 @@ def ranking(request):
         })
 
     return render(request, 'prode/ranking.html', {
-        'tabla': tabla,
+        'tabla_f1': tabla_f1,
+        'tabla_f2': tabla_f2,
         'partidos_jugados': partidos_jugados,
         'total_partidos': total_partidos,
         'progreso': progreso,
@@ -801,14 +810,26 @@ def gestionar_eliminatoria(request):
             visita = request.POST.get('visita', '').strip()
             slot_local = request.POST.get('slot_local', '').strip()
             slot_visita = request.POST.get('slot_visita', '').strip()
+
+            fecha_str = request.POST.get('fecha', '').strip()
+            fecha_dt = None
+            if fecha_str:
+                import datetime
+                from django.utils import timezone
+                try:
+                    dt = datetime.datetime.strptime(fecha_str, '%Y-%m-%dT%H:%M')
+                    fecha_dt = timezone.make_aware(dt)
+                except ValueError:
+                    pass
+
             if ronda and (local or slot_local) and (visita or slot_visita):
-                ultimo = PartidoEliminatorio.objects.filter(ronda=ronda).count()
                 PartidoEliminatorio.objects.create(
                     ronda=ronda,
                     slot_local=slot_local or local,
                     slot_visita=slot_visita or visita,
                     local=local,
                     visita=visita,
+                    fecha=fecha_dt,
                     orden=PartidoEliminatorio.objects.count() + 1,
                 )
                 messages.success(request, f'Partido agregado al {dict(RONDAS).get(ronda)}.')
@@ -819,6 +840,15 @@ def gestionar_eliminatoria(request):
                 partido = PartidoEliminatorio.objects.get(id=partido_id)
                 partido.local  = request.POST.get(f'local_{partido_id}', '').strip()
                 partido.visita = request.POST.get(f'visita_{partido_id}', '').strip()
+                fecha_str = request.POST.get(f'fecha_{partido_id}', '').strip()
+                if fecha_str:
+                    import datetime
+                    from django.utils import timezone
+                    try:
+                        dt = datetime.datetime.strptime(fecha_str, '%Y-%m-%dT%H:%M')
+                        partido.fecha = timezone.make_aware(dt)
+                    except ValueError:
+                        pass
                 gl = request.POST.get(f'gl_{partido_id}', '').strip()
                 gv = request.POST.get(f'gv_{partido_id}', '').strip()
                 jugado = request.POST.get(f'jugado_{partido_id}')
@@ -856,29 +886,28 @@ def gestionar_eliminatoria(request):
         'partidos_por_ronda': partidos_por_ronda,
         'rondas': RONDAS,
     })
-    
+
+
 @login_required(login_url='login')
 def chat(request):
     from django.utils import timezone
 
-    # Obtener o crear perfil
     perfil, _ = PerfilUsuario.objects.get_or_create(usuario=request.user)
 
     if request.method == 'POST':
         texto = request.POST.get('texto', '').strip()
         if texto and len(texto) <= 300:
             Mensaje.objects.create(usuario=request.user, texto=texto)
-        # Actualizar última visita
         perfil.ultima_visita_chat = timezone.now()
         perfil.save()
         return redirect('chat')
 
-    # Actualizar última visita al entrar
     perfil.ultima_visita_chat = timezone.now()
     perfil.save()
 
     mensajes = Mensaje.objects.select_related('usuario').all()[:100]
     return render(request, 'prode/chat.html', {'mensajes': mensajes})
+
 
 @login_required(login_url='login')
 def chat_mensajes(request):
@@ -894,18 +923,21 @@ def chat_mensajes(request):
     ]
     return JsonResponse({'mensajes': data})
 
+
 @login_required(login_url='login')
 def desafios(request):
     enviados = Desafio.objects.filter(retador=request.user).select_related('retado', 'partido')
     recibidos = Desafio.objects.filter(retado=request.user).select_related('retador', 'partido')
     usuarios = User.objects.filter(is_superuser=False).exclude(id=request.user.id)
     partidos = Partido.objects.filter(jugado=False).order_by('fecha')
+    partidos_elim = PartidoEliminatorio.objects.filter(jugado=False, local__isnull=False).exclude(local='').order_by('orden')
 
     return render(request, 'prode/desafios.html', {
         'enviados': enviados,
         'recibidos': recibidos,
         'usuarios': usuarios,
         'partidos': partidos,
+        'partidos_elim': partidos_elim,
     })
 
 
@@ -914,32 +946,40 @@ def crear_desafio(request):
     if request.method == 'POST':
         retado_id = request.POST.get('retado')
         partido_id = request.POST.get('partido')
+        partido_elim_id = request.POST.get('partido_elim')
         monto = request.POST.get('monto', '0').strip()
         gl = request.POST.get('gl', '').strip()
         gv = request.POST.get('gv', '').strip()
 
         try:
             retado = User.objects.get(id=retado_id)
-            partido = Partido.objects.get(id=partido_id)
             gl_int = int(gl)
             gv_int = int(gv)
             monto_int = int(monto) if monto else 0
 
+            partido = None
+            partido_elim = None
+            if partido_id:
+                partido = Partido.objects.get(id=partido_id)
+            elif partido_elim_id:
+                partido_elim = PartidoEliminatorio.objects.get(id=partido_elim_id)
+
             if retado == request.user:
                 messages.error(request, 'No puedes desafiarte a ti mismo.')
-            elif partido.jugado:
+            elif (partido and partido.jugado) or (partido_elim and partido_elim.jugado):
                 messages.error(request, 'Ese partido ya se jugó.')
             else:
                 Desafio.objects.create(
                     retador=request.user,
                     retado=retado,
                     partido=partido,
+                    partido_elim=partido_elim,
                     monto=monto_int,
                     gl_retador=gl_int,
                     gv_retador=gv_int,
                 )
                 messages.success(request, f'¡Desafío enviado a {retado.username}!')
-        except (ValueError, User.DoesNotExist, Partido.DoesNotExist):
+        except (ValueError, User.DoesNotExist, Partido.DoesNotExist, PartidoEliminatorio.DoesNotExist):
             messages.error(request, 'Datos inválidos.')
 
     return redirect('desafios')

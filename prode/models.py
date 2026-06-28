@@ -155,7 +155,7 @@ class Desafio(models.Model):
 
     retador      = models.ForeignKey(User, on_delete=models.CASCADE, related_name='desafios_enviados')
     retado       = models.ForeignKey(User, on_delete=models.CASCADE, related_name='desafios_recibidos')
-    partido      = models.ForeignKey(Partido, on_delete=models.CASCADE)
+    partido      = models.ForeignKey(Partido, on_delete=models.CASCADE, null=True, blank=True)
     monto        = models.IntegerField(default=0)
     gl_retador   = models.IntegerField(null=True, blank=True)
     gv_retador   = models.IntegerField(null=True, blank=True)
@@ -164,6 +164,7 @@ class Desafio(models.Model):
     estado       = models.CharField(max_length=10, choices=ESTADO_CHOICES, default='pendiente')
     creado_en    = models.DateTimeField(auto_now_add=True)
     pagado = models.BooleanField(default=False)
+    partido_elim = models.ForeignKey(PartidoEliminatorio, on_delete=models.CASCADE, null=True, blank=True)
 
     def resultado_retador(self):
         if self.gl_retador is None or self.gv_retador is None:
@@ -179,13 +180,15 @@ class Desafio(models.Model):
         if self.gl_retado < self.gv_retado: return 'V'
         return 'E'
 
+    def get_partido(self):
+        return self.partido or self.partido_elim
+
     def ganador(self):
-        if not self.partido.jugado or self.estado != 'aceptado':
+        p = self.get_partido()
+        if not p or not p.jugado or self.estado != 'aceptado':
             return None
-        exacto_retador = (self.gl_retador == self.partido.goles_l and
-                        self.gv_retador == self.partido.goles_v)
-        exacto_retado  = (self.gl_retado == self.partido.goles_l and
-                        self.gv_retado == self.partido.goles_v)
+        exacto_retador = (self.gl_retador == p.goles_l and self.gv_retador == p.goles_v)
+        exacto_retado  = (self.gl_retado == p.goles_l and self.gv_retado == p.goles_v)
         if exacto_retador and not exacto_retado:
             return self.retador
         if exacto_retado and not exacto_retador:

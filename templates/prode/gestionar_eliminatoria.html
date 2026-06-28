@@ -29,6 +29,11 @@
         <input type="text" name="visita" placeholder="ej: Francia"
                style="padding:.4rem .6rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem;width:160px"/>
       </div>
+      <div>
+        <label style="font-size:.8rem;color:#666;display:block;margin-bottom:.25rem">Fecha y hora</label>
+        <input type="datetime-local" name="fecha"
+               style="padding:.4rem .6rem;border:1px solid #ccc;border-radius:6px;font-size:.9rem"/>
+      </div>
       <button class="btn" type="submit">Agregar</button>
     </div>
   </form>
@@ -57,6 +62,13 @@
           {% csrf_token %}
           <input type="hidden" name="accion" value="editar"/>
           <input type="hidden" name="partido_id" value="{{ p.id }}"/>
+          <!-- Fecha y hora -->
+          <div style="margin-bottom:.5rem">
+            <label style="font-size:.72rem;color:#888;display:block;margin-bottom:.2rem">Fecha y hora</label>
+            <input type="datetime-local" name="fecha_{{ p.id }}"
+                   value="{{ p.fecha|date:'Y-m-d\TH:i' }}"
+                   style="width:100%;font-size:.8rem;padding:.3rem;border:1px solid #ccc;border-radius:4px"/>
+          </div>
           <!-- Equipos -->
           <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.3rem">
             <input type="text" name="local_{{ p.id }}" value="{{ p.local }}"
