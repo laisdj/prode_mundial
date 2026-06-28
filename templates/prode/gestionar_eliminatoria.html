@@ -81,40 +81,4 @@
           </div>
           <div style="text-align:center;font-size:.7rem;color:#aaa;margin:.2rem 0">vs</div>
           <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.3rem">
-            <input type="text" name="visita_{{ p.id }}" value="{{ p.visita }}"
-                   placeholder="{{ p.slot_visita }}"
-                   style="flex:1;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
-            <input class="inp-score" type="number" min="0" max="20"
-                   name="gv_{{ p.id }}"
-                   {% if p.goles_v != None %}value="{{ p.goles_v }}"{% endif %}
-                   placeholder="-"/>
-          </div>
-          <!-- Penales -->
-          <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
-            <span style="font-size:.75rem;color:#888">Penales:</span>
-            <input class="inp-score" type="number" min="0" max="20"
-                   name="pl_{{ p.id }}"
-                   {% if p.penales_l != None %}value="{{ p.penales_l }}"{% endif %}
-                   placeholder="-"/>
-            <span style="color:#aaa;font-size:.8rem">vs</span>
-            <input class="inp-score" type="number" min="0" max="20"
-                   name="pv_{{ p.id }}"
-                   {% if p.penales_v != None %}value="{{ p.penales_v }}"{% endif %}
-                   placeholder="-"/>
-            <label style="display:flex;align-items:center;gap:.3rem;font-size:.8rem;margin-left:auto">
-              <input type="checkbox" name="jugado_{{ p.id }}" {% if p.jugado %}checked{% endif %}/>
-              Jugado
-            </label>
-          </div>
-          <div style="margin-top:.75rem">
-            <button class="btn" type="submit" style="font-size:.8rem;padding:.35rem .9rem">💾 Guardar</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  {% endfor %}
-  </div>
-</div>
-{% endif %}
-{% endfor %}
-{% endblock %}
+            <input type="text" name="visita

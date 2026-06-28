@@ -575,7 +575,7 @@ def cargar_resultados_eliminatoria(request):
                 try:
                     partido.goles_l = int(gl)
                     partido.goles_v = int(gv)
-                    partido.jugado = jugado == 'on'
+                    partido.jugado = jugado == True
                     partido.penales_l = int(pl) if pl != '' else None
                     partido.penales_v = int(pv) if pv != '' else None
                     partido.save()
