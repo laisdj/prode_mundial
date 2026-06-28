@@ -76,6 +76,7 @@ class PartidoEliminatorio(models.Model):
     slot_visita = models.CharField(max_length=50)
     local       = models.CharField(max_length=50, blank=True, default='')
     visita      = models.CharField(max_length=50, blank=True, default='')
+    fecha       = models.DateTimeField(null=True, blank=True)
     goles_l     = models.IntegerField(null=True, blank=True)
     goles_v     = models.IntegerField(null=True, blank=True)
     penales_l   = models.IntegerField(null=True, blank=True)
@@ -165,6 +166,7 @@ class Desafio(models.Model):
     creado_en    = models.DateTimeField(auto_now_add=True)
     pagado = models.BooleanField(default=False)
     partido_elim = models.ForeignKey(PartidoEliminatorio, on_delete=models.CASCADE, null=True, blank=True)
+    
 
     def resultado_retador(self):
         if self.gl_retador is None or self.gv_retador is None:
