@@ -35,8 +35,10 @@
       <th title="Plenos fase eliminatoria">⭐F2</th>
       <th title="Resultados fase eliminatoria">✓F2</th>
       <th title="Puntos fase eliminatoria">PtsF2</th>
+      <th title="Rendimiento F2">%F2</th>
       <th title="Bonus final">🎁</th>
       <th title="Total"><strong>Total</strong></th>
+      <th title="Rendimiento total">%Tot</th>
       {% if user.is_staff %}<th></th>{% endif %}
     </tr></thead>
     <tbody>
@@ -58,6 +60,8 @@
         <td><span class="badge-3">{{ row.exactos_f2 }}</span></td>
         <td><span class="badge-1">{{ row.resultados_f2 }}</span></td>
         <td><strong style="color:#1a6b3c">{{ row.pts_f2 }}</strong></td>
+        <td style="font-size:.75rem;color:#888">{{ row.pct_f2 }}%</td>
+        <td style="font-size:.75rem;color:#1a6b3c;font-weight:700">{{ row.pct_total }}%</td>
         <td>
           {% if row.bonus > 0 %}
             <span class="badge-3">+{{ row.bonus }}</span>

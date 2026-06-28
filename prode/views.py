@@ -69,6 +69,11 @@ def ranking(request):
         exactos_f1 = sum(1 for p in prons_f1 if p.puntos() == 3)
         resultados_f1 = sum(1 for p in prons_f1 if p.puntos() == 1)
         pct = round((pts_f1 / (partidos_con_resultado * 3)) * 100) if partidos_con_resultado > 0 else 0
+        partidos_elim_jugados = PartidoEliminatorio.objects.filter(jugado=True).count()
+        pct_f2 = round((pts_f2 / (partidos_elim_jugados * 3)) * 100) if partidos_elim_jugados > 0 else 0
+
+        total_jugados = partidos_con_resultado + partidos_elim_jugados
+        pct_total = round((total / (total_jugados * 3 + bonus)) * 100) if total_jugados > 0 else 0
 
         prons_f2 = PronosticoEliminatorio.objects.filter(usuario=u).select_related('partido')
         pts_f2 = sum(p.puntos() for p in prons_f2)
@@ -110,6 +115,8 @@ def ranking(request):
             'bonus': bonus,
             'total': total,
             'pct': pct,
+            'pct_f2': pct_f2,
+            'pct_total': pct_total,
         })
 
     tabla.sort(key=lambda x: x['total'], reverse=True)
@@ -668,13 +675,43 @@ def eliminatoria(request):
         'FIN': 'Final',
     }
 
+    todos_prons = {}
+    for pron in PronosticoEliminatorio.objects.select_related('usuario', 'partido').all():
+        if pron.partido_id not in todos_prons:
+            todos_prons[pron.partido_id] = []
+        todos_prons[pron.partido_id].append(pron)
+
+    mi_pron = {}
+    if request.user.is_authenticated:
+        for pron in PronosticoEliminatorio.objects.filter(usuario=request.user):
+            mi_pron[pron.partido_id] = pron
+
     partidos_ctx = []
     for p in partidos:
+        prons_partido = todos_prons.get(p.id, [])
+        plenos = []
+        resultados = []
+        for pron in prons_partido:
+            pts = pron.puntos()
+            inicial = pron.usuario.username[:2].capitalize()
+            if pts == 3:
+                plenos.append(inicial)
+            elif pts == 1:
+                resultados.append(inicial)
+
+        mi = mi_pron.get(p.id)
+        mi_pred = f"{mi.goles_l}-{mi.goles_v}" if mi else None
+        mi_pts = mi.puntos() if mi else None
+
         partidos_ctx.append({
             'partido': p,
             'ronda_nombre': rondas.get(p.ronda, p.ronda),
             'local': p.local or p.slot_local,
             'visita': p.visita or p.slot_visita,
+            'plenos': plenos,
+            'resultados': resultados,
+            'mi_pred': mi_pred,
+            'mi_pts': mi_pts,
         })
 
     return render(request, 'prode/eliminatoria.html', {'partidos': partidos_ctx})

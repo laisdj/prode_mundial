@@ -5,11 +5,12 @@
 {% regroup partidos by ronda_nombre as partidos_por_ronda %}
 {% for ronda in partidos_por_ronda %}
   <h2 style="margin-bottom:.75rem">{{ ronda.grouper }}</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;margin-bottom:2rem">
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-bottom:2rem">
   {% for item in ronda.list %}
     <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
-      <div style="background:#1a6b3c;color:#fff;font-size:.75rem;padding:.4rem .75rem">
-        Partido {{ item.partido.orden }}
+      <div style="background:#1a6b3c;color:#fff;font-size:.75rem;padding:.4rem .75rem;display:flex;justify-content:space-between;align-items:center">
+        <span>Partido {{ item.partido.orden }}</span>
+        <span style="font-size:.7rem;opacity:.85">{{ item.partido.fecha|date:"d/m H:i" }}</span>
       </div>
       <div style="padding:.75rem">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.4rem">
@@ -38,6 +39,37 @@
           <div style="margin-top:.5rem;font-size:.75rem;color:#aaa;text-align:center">
             Por confirmar
           </div>
+        {% endif %}
+
+        {% if item.mi_pred %}
+        <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #f0f0f0;font-size:.78rem;color:#666;text-align:center">
+          Tu predicción: <strong>{{ item.mi_pred }}</strong>
+          {% if item.mi_pts == 3 %}<span class="badge-3" style="margin-left:3px">⭐</span>
+          {% elif item.mi_pts == 1 %}<span class="badge-1" style="margin-left:3px">✓</span>
+          {% elif item.mi_pts == 0 %}<span style="color:#e74c3c;margin-left:3px">✗</span>
+          {% endif %}
+        </div>
+        {% endif %}
+
+        {% if item.plenos or item.resultados %}
+        <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #f0f0f0">
+          {% if item.plenos %}
+          <div style="font-size:.7rem;color:#888;margin-bottom:.3rem">⭐ Plenos:</div>
+          {% for i in item.plenos %}
+            <span style="display:inline-flex;align-items:center;justify-content:center;
+              background:#1a6b3c;color:#fff;border-radius:50%;width:22px;height:22px;
+              font-size:.6rem;font-weight:700;margin:1px">{{ i }}</span>
+          {% endfor %}
+          {% endif %}
+          {% if item.resultados %}
+          <div style="font-size:.7rem;color:#888;margin:.3rem 0 .2rem">✓ Resultado:</div>
+          {% for i in item.resultados %}
+            <span style="display:inline-flex;align-items:center;justify-content:center;
+              background:#1565c0;color:#fff;border-radius:50%;width:22px;height:22px;
+              font-size:.6rem;font-weight:700;margin:1px">{{ i }}</span>
+          {% endfor %}
+          {% endif %}
+        </div>
         {% endif %}
       </div>
     </div>
