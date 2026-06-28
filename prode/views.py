@@ -550,6 +550,15 @@ def cargar_equipos_eliminatoria(request):
         for partido in partidos:
             local = request.POST.get(f'local_{partido.id}', '').strip()
             visita = request.POST.get(f'visita_{partido.id}', '').strip()
+            fecha_str = request.POST.get(f'fecha_{partido.id}', '').strip()
+            if fecha_str:
+                import datetime
+                from django.utils import timezone
+                try:
+                    dt = datetime.datetime.strptime(fecha_str, '%Y-%m-%dT%H:%M')
+                    partido.fecha = timezone.make_aware(dt)
+                except ValueError:
+                    pass
             partido.local = local
             partido.visita = visita
             partido.save()
@@ -880,7 +889,7 @@ def gestionar_eliminatoria(request):
 
     partidos_por_ronda = {}
     for codigo, nombre in RONDAS:
-        partidos_por_ronda[nombre] = PartidoEliminatorio.objects.filter(ronda=codigo).order_by('orden')
+        partidos_por_ronda[nombre] = PartidoEliminatorio.objects.filter(ronda=codigo).order_by('fecha')
 
     return render(request, 'prode/gestionar_eliminatoria.html', {
         'partidos_por_ronda': partidos_por_ronda,
