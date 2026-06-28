@@ -61,6 +61,7 @@ def ranking(request):
         tercero = cuarto = None
 
     partidos_con_resultado = Partido.objects.filter(jugado=True).count()
+    partidos_elim_jugados = PartidoEliminatorio.objects.filter(jugado=True).count()
 
     tabla = []
     for u in usuarios:
@@ -69,16 +70,12 @@ def ranking(request):
         exactos_f1 = sum(1 for p in prons_f1 if p.puntos() == 3)
         resultados_f1 = sum(1 for p in prons_f1 if p.puntos() == 1)
         pct = round((pts_f1 / (partidos_con_resultado * 3)) * 100) if partidos_con_resultado > 0 else 0
-        partidos_elim_jugados = PartidoEliminatorio.objects.filter(jugado=True).count()
-        pct_f2 = round((pts_f2 / (partidos_elim_jugados * 3)) * 100) if partidos_elim_jugados > 0 else 0
-
-        total_jugados = partidos_con_resultado + partidos_elim_jugados
-        pct_total = round((total / (total_jugados * 3 + bonus)) * 100) if total_jugados > 0 else 0
 
         prons_f2 = PronosticoEliminatorio.objects.filter(usuario=u).select_related('partido')
         pts_f2 = sum(p.puntos() for p in prons_f2)
         exactos_f2 = sum(1 for p in prons_f2 if p.puntos() == 3)
         resultados_f2 = sum(1 for p in prons_f2 if p.puntos() == 1)
+        pct_f2 = round((pts_f2 / (partidos_elim_jugados * 3)) * 100) if partidos_elim_jugados > 0 else 0
 
         bonus = 0
         if campeon:
@@ -104,6 +101,9 @@ def ranking(request):
                 pass
 
         total = pts_f1 + pts_f2 + bonus
+        total_jugados = partidos_con_resultado + partidos_elim_jugados
+        pct_total = round((total / (total_jugados * 3 + 5)) * 100) if total_jugados > 0 else 0
+
         tabla.append({
             'usuario': u,
             'pts_f1': pts_f1,
@@ -121,7 +121,6 @@ def ranking(request):
 
     tabla.sort(key=lambda x: x['total'], reverse=True)
 
-    # Flechas
     ranking_anterior = request.session.get('ranking_anterior', {})
     for i, row in enumerate(tabla):
         pos_actual = i + 1
@@ -186,7 +185,6 @@ def ranking(request):
         'progreso': progreso,
         'desafios': desafios_ctx,
     })
-
 def partidos(request):
     todos = Partido.objects.all()
 
