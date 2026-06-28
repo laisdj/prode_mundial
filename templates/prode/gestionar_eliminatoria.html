@@ -44,69 +44,70 @@
 {% if partidos %}
 <div class="card">
   <h2>{{ nombre_ronda }}</h2>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:1rem;margin-top:.75rem">
+  <div style="display:flex;flex-direction:column;gap:.6rem;margin-top:.75rem">
   {% for p in partidos %}
     <div style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden">
-      <div style="background:#1a6b3c;color:#fff;font-size:.75rem;padding:.4rem .75rem;display:flex;justify-content:space-between">
-        <span>{{ p.slot_local }} vs {{ p.slot_visita }}</span>
-        <form method="post" style="margin:0">
-          {% csrf_token %}
-          <input type="hidden" name="accion" value="eliminar"/>
-          <input type="hidden" name="partido_id" value="{{ p.id }}"/>
-          <button type="submit" style="background:none;border:none;color:#faa;cursor:pointer;font-size:.8rem"
-                  onclick="return confirm('¿Eliminar este partido?')">✕</button>
-        </form>
-      </div>
-      <div style="padding:.75rem">
-        <form method="post">
-          {% csrf_token %}
-          <input type="hidden" name="accion" value="editar"/>
-          <input type="hidden" name="partido_id" value="{{ p.id }}"/>
-          <!-- Fecha y hora -->
-          <div style="margin-bottom:.5rem">
-            <label style="font-size:.72rem;color:#888;display:block;margin-bottom:.2rem">Fecha y hora</label>
-            <input type="datetime-local" name="fecha_{{ p.id }}"
-                   value="{{ p.fecha|date:'Y-m-d\TH:i' }}"
-                   style="width:100%;font-size:.8rem;padding:.3rem;border:1px solid #ccc;border-radius:4px"/>
-          </div>
-          <!-- Equipos -->
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.3rem">
-            <input type="text" name="local_{{ p.id }}" value="{{ p.local }}"
-                   placeholder="{{ p.slot_local }}"
-                   style="flex:1;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
-            <input class="inp-score" type="number" min="0" max="20"
-                   name="gl_{{ p.id }}"
-                   {% if p.goles_l != None %}value="{{ p.goles_l }}"{% endif %}
-                   placeholder="-"/>
-          </div>
-          <div style="text-align:center;font-size:.7rem;color:#aaa;margin:.2rem 0">vs</div>
-          <div style="display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-top:.3rem">
-            <input type="text" name="visita_{{ p.id }}" value="{{ p.visita }}"
-                   placeholder="{{ p.slot_visita }}"
-                   style="flex:1;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
-            <input class="inp-score" type="number" min="0" max="20"
-                   name="gv_{{ p.id }}"
-                   {% if p.goles_v != None %}value="{{ p.goles_v }}"{% endif %}
-                   placeholder="-"/>
-          </div>
+      <form method="post" style="margin:0">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="editar"/>
+        <input type="hidden" name="partido_id" value="{{ p.id }}"/>
+        <div style="display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;flex-wrap:wrap">
+
+          <!-- Número de partido -->
+          <span style="background:#1a6b3c;color:#fff;border-radius:50%;width:28px;height:28px;
+                       display:flex;align-items:center;justify-content:center;font-size:.8rem;
+                       font-weight:700;flex-shrink:0">{{ forloop.counter }}</span>
+
+          <!-- Slot -->
+          <span style="font-size:.7rem;color:#aaa;min-width:90px">{{ p.slot_local }} vs {{ p.slot_visita }}</span>
+
+          <!-- Fecha -->
+          <input type="datetime-local" name="fecha_{{ p.id }}"
+                 value="{{ p.fecha|date:'Y-m-d\TH:i' }}"
+                 style="font-size:.78rem;padding:.3rem;border:1px solid #ccc;border-radius:4px;width:170px"/>
+
+          <!-- Equipo local -->
+          <input type="text" name="local_{{ p.id }}" value="{{ p.local }}"
+                 placeholder="{{ p.slot_local }}"
+                 style="flex:1;min-width:120px;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
+          <input class="inp-score" type="number" min="0" max="20"
+                 name="gl_{{ p.id }}"
+                 {% if p.goles_l != None %}value="{{ p.goles_l }}"{% endif %}
+                 placeholder="-"/>
+
+          <span style="color:#aaa;font-size:.8rem">vs</span>
+
+          <input class="inp-score" type="number" min="0" max="20"
+                 name="gv_{{ p.id }}"
+                 {% if p.goles_v != None %}value="{{ p.goles_v }}"{% endif %}
+                 placeholder="-"/>
+          <!-- Equipo visita -->
+          <input type="text" name="visita_{{ p.id }}" value="{{ p.visita }}"
+                 placeholder="{{ p.slot_visita }}"
+                 style="flex:1;min-width:120px;font-size:.85rem;padding:.3rem .4rem;border:1px solid #ccc;border-radius:4px"/>
+
           <!-- Penales -->
-          <div style="margin-top:.5rem;padding-top:.5rem;border-top:1px solid #f0f0f0;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
-            <span style="font-size:.75rem;color:#888">Penales:</span>
-            <input class="inp-score" type="number" min="0" max="20"
-                   name="pl_{{ p.id }}"
-                   {% if p.penales_l != None %}value="{{ p.penales_l }}"{% endif %}
-                   placeholder="-"/>
-            <span style="color:#aaa;font-size:.8rem">vs</span>
-            <input class="inp-score" type="number" min="0" max="20"
-                   name="pv_{{ p.id }}"
-                   {% if p.penales_v != None %}value="{{ p.penales_v }}"{% endif %}
-                   placeholder="-"/>
-          </div>
-          <div style="margin-top:.75rem">
-            <button class="btn" type="submit" style="font-size:.8rem;padding:.35rem .9rem">💾 Guardar</button>
-          </div>
-        </form>
-      </div>
+          <span style="font-size:.72rem;color:#888">Pen:</span>
+          <input class="inp-score" type="number" min="0" max="20"
+                 name="pl_{{ p.id }}"
+                 {% if p.penales_l != None %}value="{{ p.penales_l }}"{% endif %}
+                 placeholder="-" style="width:30px"/>
+          <span style="color:#aaa;font-size:.75rem">-</span>
+          <input class="inp-score" type="number" min="0" max="20"
+                 name="pv_{{ p.id }}"
+                 {% if p.penales_v != None %}value="{{ p.penales_v }}"{% endif %}
+                 placeholder="-" style="width:30px"/>
+
+          <button class="btn" type="submit" style="font-size:.78rem;padding:.3rem .8rem">💾</button>
+        </div>
+      </form>
+      <form method="post" style="margin:0;text-align:right;padding:.2rem .5rem;background:#fafafa">
+        {% csrf_token %}
+        <input type="hidden" name="accion" value="eliminar"/>
+        <input type="hidden" name="partido_id" value="{{ p.id }}"/>
+        <button type="submit" style="background:none;border:none;color:#c0392b;cursor:pointer;font-size:.72rem"
+                onclick="return confirm('¿Eliminar este partido?')">🗑️ Eliminar</button>
+      </form>
     </div>
   {% endfor %}
   </div>
