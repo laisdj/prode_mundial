@@ -43,7 +43,7 @@ def registro(request):
     return render(request, 'prode/registro.html')
 
 
-def ranking(request):
+ddef ranking(request):
     usuarios = User.objects.filter(is_superuser=False)
 
     try:
