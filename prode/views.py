@@ -866,7 +866,7 @@ def gestionar_eliminatoria(request):
                 if gl != '' and gv != '':
                     partido.goles_l = int(gl)
                     partido.goles_v = int(gv)
-                    partido.jugado = jugado == 'on'
+                    partido.jugado = True
                     partido.penales_l = int(pl) if pl else None
                     partido.penales_v = int(pv) if pv else None
                 else:
