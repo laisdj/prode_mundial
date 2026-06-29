@@ -1214,3 +1214,9 @@ def borrar_desafio(request, desafio_id):
         except Desafio.DoesNotExist:
             pass
     return redirect('desafios')
+
+def reglas(request):
+    hoy = date.today()
+    cierre = date(2026, 6, 8)
+    abierto = hoy <= cierre
+    return render(request, 'prode/reglas.html', {'abierto': abierto})
