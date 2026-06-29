@@ -165,6 +165,24 @@ def ranking(request):
     tabla_f1.sort(key=lambda x: x['pts_f1'], reverse=True)
     tabla_f2.sort(key=lambda x: x['total_f2'], reverse=True)
 
+    # Tabla acumulada total (F1 + F2 + bonus)
+    tabla_acumulada = []
+    for row1 in tabla_f1:
+        u = row1['usuario']
+        row2 = next((r for r in tabla_f2 if r['usuario'] == u), None)
+        pts_f1_val = row1['pts_f1']
+        pts_f2_val = row2['pts_f2'] if row2 else 0
+        bonus_val = row2['bonus'] if row2 else 0
+        total_acum = pts_f1_val + pts_f2_val + bonus_val
+        tabla_acumulada.append({
+            'usuario': u,
+            'pts_f1': pts_f1_val,
+            'pts_f2': pts_f2_val,
+            'bonus': bonus_val,
+            'total_acum': total_acum,
+        })
+    tabla_acumulada.sort(key=lambda x: x['total_acum'], reverse=True)
+
     ranking_anterior = request.session.get('ranking_anterior', {})
     for i, row in enumerate(tabla_f2):
         pos_actual = i + 1
@@ -229,6 +247,7 @@ def ranking(request):
     return render(request, 'prode/ranking.html', {
         'tabla_f1': tabla_f1,
         'tabla_f2': tabla_f2,
+        'tabla_acumulada': tabla_acumulada,
         'partidos_jugados': partidos_jugados,
         'total_partidos': total_partidos,
         'progreso': progreso,

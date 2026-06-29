@@ -4,43 +4,40 @@
 <h1 style="color:#1a6b3c;margin-bottom:1.5rem">🏆 Bracket — Fase Eliminatoria</h1>
 
 <style>
-.bracket-wrap{overflow-x:auto;padding-bottom:1rem}
-.bracket{display:flex;gap:0;align-items:center;min-width:900px}
-.ronda{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 4px}
-.ronda-title{text-align:center;font-size:.7rem;font-weight:700;color:#888;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em}
-.match{border:1px solid #e0e0e0;border-radius:6px;overflow:hidden;margin:4px 0;background:#fff;font-size:.78rem}
-.match.jugado{border-color:#2e8b57}
-.match-team{display:flex;justify-content:space-between;align-items:center;padding:.3rem .5rem;gap:.3rem}
-.match-team:first-child{border-bottom:1px solid #f0f0f0}
-.match-team.ganador{background:#f0faf4;font-weight:700}
+.bracket-wrap{overflow-x:auto;padding-bottom:1rem;position:relative}
+.bracket{display:flex;gap:0;align-items:center;min-width:1200px;position:relative}
+.ronda{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 8px;position:relative;z-index:2}
+.ronda-title{text-align:center;font-size:.68rem;font-weight:700;color:#888;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.04em}
+.match{border:1px solid #d9d9d9;border-radius:6px;overflow:hidden;margin:8px 0;background:#fff;font-size:.76rem;box-shadow:0 1px 2px rgba(0,0,0,.04);position:relative}
+.match.jugado{border-color:#2e8b57;box-shadow:0 1px 3px rgba(46,139,87,.15)}
+.match-date{font-size:.6rem;color:#999;text-align:center;padding:2px 4px;background:#fafafa;border-bottom:1px solid #f0f0f0}
+.match-team{display:flex;justify-content:space-between;align-items:center;padding:.26rem .5rem;gap:.3rem}
+.match-team:nth-child(2){border-bottom:1px solid #f0f0f0}
+.match-team.ganador{background:#f0faf4;font-weight:700;color:#1a6b3c}
 .match-team.perdedor{color:#aaa}
 .match-score{font-weight:700;color:#1a6b3c;min-width:16px;text-align:right;font-size:.85rem}
 .match-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.connector{display:flex;flex-direction:column;justify-content:space-around;width:12px;flex-shrink:0}
-.connector-line{border-right:2px solid #e0e0e0;height:50%}
-.center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:0 8px}
-.final-box{border:2px solid #f4c430;border-radius:8px;overflow:hidden;min-width:160px}
-.final-title{background:#f4c430;color:#1a6b3c;font-size:.75rem;font-weight:700;text-align:center;padding:.3rem}
-.tpl-box{border:2px solid #aaa;border-radius:8px;overflow:hidden;min-width:160px}
-.tpl-title{background:#aaa;color:#fff;font-size:.75rem;font-weight:700;text-align:center;padding:.3rem}
+.center-col{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;padding:0 12px;min-width:170px;position:relative;z-index:2}
+.final-box{border:2px solid #f4c430;border-radius:8px;overflow:hidden;width:100%;box-shadow:0 2px 6px rgba(244,196,48,.25)}
+.final-title{background:#f4c430;color:#1a6b3c;font-size:.75rem;font-weight:700;text-align:center;padding:.35rem}
+.tpl-box{border:2px solid #aaa;border-radius:8px;overflow:hidden;width:100%}
+.tpl-title{background:#aaa;color:#fff;font-size:.72rem;font-weight:700;text-align:center;padding:.3rem}
+.bracket-svg{position:absolute;top:0;left:0;width:100%;height:100%;z-index:1;pointer-events:none}
 </style>
 
 <div class="bracket-wrap">
-<div class="bracket">
+<div class="bracket" id="bracket-container">
 
   <!-- LADO IZQUIERDO -->
 
-  <!-- R32 izq (partidos 1-8) -->
   <div class="ronda">
     <div class="ronda-title">Round of 32</div>
-    {% for i in "12345678" %}
-      {% with p=r32|default_if_none:None %}
-      {% endwith %}
-    {% endfor %}
+    {% with fechas="29/6 16:30,29/6 21:00,30/6 17:00,29/6 13:00,30/6 13:00,30/6 21:00,1/7 12:00,1/7 16:00"|split:"," %}
     {% for num in "1,2,3,4,5,6,7,8"|split:"," %}
       {% with p=r32|get_item:num %}
       {% if p %}
         <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-date">{{ fechas|index:forloop.counter0 }}</div>
           <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
             <span class="match-name">{{ p.local }}</span>
             <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
@@ -53,15 +50,17 @@
       {% endif %}
       {% endwith %}
     {% endfor %}
+    {% endwith %}
   </div>
 
-  <!-- R16 izq (partidos 1-4) -->
   <div class="ronda">
     <div class="ronda-title">Round of 16</div>
+    {% with fechas="4/7 17:00,4/7 13:00,6/7 15:00,6/7 20:00"|split:"," %}
     {% for num in "1,2,3,4"|split:"," %}
       {% with p=r16|get_item:num %}
       {% if p %}
         <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-date">{{ fechas|index:forloop.counter0 }}</div>
           <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
             <span class="match-name">{{ p.local }}</span>
             <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
@@ -74,15 +73,17 @@
       {% endif %}
       {% endwith %}
     {% endfor %}
+    {% endwith %}
   </div>
 
-  <!-- QF izq (partidos 1-2) -->
   <div class="ronda">
     <div class="ronda-title">Cuartos</div>
+    {% with fechas="9/7 16:00,10/7 15:00"|split:"," %}
     {% for num in "1,2"|split:"," %}
       {% with p=qf|get_item:num %}
       {% if p %}
         <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-date">{{ fechas|index:forloop.counter0 }}</div>
           <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
             <span class="match-name">{{ p.local }}</span>
             <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
@@ -95,14 +96,15 @@
       {% endif %}
       {% endwith %}
     {% endfor %}
+    {% endwith %}
   </div>
 
-  <!-- SF izq (partido 1) -->
   <div class="ronda">
     <div class="ronda-title">Semifinal</div>
     {% with p=sf|get_item:"1" %}
     {% if p %}
       <div class="match {% if p.jugado %}jugado{% endif %}">
+        <div class="match-date">14/7 15:00</div>
         <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
           <span class="match-name">{{ p.local }}</span>
           <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
@@ -116,12 +118,12 @@
     {% endwith %}
   </div>
 
-  <!-- CENTRO: FINAL + 3er LUGAR -->
+  <!-- CENTRO -->
   <div class="center-col">
     <div class="ronda-title">Final</div>
     {% if fin %}
       <div class="final-box">
-        <div class="final-title">🏆 FINAL</div>
+        <div class="final-title">🏆 FINAL · 19/7 15:00</div>
         <div class="match-team {% if fin.ganador == fin.local %}ganador{% elif fin.jugado %}perdedor{% endif %}"
              style="padding:.5rem .75rem">
           <span class="match-name">{{ fin.local }}</span>
@@ -140,14 +142,14 @@
       </div>
     {% else %}
       <div class="final-box">
-        <div class="final-title">🏆 FINAL</div>
+        <div class="final-title">🏆 FINAL · 19/7 15:00</div>
         <div style="padding:1rem;text-align:center;color:#aaa;font-size:.8rem">Por definir</div>
       </div>
     {% endif %}
 
     {% if tpl %}
       <div class="tpl-box">
-        <div class="tpl-title">🥉 3er y 4to lugar</div>
+        <div class="tpl-title">🥉 3er y 4to lugar · 18/7 17:00</div>
         <div class="match-team {% if tpl.ganador == tpl.local %}ganador{% elif tpl.jugado %}perdedor{% endif %}"
              style="padding:.5rem .75rem">
           <span class="match-name">{{ tpl.local }}</span>
@@ -162,12 +164,12 @@
     {% endif %}
   </div>
 
-  <!-- SF der (partido 2) -->
   <div class="ronda">
     <div class="ronda-title">Semifinal</div>
     {% with p=sf|get_item:"2" %}
     {% if p %}
       <div class="match {% if p.jugado %}jugado{% endif %}">
+        <div class="match-date">15/7 15:00</div>
         <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
           <span class="match-name">{{ p.local }}</span>
           <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
@@ -181,13 +183,14 @@
     {% endwith %}
   </div>
 
-  <!-- QF der (partidos 3-4) -->
   <div class="ronda">
     <div class="ronda-title">Cuartos</div>
+    {% with fechas="9/7 16:00,10/7 15:00"|split:"," %}
     {% for num in "3,4"|split:"," %}
       {% with p=qf|get_item:num %}
       {% if p %}
         <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-date">{{ fechas|index:forloop.counter0 }}</div>
           <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
             <span class="match-name">{{ p.local }}</span>
             <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
@@ -200,15 +203,17 @@
       {% endif %}
       {% endwith %}
     {% endfor %}
+    {% endwith %}
   </div>
 
-  <!-- R16 der (partidos 5-8) -->
   <div class="ronda">
     <div class="ronda-title">Round of 16</div>
+    {% with fechas="7/7 12:00,7/7 16:00,5/7 16:00,5/7 21:00"|split:"," %}
     {% for num in "5,6,7,8"|split:"," %}
       {% with p=r16|get_item:num %}
       {% if p %}
         <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-date">{{ fechas|index:forloop.counter0 }}</div>
           <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
             <span class="match-name">{{ p.local }}</span>
             <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
@@ -221,15 +226,17 @@
       {% endif %}
       {% endwith %}
     {% endfor %}
+    {% endwith %}
   </div>
 
-  <!-- R32 der (partidos 9-16) -->
   <div class="ronda">
     <div class="ronda-title">Round of 32</div>
+    {% with fechas="1/7 20:00,1/7 16:00,2/7 19:00,2/7 15:00,3/7 23:00,3/7 18:00,3/7 21:30,3/7 14:00"|split:"," %}
     {% for num in "9,10,11,12,13,14,15,16"|split:"," %}
       {% with p=r32|get_item:num %}
       {% if p %}
         <div class="match {% if p.jugado %}jugado{% endif %}">
+          <div class="match-date">{{ fechas|index:forloop.counter0 }}</div>
           <div class="match-team {% if p.ganador == p.local %}ganador{% elif p.jugado %}perdedor{% endif %}">
             <span class="match-name">{{ p.local }}</span>
             <span class="match-score">{% if p.jugado %}{{ p.gl }}{% endif %}</span>
@@ -242,6 +249,7 @@
       {% endif %}
       {% endwith %}
     {% endfor %}
+    {% endwith %}
   </div>
 
 </div>

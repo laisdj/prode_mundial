@@ -12,3 +12,10 @@ def get_item(dictionary, key):
 @register.filter
 def split(value, delimiter):
     return value.split(delimiter)
+
+@register.filter
+def index(lista, i):
+    try:
+        return lista[i]
+    except (IndexError, TypeError):
+        return ''
