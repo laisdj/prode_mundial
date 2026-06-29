@@ -10,11 +10,14 @@
   </div>
 
   {% if tabla_f2 %}
-  <div style="background:linear-gradient(135deg,#1a6b3c,#2e8b57);color:#fff;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap">
+  <div style="background:linear-gradient(135deg,#1a6b3c,#2e8b57);color:#fff;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap">
     <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
       <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
     </video>
-    <div style="text-align:center">
+    <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
+      <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
+    </video>
+    <div style="text-align:center;margin:0 1rem">
       <div style="font-size:1.5rem;margin-bottom:.25rem">🎉🏆🎉</div>
       <div style="font-size:1rem;font-weight:700">
         ¡Felicitaciones {{ tabla_f2.0.usuario.username }}!
@@ -23,6 +26,9 @@
         Vas liderando la Fase 2 con {{ tabla_f2.0.total_f2 }} puntos
       </div>
     </div>
+    <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
+      <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
+    </video>
     <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
       <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
     </video>
