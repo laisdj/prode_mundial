@@ -1164,15 +1164,19 @@ def eliminar_usuario(request, usuario_id):
 def historial_desafios(request):
     desafios = Desafio.objects.filter(
         estado='aceptado'
-    ).select_related('retador', 'retado', 'partido').order_by('-creado_en')
+    ).select_related('retador', 'retado', 'partido', 'partido_elim').order_by('-creado_en')
 
     historial = []
     for d in desafios:
+        p = d.get_partido()
+        if not p:
+            continue
         g = d.ganador()
         historial.append({
             'desafio': d,
+            'partido_obj': p,
             'ganador': g,
-            'empate': g is None and d.partido.jugado,
+            'empate': g is None and p.jugado,
         })
 
     return render(request, 'prode/historial_desafios.html', {'historial': historial})

@@ -20,29 +20,29 @@
     <tbody>
     {% for item in historial %}
       <tr style="border-left:4px solid 
-        {% if not item.desafio.partido.jugado %}#f4c430
+        {% if not item.partido_obj.jugado %}#f4c430
         {% elif item.empate %}#1565c0
         {% elif item.desafio.pagado %}#2e8b57
         {% else %}#e74c3c{% endif %}">
         
         <td style="text-align:left;font-size:.8rem">
-          {{ item.desafio.partido.local }} vs {{ item.desafio.partido.visita }}<br>
-          <span style="color:#aaa;font-size:.75rem">{{ item.desafio.partido.fecha|date:"d/m H:i" }}</span>
+          {{ item.partido_obj.local }} vs {{ item.partido_obj.visita }}<br>
+          <span style="color:#aaa;font-size:.75rem">{{ item.partido_obj.fecha|date:"d/m H:i" }}</span>
         </td>
         <td><strong>{{ item.desafio.retador.username }}</strong></td>
         <td>{{ item.desafio.gl_retador }} - {{ item.desafio.gv_retador }}</td>
         <td><strong>{{ item.desafio.retado.username }}</strong></td>
         <td>{{ item.desafio.gl_retado }} - {{ item.desafio.gv_retado }}</td>
         <td>
-          {% if item.desafio.partido.jugado %}
-            <strong>{{ item.desafio.partido.goles_l }} - {{ item.desafio.partido.goles_v }}</strong>
+          {% if item.partido_obj.jugado %}
+            <strong>{{ item.partido_obj.goles_l }} - {{ item.partido_obj.goles_v }}</strong>
           {% else %}
             <span style="color:#aaa">Por jugar</span>
           {% endif %}
         </td>
         <td><strong>${{ item.desafio.monto|floatformat:"0" }}</strong></td>
         <td>
-          {% if not item.desafio.partido.jugado %}
+          {% if not item.partido_obj.jugado %}
             <span style="color:#aaa">—</span>
           {% elif item.empate %}
             <span style="color:#888">🤝 Empate</span>
