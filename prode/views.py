@@ -622,7 +622,7 @@ def pronosticos_eliminatoria(request):
     from django.utils import timezone
     from datetime import datetime as dt_class
 
-    limite_general = timezone.make_aware(dt_class(2026, 6, 29, 16, 30))
+    limite_general = timezone.make_aware(dt_class(2026, 6, 29, 13, 0))
     limite_podio = timezone.make_aware(dt_class(2026, 6, 30, 10, 0))
 
     partidos = PartidoEliminatorio.objects.all().order_by('fecha')
