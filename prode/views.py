@@ -127,27 +127,18 @@ def ranking(request):
         pct_f2 = round((pts_f2 / (partidos_elim_jugados * 3)) * 100) if partidos_elim_jugados > 0 else 0
 
         bonus = 0
-        if campeon:
-            try:
-                pron_final = PronosticoEliminatorio.objects.get(usuario=u, partido__ronda='FIN')
-                pred_campeon = pron_final.local if (pron_final.goles_l or 0) > (pron_final.goles_v or 0) else pron_final.visita
-                if pred_campeon == campeon:
-                    bonus += 5
-                elif pred_campeon == subcampeon:
-                    bonus += 3
-            except PronosticoEliminatorio.DoesNotExist:
-                pass
-
-        if tercero:
-            try:
-                pron_3pl = PronosticoEliminatorio.objects.get(usuario=u, partido__ronda='3PL')
-                pred_3 = pron_3pl.local if (pron_3pl.goles_l or 0) > (pron_3pl.goles_v or 0) else pron_3pl.visita
-                if pred_3 == tercero:
-                    bonus += 2
-                elif pred_3 == cuarto:
-                    bonus += 1
-            except PronosticoEliminatorio.DoesNotExist:
-                pass
+        try:
+            podio = PrediccionPodio.objects.get(usuario=u)
+            if campeon and podio.primero == campeon:
+                bonus += 5
+            if subcampeon and podio.segundo == subcampeon:
+                bonus += 3
+            if tercero and podio.tercero == tercero:
+                bonus += 2
+            if cuarto and podio.cuarto == cuarto:
+                bonus += 1
+        except PrediccionPodio.DoesNotExist:
+            pass
 
         total_f2 = pts_f2 + bonus
 
