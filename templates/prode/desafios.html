@@ -58,6 +58,7 @@
   <h2>📩 Desafíos recibidos</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:.75rem">
   {% for d in recibidos %}
+    {% with p=d.get_partido %}
     <div style="border:2px solid {% if d.estado == 'pendiente' %}#f4c430{% elif d.estado == 'aceptado' %}#2e8b57{% else %}#e0e0e0{% endif %};border-radius:10px;overflow:hidden">
       <div style="background:{% if d.estado == 'pendiente' %}#f4c430{% elif d.estado == 'aceptado' %}#2e8b57{% else %}#e0e0e0{% endif %};padding:.4rem .75rem;font-size:.75rem;font-weight:700;color:{% if d.estado == 'aceptado' %}#fff{% else %}#1a6b3c{% endif %}">
         {% if d.estado == 'pendiente' %}⏳ Pendiente
@@ -69,8 +70,8 @@
           <strong>{{ d.retador.username }}</strong> te desafía en:
         </div>
         <div style="font-size:.8rem;color:#666;margin-bottom:.4rem">
-          [{{ d.partido.grupo }}] {{ d.partido.local }} vs {{ d.partido.visita }}<br>
-          {{ d.partido.fecha|date:"d/m H:i" }}
+          {{ p.local }} vs {{ p.visita }}<br>
+          {{ p.fecha|date:"d/m H:i" }}
         </div>
         <div style="font-size:.85rem;margin-bottom:.4rem">
           💰 Monto: <strong>${{ d.monto|floatformat:"0" }}</strong>
@@ -96,7 +97,7 @@
         </form>
         {% elif d.estado == 'aceptado' %}
           <div style="font-size:.85rem">Tu pronóstico: <strong>{{ d.gl_retado }} - {{ d.gv_retado }}</strong></div>
-          {% if d.partido.jugado %}
+          {% if p.jugado %}
             {% with g=d.ganador %}
               {% if g %}
                 <div style="margin-top:.5rem;font-weight:700;color:{% if g == request.user %}#1a6b3c{% else %}#c0392b{% endif %}">
@@ -115,6 +116,7 @@
         {% endif %}
       </div>
     </div>
+    {% endwith %}
   {% endfor %}
   </div>
 </div>
@@ -126,6 +128,7 @@
   <h2>📤 Desafíos enviados</h2>
   <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;margin-top:.75rem">
   {% for d in enviados %}
+    {% with p=d.get_partido %}
     <div style="border:2px solid {% if d.estado == 'pendiente' %}#f4c430{% elif d.estado == 'aceptado' %}#2e8b57{% else %}#e0e0e0{% endif %};border-radius:10px;overflow:hidden">
       <div style="background:{% if d.estado == 'pendiente' %}#f4c430{% elif d.estado == 'aceptado' %}#2e8b57{% else %}#e0e0e0{% endif %};padding:.4rem .75rem;font-size:.75rem;font-weight:700;color:{% if d.estado == 'aceptado' %}#fff{% else %}#1a6b3c{% endif %}">
         {% if d.estado == 'pendiente' %}⏳ Esperando respuesta
@@ -137,8 +140,8 @@
           Desafío a <strong>{{ d.retado.username }}</strong> en:
         </div>
         <div style="font-size:.8rem;color:#666;margin-bottom:.4rem">
-          [{{ d.partido.grupo }}] {{ d.partido.local }} vs {{ d.partido.visita }}<br>
-          {{ d.partido.fecha|date:"d/m H:i" }}
+          {{ p.local }} vs {{ p.visita }}<br>
+          {{ p.fecha|date:"d/m H:i" }}
         </div>
         <div style="font-size:.85rem;margin-bottom:.4rem">
           💰 Monto: <strong>${{ d.monto|floatformat:"0" }}</strong>
@@ -150,7 +153,7 @@
           <div style="font-size:.85rem;margin-top:.25rem">
             Su pronóstico: <strong>{{ d.gl_retado }} - {{ d.gv_retado }}</strong>
           </div>
-          {% if d.partido.jugado %}
+          {% if p.jugado %}
             {% with g=d.ganador %}
               {% if g %}
                 <div style="margin-top:.5rem;font-weight:700;color:{% if g == request.user %}#1a6b3c{% else %}#c0392b{% endif %}">
@@ -179,6 +182,7 @@
         {% endif %}
       </div>
     </div>
+    {% endwith %}
   {% endfor %}
   </div>
 </div>
