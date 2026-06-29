@@ -610,11 +610,18 @@ def pronosticos_eliminatoria(request):
     if not settings.FASE2_ACTIVA:
         return redirect('ranking')
 
+    from django.utils import timezone
+
     partidos = PartidoEliminatorio.objects.all().order_by('orden')
     partidos_con_equipos = [p for p in partidos if p.local and p.visita]
 
     if request.method == 'POST':
         for partido in partidos_con_equipos:
+            if partido.fecha:
+                limite = partido.fecha - timezone.timedelta(hours=1)
+                if timezone.now() >= limite:
+                    continue  # bloqueado, no se puede modificar
+
             gl = request.POST.get(f'gl_{partido.id}', '').strip()
             gv = request.POST.get(f'gv_{partido.id}', '').strip()
             ganador_empate = request.POST.get(f'gan_{partido.id}', '').strip()
@@ -680,6 +687,11 @@ def pronosticos_eliminatoria(request):
             elif pts == 1:
                 resultados.append(inicial)
 
+        bloqueado = False
+        if p.fecha:
+            limite = p.fecha - timezone.timedelta(hours=1)
+            bloqueado = timezone.now() >= limite
+
         partidos_ctx.append({
             'partido': p,
             'ronda_nombre': rondas.get(p.ronda, p.ronda),
@@ -689,6 +701,7 @@ def pronosticos_eliminatoria(request):
             'pts': pron.puntos() if pron else None,
             'plenos': plenos,
             'resultados': resultados,
+            'bloqueado': bloqueado,
         })
 
     return render(request, 'prode/pronosticos_eliminatoria.html', {

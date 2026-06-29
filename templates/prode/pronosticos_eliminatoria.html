@@ -4,6 +4,7 @@
   <h1>🏆 Mis pronósticos — Fase Eliminatoria</h1>
   <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
     Local/Visita = 1 pt · Marcador exacto = 3 pts. Si hay empate, elige quién pasa en penales.
+    Los pronósticos se cierran 1 hora antes de cada partido.
   </p>
 
   {% if not partidos %}
@@ -27,10 +28,11 @@
       </tr></thead>
       <tbody>
       {% for item in partidos %}
-        <tr>
+        <tr style="{% if item.bloqueado %}background:#f7f7f7{% endif %}">
           <td style="font-size:.75rem">{{ item.ronda_nombre }}</td>
           <td style="text-align:left;white-space:normal">
             {{ item.partido.local }} vs {{ item.partido.visita }}
+            {% if item.bloqueado %}<span style="color:#c0392b;font-size:.7rem">🔒</span>{% endif %}
           </td>
           <td style="font-size:.78rem;color:#666;white-space:nowrap">
             {{ item.partido.fecha|date:"d/m H:i" }}
@@ -39,17 +41,21 @@
             <input class="inp-score gl-input" type="number" min="0" max="20"
                    name="gl_{{ item.partido.id }}"
                    {% if item.gl != None %}value="{{ item.gl }}"{% endif %}
+                   {% if item.bloqueado %}disabled{% endif %}
                    placeholder="-"/>
             <span style="color:#aaa">:</span>
             <input class="inp-score gv-input" type="number" min="0" max="20"
                    name="gv_{{ item.partido.id }}"
                    {% if item.gv != None %}value="{{ item.gv }}"{% endif %}
+                   {% if item.bloqueado %}disabled{% endif %}
                    placeholder="-"/>
             <div class="penales-wrap" style="display:none;margin-top:.3rem;font-size:.72rem">
               <label><input type="radio" name="gan_{{ item.partido.id }}" value="{{ item.partido.local }}"
-                     {% if item.ganador_penales == item.partido.local %}checked{% endif %}/> {{ item.partido.local }}</label>
+                     {% if item.ganador_penales == item.partido.local %}checked{% endif %}
+                     {% if item.bloqueado %}disabled{% endif %}/> {{ item.partido.local }}</label>
               <label style="margin-left:.4rem"><input type="radio" name="gan_{{ item.partido.id }}" value="{{ item.partido.visita }}"
-                     {% if item.ganador_penales == item.partido.visita %}checked{% endif %}/> {{ item.partido.visita }}</label>
+                     {% if item.ganador_penales == item.partido.visita %}checked{% endif %}
+                     {% if item.bloqueado %}disabled{% endif %}/> {{ item.partido.visita }}</label>
             </div>
           </td>
           <td style="white-space:nowrap">
@@ -94,10 +100,11 @@
 
 <script>
 function actualizarPenales(row) {
-  const gl = row.querySelector('.gl-input').value;
-  const gv = row.querySelector('.gv-input').value;
+  const gl = row.querySelector('.gl-input');
+  const gv = row.querySelector('.gv-input');
+  if (!gl || !gv || gl.disabled) return;
   const wrap = row.querySelector('.penales-wrap');
-  if (gl !== '' && gv !== '' && gl === gv) {
+  if (gl.value !== '' && gv.value !== '' && gl.value === gv.value) {
     wrap.style.display = 'block';
   } else {
     wrap.style.display = 'none';
