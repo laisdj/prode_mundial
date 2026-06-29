@@ -1,6 +1,9 @@
 {% extends 'prode/base.html' %}
 {% block content %}
 <h1 style="color:#1a6b3c;margin-bottom:1.5rem">🏆 Fase Eliminatoria</h1>
+<div style="margin-bottom:1.5rem">
+  <a href="{% url 'simulador_bracket' %}" class="btn">🎮 Simular el bracket completo</a>
+</div>
 
 {% regroup partidos by ronda_nombre as partidos_por_ronda %}
 {% for ronda in partidos_por_ronda %}

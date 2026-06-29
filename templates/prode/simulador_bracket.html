@@ -1,0 +1,142 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<h1 style="color:#1a6b3c;margin-bottom:.25rem">🎮 Simulador de Bracket</h1>
+<p style="font-size:.85rem;color:#666;margin-bottom:1.5rem">
+  Haz clic en el equipo que crees que avanza en cada partido y mira cómo se construye el cuadro completo.
+</p>
+
+<style>
+.sim-wrap{overflow-x:auto;padding-bottom:1rem}
+.sim-bracket{display:flex;min-width:1300px}
+.sim-ronda{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 8px}
+.sim-title{text-align:center;font-size:.66rem;font-weight:800;color:#1a6b3c;margin-bottom:.5rem;
+  text-transform:uppercase;background:#e8f5e9;border-radius:20px;padding:.2rem .5rem}
+.sim-match{border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;margin:8px 0;background:#fff;font-size:.78rem}
+.sim-team{display:block;width:100%;text-align:left;padding:.32rem .6rem;border:none;background:#fff;
+  cursor:pointer;font-size:.8rem;color:#333}
+.sim-team:hover{background:#f0faf4}
+.sim-team.elegido{background:#1a6b3c;color:#fff;font-weight:700}
+.sim-team:nth-child(1){border-bottom:1px solid #f0f0f0}
+.sim-team:disabled{cursor:default;color:#ccc}
+</style>
+
+<div class="sim-wrap">
+<div class="sim-bracket" id="sim-bracket">
+  <div class="sim-ronda" id="r32-col"><div class="sim-title">Round of 32</div></div>
+  <div class="sim-ronda" id="r16-col"><div class="sim-title">Round of 16</div></div>
+  <div class="sim-ronda" id="qf-col"><div class="sim-title">Cuartos</div></div>
+  <div class="sim-ronda" id="sf-col"><div class="sim-title">Semifinal</div></div>
+  <div class="sim-ronda" id="fin-col"><div class="sim-title">Final</div></div>
+</div>
+</div>
+
+<div style="margin-top:1.5rem;display:flex;gap:.75rem">
+  <button class="btn" onclick="reiniciar()" style="background:#888">🔄 Reiniciar</button>
+  <a href="{% url 'pronosticos_eliminatoria' %}" class="btn">🏅 Ir a elegir mi podio →</a>
+</div>
+
+<script>
+const R32 = [
+  {% for loc, vis in partidos_r32 %}
+  ["{{ loc }}", "{{ vis }}"],
+  {% endfor %}
+];
+
+let estado = { r32: {}, r16: {}, qf: {}, sf: {} };
+
+function cargarGuardado() {
+  const g = localStorage.getItem('sim_bracket');
+  // No usamos localStorage por restricciones, mantenemos en memoria
+}
+
+function elegir(ronda, idx, ganador) {
+  estado[ronda][idx] = ganador;
+  // Limpiar rondas siguientes si cambia algo anterior
+  if (ronda === 'r32') { estado.r16 = limpiarDependientes(estado.r16, idx); }
+  render();
+}
+
+function limpiarDependientes(rondaSiguiente, idxAfectado) {
+  const nuevo = {};
+  const parIdx = Math.floor(idxAfectado / 2);
+  for (const k in rondaSiguiente) {
+    if (parseInt(k) !== parIdx) nuevo[k] = rondaSiguiente[k];
+  }
+  return nuevo;
+}
+
+function crearMatchHTML(ronda, idx, local, visita) {
+  const elegido = estado[ronda][idx];
+  return `
+    <div class="sim-match">
+      <button class="sim-team ${elegido === local ? 'elegido' : ''}" 
+              ${!local ? 'disabled' : ''}
+              onclick="elegir('${ronda}', ${idx}, '${local}')">
+        ${local || 'Por definir'}
+      </button>
+      <button class="sim-team ${elegido === visita ? 'elegido' : ''}"
+              ${!visita ? 'disabled' : ''}
+              onclick="elegir('${ronda}', ${idx}, '${visita}')">
+        ${visita || 'Por definir'}
+      </button>
+    </div>
+  `;
+}
+
+function render() {
+  // R32
+  let r32html = '<div class="sim-title">Round of 32</div>';
+  R32.forEach((m, i) => {
+    r32html += crearMatchHTML('r32', i, m[0], m[1]);
+  });
+  document.getElementById('r32-col').innerHTML = r32html;
+
+  // R16 (8 partidos, cada uno toma ganadores de 2 partidos r32)
+  let r16html = '<div class="sim-title">Round of 16</div>';
+  for (let i = 0; i < 8; i++) {
+    const local = estado.r32[i*2] || '';
+    const visita = estado.r32[i*2+1] || '';
+    r16html += crearMatchHTML('r16', i, local, visita);
+  }
+  document.getElementById('r16-col').innerHTML = r16html;
+
+  // QF (4 partidos)
+  let qfhtml = '<div class="sim-title">Cuartos</div>';
+  for (let i = 0; i < 4; i++) {
+    const local = estado.r16[i*2] || '';
+    const visita = estado.r16[i*2+1] || '';
+    qfhtml += crearMatchHTML('qf', i, local, visita);
+  }
+  document.getElementById('qf-col').innerHTML = qfhtml;
+
+  // SF (2 partidos)
+  let sfhtml = '<div class="sim-title">Semifinal</div>';
+  for (let i = 0; i < 2; i++) {
+    const local = estado.qf[i*2] || '';
+    const visita = estado.qf[i*2+1] || '';
+    sfhtml += crearMatchHTML('sf', i, local, visita);
+  }
+  document.getElementById('sf-col').innerHTML = sfhtml;
+
+  // FINAL (1 partido)
+  const finLocal = estado.sf[0] || '';
+  const finVisita = estado.sf[1] || '';
+  let finhtml = '<div class="sim-title">Final</div>';
+  finhtml += `
+    <div class="sim-match" style="border:2px solid #f4c430">
+      <div style="background:#f4c430;color:#fff;text-align:center;font-size:.7rem;font-weight:700;padding:.3rem">🏆 FINAL</div>
+      <button class="sim-team" disabled>${finLocal || 'Por definir'}</button>
+      <button class="sim-team" disabled>${finVisita || 'Por definir'}</button>
+    </div>
+  `;
+  document.getElementById('fin-col').innerHTML = finhtml;
+}
+
+function reiniciar() {
+  estado = { r32: {}, r16: {}, qf: {}, sf: {} };
+  render();
+}
+
+render();
+</script>
+{% endblock %}

@@ -1289,3 +1289,28 @@ def reglas(request):
     cierre = date(2026, 6, 8)
     abierto = hoy <= cierre
     return render(request, 'prode/reglas.html', {'abierto': abierto})
+
+@login_required(login_url='login')
+def simulador_bracket(request):
+    ORDEN_VISUAL_R32 = [
+        ('Alemania', 'Paraguay'),
+        ('Francia', 'Suecia'),
+        ('Sudáfrica', 'Canadá'),
+        ('Países Bajos', 'Marruecos'),
+        ('Portugal', 'Croacia'),
+        ('España', 'Austria'),
+        ('EE.UU.', 'Bosnia'),
+        ('Bélgica', 'Senegal'),
+        ('Brasil', 'Japón'),
+        ('Costa de Marfil', 'Noruega'),
+        ('México', 'Ecuador'),
+        ('Inglaterra', 'R.D. Congo'),
+        ('Argentina', 'Cabo Verde'),
+        ('Suiza', 'Argelia'),
+        ('Colombia', 'Ghana'),
+        ('Australia', 'Egipto'),
+    ]
+
+    return render(request, 'prode/simulador_bracket.html', {
+        'partidos_r32': ORDEN_VISUAL_R32,
+    })
