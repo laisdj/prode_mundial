@@ -8,8 +8,7 @@ from django.conf import settings
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio
 from datetime import date
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje
-from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje, Desafio, PerfilUsuario, VotoDesafio
-
+from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje, Desafio, PerfilUsuario, VotoDesafio, PrediccionPodio
 
 def login_view(request):
     if request.user.is_authenticated:
