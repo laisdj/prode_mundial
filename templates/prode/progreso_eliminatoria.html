@@ -1,0 +1,39 @@
+{% extends 'prode/base.html' %}
+{% block content %}
+<h1 style="color:#1a6b3c;margin-bottom:1.5rem">📋 Progreso Fase Eliminatoria</h1>
+
+<div class="card">
+  <div class="table-wrap">
+  <table>
+    <thead><tr>
+      <th style="text-align:left">Usuario</th>
+      <th>Pronósticos R32</th>
+      <th>Podio</th>
+    </tr></thead>
+    <tbody>
+    {% for p in progreso %}
+      <tr>
+        <td style="text-align:left">{{ p.usuario.username }}</td>
+        <td>
+          {% if p.prons_r32 == 16 %}
+            <span class="badge-3">✅ {{ p.prons_r32 }}/16</span>
+          {% elif p.prons_r32 > 0 %}
+            <span class="badge-1">⚠️ {{ p.prons_r32 }}/16</span>
+          {% else %}
+            <span style="color:#e74c3c;font-size:.8rem">❌ 0/16</span>
+          {% endif %}
+        </td>
+        <td>
+          {% if p.tiene_podio %}
+            <span class="badge-3">✅ Sí</span>
+          {% else %}
+            <span style="color:#e74c3c;font-size:.8rem">❌ No</span>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</div>
+{% endblock %}

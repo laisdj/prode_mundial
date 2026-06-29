@@ -1314,3 +1314,30 @@ def simulador_bracket(request):
     return render(request, 'prode/simulador_bracket.html', {
         'partidos_r32': ORDEN_VISUAL_R32,
     })
+    
+    
+@staff_member_required
+def progreso_eliminatoria(request):
+    usuarios = User.objects.filter(is_superuser=False)
+
+    progreso = []
+    for u in usuarios:
+        tiene_podio = PrediccionPodio.objects.filter(
+            usuario=u
+        ).exclude(primero='').exists()
+
+        prons_r32 = PronosticoEliminatorio.objects.filter(
+            usuario=u, partido__ronda='R32'
+        ).count()
+
+        progreso.append({
+            'usuario': u,
+            'tiene_podio': tiene_podio,
+            'prons_r32': prons_r32,
+        })
+
+    progreso.sort(key=lambda x: (x['tiene_podio'], x['prons_r32']))
+
+    return render(request, 'prode/progreso_eliminatoria.html', {
+        'progreso': progreso,
+    })
