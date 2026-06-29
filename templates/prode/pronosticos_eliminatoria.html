@@ -2,6 +2,65 @@
 {% block content %}
 <div class="card">
   <h1>🏆 Mis pronósticos — Fase Eliminatoria</h1>
+<div style="background:#fff8e1;border:2px solid #f4c430;border-radius:10px;padding:1rem;margin-bottom:1.5rem">
+  <h2 style="margin-bottom:.5rem">🏅 Tu podio final</h2>
+  <p style="font-size:.82rem;color:#666;margin-bottom:1rem">
+    Elige quién será 1°, 2°, 3° y 4° lugar del Mundial. Plazo hasta el 30/6 a las 10:00 hrs.
+  </p>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="guardar_podio" value="1"/>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1rem">
+      <div>
+        <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥇 1° lugar</label>
+        <select name="primero" {% if podio_bloqueado %}disabled{% endif %}
+                style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+          <option value="">--</option>
+          {% for eq in equipos_r32 %}
+            <option value="{{ eq }}" {% if mi_podio.primero == eq %}selected{% endif %}>{{ eq }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥈 2° lugar</label>
+        <select name="segundo" {% if podio_bloqueado %}disabled{% endif %}
+                style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+          <option value="">--</option>
+          {% for eq in equipos_r32 %}
+            <option value="{{ eq }}" {% if mi_podio.segundo == eq %}selected{% endif %}>{{ eq }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥉 3° lugar</label>
+        <select name="tercero" {% if podio_bloqueado %}disabled{% endif %}
+                style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+          <option value="">--</option>
+          {% for eq in equipos_r32 %}
+            <option value="{{ eq }}" {% if mi_podio.tercero == eq %}selected{% endif %}>{{ eq }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">4° lugar</label>
+        <select name="cuarto" {% if podio_bloqueado %}disabled{% endif %}
+                style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+          <option value="">--</option>
+          {% for eq in equipos_r32 %}
+            <option value="{{ eq }}" {% if mi_podio.cuarto == eq %}selected{% endif %}>{{ eq }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </div>
+    {% if podio_bloqueado %}
+      <div style="background:#fde8e8;color:#c0392b;padding:.5rem 1rem;border-radius:6px;font-size:.85rem">
+        🔒 El plazo para elegir tu podio venció.
+      </div>
+    {% else %}
+      <button class="btn" type="submit">💾 Guardar podio</button>
+    {% endif %}
+  </form>
+</div>
   <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
     Local/Visita = 1 pt · Marcador exacto = 3 pts. Si hay empate, elige quién pasa en penales.
     Los pronósticos se cierran 1 hora antes de cada partido.

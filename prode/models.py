@@ -228,3 +228,13 @@ class VotoDesafio(models.Model):
 
     def __str__(self):
         return f"{self.usuario.username} vota {self.voto} en {self.desafio}"
+    
+class PrediccionPodio(models.Model):
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE)
+    primero = models.CharField(max_length=50, blank=True, default='')
+    segundo = models.CharField(max_length=50, blank=True, default='')
+    tercero = models.CharField(max_length=50, blank=True, default='')
+    cuarto = models.CharField(max_length=50, blank=True, default='')
+
+    def __str__(self):
+        return f"Podio de {self.usuario.username}"
