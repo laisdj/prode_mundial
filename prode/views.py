@@ -630,16 +630,17 @@ def pronosticos_eliminatoria(request):
         return redirect('ranking')
 
     from django.utils import timezone
+    from datetime import datetime as dt_class
+
+    limite_general = timezone.make_aware(dt_class(2026, 6, 29, 16, 30))
 
     partidos = PartidoEliminatorio.objects.all().order_by('orden')
     partidos_con_equipos = [p for p in partidos if p.local and p.visita]
 
     if request.method == 'POST':
         for partido in partidos_con_equipos:
-            if partido.fecha:
-                limite = partido.fecha - timezone.timedelta(hours=1)
-                if timezone.now() >= limite:
-                    continue  # bloqueado, no se puede modificar
+            if timezone.now() >= limite_general:
+                continue  # bloqueado, no se puede modificar
 
             gl = request.POST.get(f'gl_{partido.id}', '').strip()
             gv = request.POST.get(f'gv_{partido.id}', '').strip()
@@ -670,6 +671,59 @@ def pronosticos_eliminatoria(request):
                     pass
         messages.success(request, '¡Pronósticos guardados!')
         return redirect('pronosticos_eliminatoria')
+
+    mis_prons = {
+        p.partido_id: p
+        for p in PronosticoEliminatorio.objects.filter(usuario=request.user)
+    }
+
+    todos_prons = {}
+    for pron in PronosticoEliminatorio.objects.select_related('usuario', 'partido').all():
+        if pron.partido_id not in todos_prons:
+            todos_prons[pron.partido_id] = []
+        todos_prons[pron.partido_id].append(pron)
+
+    rondas = {
+        'R32': 'Round of 32',
+        'R16': 'Round of 16',
+        'QF':  'Cuartos de final',
+        'SF':  'Semifinal',
+        '3PL': 'Tercer y cuarto lugar',
+        'FIN': 'Final',
+    }
+
+    partidos_ctx = []
+    for p in partidos_con_equipos:
+        pron = mis_prons.get(p.id)
+
+        prons_partido = todos_prons.get(p.id, [])
+        plenos = []
+        resultados = []
+        for otro_pron in prons_partido:
+            pts = otro_pron.puntos()
+            inicial = otro_pron.usuario.username[:2].capitalize()
+            if pts == 3:
+                plenos.append(inicial)
+            elif pts == 1:
+                resultados.append(inicial)
+
+        bloqueado = timezone.now() >= limite_general
+
+        partidos_ctx.append({
+            'partido': p,
+            'ronda_nombre': rondas.get(p.ronda, p.ronda),
+            'gl': pron.goles_l if pron else None,
+            'gv': pron.goles_v if pron else None,
+            'ganador_penales': pron.ganador_penales if pron else '',
+            'pts': pron.puntos() if pron else None,
+            'plenos': plenos,
+            'resultados': resultados,
+            'bloqueado': bloqueado,
+        })
+
+    return render(request, 'prode/pronosticos_eliminatoria.html', {
+        'partidos': partidos_ctx,
+    })
 
     mis_prons = {
         p.partido_id: p
