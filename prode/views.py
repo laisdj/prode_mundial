@@ -783,7 +783,7 @@ def eliminatoria(request):
 
 
 def bracket(request):
-    partidos = PartidoEliminatorio.objects.all().order_by('orden')
+    partidos = PartidoEliminatorio.objects.all()
 
     def ganador(p):
         if not p.jugado:
@@ -794,21 +794,50 @@ def bracket(request):
     def fmt(p):
         return {
             'id': p.id,
-            'orden': p.orden,
             'local': p.local or p.slot_local,
             'visita': p.visita or p.slot_visita,
             'gl': p.goles_l,
             'gv': p.goles_v,
-            'pl': p.penales_l,
-            'pv': p.penales_v,
             'jugado': p.jugado,
             'ganador': ganador(p),
+            'fecha': p.fecha,
         }
 
-    r32 = {p.orden: fmt(p) for p in partidos.filter(ronda='R32')}
-    r16 = {p.orden: fmt(p) for p in partidos.filter(ronda='R16')}
-    qf  = {p.orden: fmt(p) for p in partidos.filter(ronda='QF')}
-    sf  = {p.orden: fmt(p) for p in partidos.filter(ronda='SF')}
+    # Orden visual fijo del bracket (izquierda 1-8, derecha 9-16)
+    ORDEN_VISUAL_R32 = [
+        ('Alemania', 'Paraguay'),
+        ('Francia', 'Suecia'),
+        ('Sudáfrica', 'Canadá'),
+        ('Países Bajos', 'Marruecos'),
+        ('Portugal', 'Croacia'),
+        ('España', 'Austria'),
+        ('EE.UU.', 'Bosnia'),
+        ('Bélgica', 'Senegal'),
+        ('Brasil', 'Japón'),
+        ('Costa de Marfil', 'Noruega'),
+        ('México', 'Ecuador'),
+        ('Inglaterra', 'R.D. Congo'),
+        ('Argentina', 'Cabo Verde'),
+        ('Suiza', 'Argelia'),
+        ('Colombia', 'Ghana'),
+        ('Australia', 'Egipto'),
+    ]
+
+    r32_partidos = list(partidos.filter(ronda='R32'))
+    r32 = {}
+    for idx, (loc, vis) in enumerate(ORDEN_VISUAL_R32, start=1):
+        encontrado = None
+        for p in r32_partidos:
+            if (p.local == loc and p.visita == vis) or (p.local == vis and p.visita == loc):
+                encontrado = p
+                break
+        if encontrado:
+            r32[idx] = fmt(encontrado)
+
+    r16 = {p.id: fmt(p) for i, p in enumerate(partidos.filter(ronda='R16').order_by('fecha'), start=1)}
+    r16 = {i+1: fmt(p) for i, p in enumerate(partidos.filter(ronda='R16').order_by('fecha'))}
+    qf  = {i+1: fmt(p) for i, p in enumerate(partidos.filter(ronda='QF').order_by('fecha'))}
+    sf  = {i+1: fmt(p) for i, p in enumerate(partidos.filter(ronda='SF').order_by('fecha'))}
     fin = partidos.filter(ronda='FIN').first()
     tpl = partidos.filter(ronda='3PL').first()
 
@@ -821,13 +850,6 @@ def bracket(request):
         'tpl': fmt(tpl) if tpl else None,
     }
     return render(request, 'prode/bracket.html', ctx)
-
-
-def reglas(request):
-    hoy = date.today()
-    cierre = date(2026, 6, 8)
-    abierto = hoy <= cierre
-    return render(request, 'prode/reglas.html', {'abierto': abierto})
 
 
 
