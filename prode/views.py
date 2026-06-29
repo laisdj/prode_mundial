@@ -84,6 +84,7 @@ def partidos(request):
 
 def ranking(request):
     usuarios = User.objects.filter(is_superuser=False)
+    usuarios_f2 = usuarios.exclude(username='Rodrigo Walker')
 
     try:
         final = PartidoEliminatorio.objects.get(ronda='FIN', jugado=True)
@@ -120,6 +121,9 @@ def ranking(request):
             'pct': pct,
         })
 
+        if u.username == 'Rodrigo Walker':
+            continue
+
         prons_f2 = PronosticoEliminatorio.objects.filter(usuario=u).select_related('partido')
         pts_f2 = sum(p.puntos() for p in prons_f2)
         exactos_f2 = sum(1 for p in prons_f2 if p.puntos() == 3)
@@ -155,7 +159,6 @@ def ranking(request):
     tabla_f1.sort(key=lambda x: x['pts_f1'], reverse=True)
     tabla_f2.sort(key=lambda x: x['total_f2'], reverse=True)
 
-    # Tabla acumulada total (F1 + F2 + bonus)
     tabla_acumulada = []
     for row1 in tabla_f1:
         u = row1['usuario']
