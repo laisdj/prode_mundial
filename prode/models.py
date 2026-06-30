@@ -89,8 +89,6 @@ class PartidoEliminatorio(models.Model):
             return None
         if self.goles_l > self.goles_v: return 'L'
         if self.goles_l < self.goles_v: return 'V'
-        if self.penales_l is not None and self.penales_v is not None:
-            return 'L' if self.penales_l > self.penales_v else 'V'
         return 'E'
 
     def __str__(self):
