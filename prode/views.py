@@ -196,6 +196,8 @@ def ranking(request):
 
     partidos_jugados = Partido.objects.filter(jugado=True).count()
     total_partidos = Partido.objects.count()
+    partidos_elim_total = PartidoEliminatorio.objects.count()
+    partidos_elim_jugados_header = PartidoEliminatorio.objects.filter(jugado=True).count()
 
     progreso = []
     for u in usuarios:
@@ -243,6 +245,8 @@ def ranking(request):
         'tabla_acumulada': tabla_acumulada,
         'partidos_jugados': partidos_jugados,
         'total_partidos': total_partidos,
+        'partidos_elim_jugados_header': partidos_elim_jugados_header,
+        'partidos_elim_total': partidos_elim_total,
         'progreso': progreso,
         'desafios': desafios_ctx,
     })
