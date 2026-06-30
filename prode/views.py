@@ -196,7 +196,7 @@ def ranking(request):
 
     partidos_jugados = Partido.objects.filter(jugado=True).count()
     total_partidos = Partido.objects.count()
-    partidos_elim_total = PartidoEliminatorio.objects.count()
+    partidos_elim_total = 31
     partidos_elim_jugados_header = PartidoEliminatorio.objects.filter(jugado=True).count()
 
     progreso = []
