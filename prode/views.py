@@ -657,6 +657,9 @@ def pronosticos_eliminatoria(request):
             return redirect('pronosticos_eliminatoria')
 
         for partido in partidos_con_equipos:
+            # Nunca tocar R32 ni partidos ya comenzados
+            if partido.ronda == 'R32':
+                continue
             if partido.fecha and timezone.now() >= partido.fecha:
                 continue
 
@@ -687,6 +690,7 @@ def pronosticos_eliminatoria(request):
                     )
                 except ValueError:
                     pass
+
         messages.success(request, '¡Pronósticos guardados!')
         return redirect('pronosticos_eliminatoria')
 
