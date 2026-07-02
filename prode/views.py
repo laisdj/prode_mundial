@@ -1245,3 +1245,56 @@ def progreso_eliminatoria(request):
     return render(request, 'prode/progreso_eliminatoria.html', {
         'progreso': progreso,
     })
+    
+def eliminatoria(request):
+    partidos = PartidoEliminatorio.objects.all().order_by('fecha')
+
+    rondas = {
+        'R32': 'Round of 32',
+        'R16': 'Round of 16',
+        'QF':  'Cuartos de final',
+        'SF':  'Semifinal',
+        '3PL': 'Tercer y cuarto lugar',
+        'FIN': 'Final',
+    }
+
+    todos_prons = {}
+    for pron in PronosticoEliminatorio.objects.select_related('usuario', 'partido').all():
+        if pron.partido_id not in todos_prons:
+            todos_prons[pron.partido_id] = []
+        todos_prons[pron.partido_id].append(pron)
+
+    mi_pron = {}
+    if request.user.is_authenticated:
+        for pron in PronosticoEliminatorio.objects.filter(usuario=request.user):
+            mi_pron[pron.partido_id] = pron
+
+    partidos_ctx = []
+    for p in partidos:
+        prons_partido = todos_prons.get(p.id, [])
+        plenos = []
+        resultados = []
+        for pron in prons_partido:
+            pts = pron.puntos()
+            inicial = pron.usuario.username[:2].capitalize()
+            if pts == 3:
+                plenos.append(inicial)
+            elif pts == 1:
+                resultados.append(inicial)
+
+        mi = mi_pron.get(p.id)
+        mi_pred = f"{mi.goles_l}-{mi.goles_v}" if mi else None
+        mi_pts = mi.puntos() if mi else None
+
+        partidos_ctx.append({
+            'partido': p,
+            'ronda_nombre': rondas.get(p.ronda, p.ronda),
+            'local': p.local or p.slot_local,
+            'visita': p.visita or p.slot_visita,
+            'plenos': plenos,
+            'resultados': resultados,
+            'mi_pred': mi_pred,
+            'mi_pts': mi_pts,
+        })
+
+    return render(request, 'prode/eliminatoria.html', {'partidos': partidos_ctx})
