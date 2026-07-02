@@ -236,3 +236,14 @@ class PrediccionPodio(models.Model):
 
     def __str__(self):
         return f"Podio de {self.usuario.username}"
+    
+class SimulacionBracket(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    datos = models.JSONField(default=dict)
+    actualizado = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('usuario',)
+
+    def __str__(self):
+        return f"Simulación de {self.usuario.username}"

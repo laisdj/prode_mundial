@@ -32,4 +32,5 @@ urlpatterns = [
     path('desafios/<int:desafio_id>/borrar/', views.borrar_desafio, name='borrar_desafio'),
     path('simulador/', views.simulador_bracket, name='simulador_bracket'),
     path('progreso-eliminatoria/', views.progreso_eliminatoria, name='progreso_eliminatoria'),
+    path('simulador/guardar/', views.guardar_simulacion, name='guardar_simulacion'),
 ]

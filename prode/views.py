@@ -8,7 +8,8 @@ from django.conf import settings
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio
 from datetime import date
 from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje
-from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje, Desafio, PerfilUsuario, VotoDesafio, PrediccionPodio
+from .models import Partido, Pronostico, PartidoEliminatorio, PronosticoEliminatorio, Mensaje, Desafio, PerfilUsuario, VotoDesafio, PrediccionPodio, SimulacionBracket
+
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -1298,3 +1299,47 @@ def eliminatoria(request):
         })
 
     return render(request, 'prode/eliminatoria.html', {'partidos': partidos_ctx})
+
+@login_required(login_url='login')
+def guardar_simulacion(request):
+    from django.http import JsonResponse
+    if request.method == 'POST':
+        import json
+        datos = json.loads(request.body)
+        SimulacionBracket.objects.update_or_create(
+            usuario=request.user,
+            defaults={'datos': datos}
+        )
+        return JsonResponse({'ok': True})
+    return JsonResponse({'ok': False})
+
+
+@login_required(login_url='login')
+def simulador_bracket(request):
+    ORDEN_VISUAL_R32 = [
+        ('Alemania', 'Paraguay'),
+        ('Francia', 'Suecia'),
+        ('Sudáfrica', 'Canadá'),
+        ('Países Bajos', 'Marruecos'),
+        ('Portugal', 'Croacia'),
+        ('España', 'Austria'),
+        ('EE.UU.', 'Bosnia'),
+        ('Bélgica', 'Senegal'),
+        ('Brasil', 'Japón'),
+        ('Costa de Marfil', 'Noruega'),
+        ('México', 'Ecuador'),
+        ('Inglaterra', 'R.D. Congo'),
+        ('Argentina', 'Cabo Verde'),
+        ('Suiza', 'Argelia'),
+        ('Colombia', 'Ghana'),
+        ('Australia', 'Egipto'),
+    ]
+
+    sim = SimulacionBracket.objects.filter(usuario=request.user).first()
+    datos_guardados = sim.datos if sim else {}
+
+    return render(request, 'prode/simulador_bracket.html', {
+        'partidos_r32': ORDEN_VISUAL_R32,
+        'datos_guardados': datos_guardados,
+        'ultima_actualizacion': sim.actualizado if sim else None,
+    })

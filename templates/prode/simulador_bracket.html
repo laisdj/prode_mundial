@@ -1,140 +1,214 @@
 {% extends 'prode/base.html' %}
+{% load static %}
 {% block content %}
 <h1 style="color:#1a6b3c;margin-bottom:.25rem">🎮 Simulador de Bracket</h1>
-<p style="font-size:.85rem;color:#666;margin-bottom:1.5rem">
-  Haz clic en el equipo que crees que avanza en cada partido y mira cómo se construye el cuadro completo.
+<p style="font-size:.85rem;color:#666;margin-bottom:.5rem">
+  Haz clic en el equipo que crees que avanza. Guarda tu predicción y modifícala cuando quieras.
 </p>
+{% if ultima_actualizacion %}
+<p style="font-size:.78rem;color:#aaa;margin-bottom:1rem">
+  💾 Última guardada: {{ ultima_actualizacion|date:"d/m H:i" }}
+</p>
+{% endif %}
 
 <style>
 .sim-wrap{overflow-x:auto;padding-bottom:1rem}
-.sim-bracket{display:flex;min-width:1300px}
+.sim-bracket{display:flex;min-width:1200px}
 .sim-ronda{display:flex;flex-direction:column;justify-content:space-around;flex:1;padding:0 8px}
 .sim-title{text-align:center;font-size:.66rem;font-weight:800;color:#1a6b3c;margin-bottom:.5rem;
   text-transform:uppercase;background:#e8f5e9;border-radius:20px;padding:.2rem .5rem}
-.sim-match{border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;margin:8px 0;background:#fff;font-size:.78rem}
+.sim-match{border:1px solid #e2e2e2;border-radius:8px;overflow:hidden;margin:8px 0;background:#fff;font-size:.78rem;
+  box-shadow:0 1px 3px rgba(0,0,0,.05)}
 .sim-team{display:block;width:100%;text-align:left;padding:.32rem .6rem;border:none;background:#fff;
-  cursor:pointer;font-size:.8rem;color:#333}
+  cursor:pointer;font-size:.8rem;color:#333;transition:background .1s}
 .sim-team:hover{background:#f0faf4}
 .sim-team.elegido{background:#1a6b3c;color:#fff;font-weight:700}
 .sim-team:nth-child(1){border-bottom:1px solid #f0f0f0}
-.sim-team:disabled{cursor:default;color:#ccc}
+.sim-team:disabled{cursor:default;color:#ccc;background:#f9f9f9}
+.sim-center{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1rem;padding:0 12px;min-width:160px}
+.sim-final{border:2px solid #f4c430;border-radius:10px;overflow:hidden;width:100%}
+.sim-final-title{background:#f4c430;color:#fff;font-size:.72rem;font-weight:800;
+  text-align:center;padding:.3rem}
+#save-msg{display:none;color:#2e8b57;font-size:.82rem;margin-left:.75rem}
 </style>
+
+<div style="margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+  <button class="btn" onclick="guardar()" id="btn-guardar">💾 Guardar predicción</button>
+  <button onclick="reiniciar()" style="background:none;border:1px solid #ccc;border-radius:6px;
+    padding:.5rem 1rem;cursor:pointer;font-size:.9rem;color:#666">🔄 Reiniciar</button>
+  <span id="save-msg">✅ ¡Guardado!</span>
+  <a href="{% url 'pronosticos_eliminatoria' %}" style="font-size:.85rem;color:#1a6b3c;margin-left:.5rem">
+    🏅 Ir a elegir mi podio →
+  </a>
+</div>
 
 <div class="sim-wrap">
 <div class="sim-bracket" id="sim-bracket">
-  <div class="sim-ronda" id="r32-col"><div class="sim-title">Round of 32</div></div>
-  <div class="sim-ronda" id="r16-col"><div class="sim-title">Round of 16</div></div>
-  <div class="sim-ronda" id="qf-col"><div class="sim-title">Cuartos</div></div>
-  <div class="sim-ronda" id="sf-col"><div class="sim-title">Semifinal</div></div>
-  <div class="sim-ronda" id="fin-col"><div class="sim-title">Final</div></div>
+  <div class="sim-ronda" id="r32-izq"><div class="sim-title">Round of 32</div></div>
+  <div class="sim-ronda" id="r16-izq"><div class="sim-title">Round of 16</div></div>
+  <div class="sim-ronda" id="qf-izq"><div class="sim-title">Cuartos</div></div>
+  <div class="sim-ronda" id="sf-izq"><div class="sim-title">Semifinal</div></div>
+  <div class="sim-center" id="fin-col">
+    <div class="sim-title">Final</div>
+    <div class="sim-final">
+      <div class="sim-final-title">🏆 FINAL</div>
+      <button class="sim-team" disabled id="fin-local">Por definir</button>
+      <button class="sim-team" disabled id="fin-visita">Por definir</button>
+    </div>
+  </div>
+  <div class="sim-ronda" id="sf-der"><div class="sim-title">Semifinal</div></div>
+  <div class="sim-ronda" id="qf-der"><div class="sim-title">Cuartos</div></div>
+  <div class="sim-ronda" id="r16-der"><div class="sim-title">Round of 16</div></div>
+  <div class="sim-ronda" id="r32-der"><div class="sim-title">Round of 32</div></div>
 </div>
-</div>
-
-<div style="margin-top:1.5rem;display:flex;gap:.75rem">
-  <button class="btn" onclick="reiniciar()" style="background:#888">🔄 Reiniciar</button>
-  <a href="{% url 'pronosticos_eliminatoria' %}" class="btn">🏅 Ir a elegir mi podio →</a>
 </div>
 
 <script>
 const R32 = [
-  {% for loc, vis in partidos_r32 %}
-  ["{{ loc }}", "{{ vis }}"],
-  {% endfor %}
+  {% for loc, vis in partidos_r32 %}["{{ loc }}", "{{ vis }}"],{% endfor %}
 ];
 
-let estado = { r32: {}, r16: {}, qf: {}, sf: {} };
+const GUARDADO = {{ datos_guardados|safe }};
 
-function cargarGuardado() {
-  const g = localStorage.getItem('sim_bracket');
-  // No usamos localStorage por restricciones, mantenemos en memoria
-}
+let estado = {
+  r32: GUARDADO.r32 || {},
+  r16: GUARDADO.r16 || {},
+  qf:  GUARDADO.qf  || {},
+  sf:  GUARDADO.sf  || {},
+};
+
+// Convertir keys de string a int si vienen del JSON
+['r32','r16','qf','sf'].forEach(r => {
+  const nuevo = {};
+  Object.keys(estado[r]).forEach(k => { nuevo[parseInt(k)] = estado[r][k]; });
+  estado[r] = nuevo;
+});
 
 function elegir(ronda, idx, ganador) {
   estado[ronda][idx] = ganador;
-  // Limpiar rondas siguientes si cambia algo anterior
-  if (ronda === 'r32') { estado.r16 = limpiarDependientes(estado.r16, idx); }
+  // Limpiar rondas siguientes afectadas
+  const parIdx = Math.floor(idx / 2);
+  if (ronda === 'r32') {
+    if (estado.r16[parIdx] && !Object.values(estado.r32).slice(parIdx*2, parIdx*2+2).includes(estado.r16[parIdx])) {
+      delete estado.r16[parIdx];
+      limpiarDesde('r16', parIdx);
+    }
+  } else if (ronda === 'r16') {
+    if (estado.qf[parIdx] && !Object.values(estado.r16).slice(parIdx*2, parIdx*2+2).includes(estado.qf[parIdx])) {
+      delete estado.qf[parIdx];
+      limpiarDesde('qf', parIdx);
+    }
+  } else if (ronda === 'qf') {
+    if (estado.sf[parIdx] && !Object.values(estado.qf).slice(parIdx*2, parIdx*2+2).includes(estado.sf[parIdx])) {
+      delete estado.sf[parIdx];
+    }
+  }
   render();
 }
 
-function limpiarDependientes(rondaSiguiente, idxAfectado) {
-  const nuevo = {};
-  const parIdx = Math.floor(idxAfectado / 2);
-  for (const k in rondaSiguiente) {
-    if (parseInt(k) !== parIdx) nuevo[k] = rondaSiguiente[k];
-  }
-  return nuevo;
+function limpiarDesde(ronda, idx) {
+  const parIdx = Math.floor(idx / 2);
+  if (ronda === 'r16') { delete estado.qf[parIdx]; limpiarDesde('qf', parIdx); }
+  else if (ronda === 'qf') { delete estado.sf[parIdx]; }
 }
 
-function crearMatchHTML(ronda, idx, local, visita) {
+function crearMatch(ronda, idx, local, visita) {
   const elegido = estado[ronda][idx];
-  return `
-    <div class="sim-match">
-      <button class="sim-team ${elegido === local ? 'elegido' : ''}" 
-              ${!local ? 'disabled' : ''}
-              onclick="elegir('${ronda}', ${idx}, '${local}')">
-        ${local || 'Por definir'}
-      </button>
-      <button class="sim-team ${elegido === visita ? 'elegido' : ''}"
-              ${!visita ? 'disabled' : ''}
-              onclick="elegir('${ronda}', ${idx}, '${visita}')">
-        ${visita || 'Por definir'}
-      </button>
-    </div>
+  const div = document.createElement('div');
+  div.className = 'sim-match';
+  div.innerHTML = `
+    <button class="sim-team ${elegido === local ? 'elegido' : ''}"
+            ${!local ? 'disabled' : ''}
+            onclick="elegir('${ronda}', ${idx}, '${local.replace(/'/g,"\\'")}')">
+      ${local || 'Por definir'}
+    </button>
+    <button class="sim-team ${elegido === visita ? 'elegido' : ''}"
+            ${!visita ? 'disabled' : ''}
+            onclick="elegir('${ronda}', ${idx}, '${visita.replace(/'/g,"\\'")}')">
+      ${visita || 'Por definir'}
+    </button>
   `;
+  return div;
 }
 
 function render() {
-  // R32
-  let r32html = '<div class="sim-title">Round of 32</div>';
-  R32.forEach((m, i) => {
-    r32html += crearMatchHTML('r32', i, m[0], m[1]);
-  });
-  document.getElementById('r32-col').innerHTML = r32html;
-
-  // R16 (8 partidos, cada uno toma ganadores de 2 partidos r32)
-  let r16html = '<div class="sim-title">Round of 16</div>';
+  // R32 izquierdo (0-7)
+  const r32izq = document.getElementById('r32-izq');
+  r32izq.innerHTML = '<div class="sim-title">Round of 32</div>';
   for (let i = 0; i < 8; i++) {
-    const local = estado.r32[i*2] || '';
-    const visita = estado.r32[i*2+1] || '';
-    r16html += crearMatchHTML('r16', i, local, visita);
+    r32izq.appendChild(crearMatch('r32', i, R32[i][0], R32[i][1]));
   }
-  document.getElementById('r16-col').innerHTML = r16html;
 
-  // QF (4 partidos)
-  let qfhtml = '<div class="sim-title">Cuartos</div>';
+  // R16 izquierdo (0-3)
+  const r16izq = document.getElementById('r16-izq');
+  r16izq.innerHTML = '<div class="sim-title">Round of 16</div>';
   for (let i = 0; i < 4; i++) {
-    const local = estado.r16[i*2] || '';
-    const visita = estado.r16[i*2+1] || '';
-    qfhtml += crearMatchHTML('qf', i, local, visita);
+    r16izq.appendChild(crearMatch('r16', i, estado.r32[i*2]||'', estado.r32[i*2+1]||''));
   }
-  document.getElementById('qf-col').innerHTML = qfhtml;
 
-  // SF (2 partidos)
-  let sfhtml = '<div class="sim-title">Semifinal</div>';
+  // QF izquierdo (0-1)
+  const qfizq = document.getElementById('qf-izq');
+  qfizq.innerHTML = '<div class="sim-title">Cuartos</div>';
   for (let i = 0; i < 2; i++) {
-    const local = estado.qf[i*2] || '';
-    const visita = estado.qf[i*2+1] || '';
-    sfhtml += crearMatchHTML('sf', i, local, visita);
+    qfizq.appendChild(crearMatch('qf', i, estado.r16[i*2]||'', estado.r16[i*2+1]||''));
   }
-  document.getElementById('sf-col').innerHTML = sfhtml;
 
-  // FINAL (1 partido)
-  const finLocal = estado.sf[0] || '';
-  const finVisita = estado.sf[1] || '';
-  let finhtml = '<div class="sim-title">Final</div>';
-  finhtml += `
-    <div class="sim-match" style="border:2px solid #f4c430">
-      <div style="background:#f4c430;color:#fff;text-align:center;font-size:.7rem;font-weight:700;padding:.3rem">🏆 FINAL</div>
-      <button class="sim-team" disabled>${finLocal || 'Por definir'}</button>
-      <button class="sim-team" disabled>${finVisita || 'Por definir'}</button>
-    </div>
-  `;
-  document.getElementById('fin-col').innerHTML = finhtml;
+  // SF izquierdo (0)
+  const sfizq = document.getElementById('sf-izq');
+  sfizq.innerHTML = '<div class="sim-title">Semifinal</div>';
+  sfizq.appendChild(crearMatch('sf', 0, estado.qf[0]||'', estado.qf[1]||''));
+
+  // Final
+  document.getElementById('fin-local').textContent = estado.sf[0] || 'Por definir';
+  document.getElementById('fin-visita').textContent = estado.sf[1] || 'Por definir';
+
+  // SF derecho (1)
+  const sfder = document.getElementById('sf-der');
+  sfder.innerHTML = '<div class="sim-title">Semifinal</div>';
+  sfder.appendChild(crearMatch('sf', 1, estado.qf[2]||'', estado.qf[3]||''));
+
+  // QF derecho (2-3)
+  const qfder = document.getElementById('qf-der');
+  qfder.innerHTML = '<div class="sim-title">Cuartos</div>';
+  for (let i = 2; i < 4; i++) {
+    qfder.appendChild(crearMatch('qf', i, estado.r16[i*2]||'', estado.r16[i*2+1]||''));
+  }
+
+  // R16 derecho (4-7)
+  const r16der = document.getElementById('r16-der');
+  r16der.innerHTML = '<div class="sim-title">Round of 16</div>';
+  for (let i = 4; i < 8; i++) {
+    r16der.appendChild(crearMatch('r16', i, estado.r32[i*2]||'', estado.r32[i*2+1]||''));
+  }
+
+  // R32 derecho (8-15)
+  const r32der = document.getElementById('r32-der');
+  r32der.innerHTML = '<div class="sim-title">Round of 32</div>';
+  for (let i = 8; i < 16; i++) {
+    r32der.appendChild(crearMatch('r32', i, R32[i][0], R32[i][1]));
+  }
+}
+
+function guardar() {
+  fetch('{% url "guardar_simulacion" %}', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+    body: JSON.stringify(estado)
+  }).then(r => r.json()).then(data => {
+    if (data.ok) {
+      const msg = document.getElementById('save-msg');
+      msg.style.display = 'inline';
+      setTimeout(() => msg.style.display = 'none', 3000);
+    }
+  });
 }
 
 function reiniciar() {
-  estado = { r32: {}, r16: {}, qf: {}, sf: {} };
-  render();
+  if (confirm('¿Reiniciar el bracket? Se perderá lo que tengas sin guardar.')) {
+    estado = { r32: {}, r16: {}, qf: {}, sf: {} };
+    render();
+  }
 }
 
 render();
