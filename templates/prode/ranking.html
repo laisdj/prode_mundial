@@ -1,51 +1,72 @@
 {% extends 'prode/base.html' %}
 {% load static %}
 {% block content %}
+
+<!-- HERO BANNER -->
+<div style="background:linear-gradient(135deg,#0a3d1f,#1a6b3c,#2e8b57);border-radius:16px;padding:1.5rem;margin-bottom:1.5rem;position:relative;overflow:hidden">
+  <div style="position:absolute;top:0;left:0;right:0;bottom:0;opacity:.05;background:repeating-linear-gradient(45deg,#fff,#fff 2px,transparent 2px,transparent 20px)"></div>
+  <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;position:relative;z-index:1">
+    <div style="display:flex;align-items:flex-end;gap:.5rem">
+      <img src="{% static 'jugador1.png' %}" style="height:90px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))" onerror="this.style.display='none'"/>
+      <img src="{% static 'jugador2.png' %}" style="height:80px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))" onerror="this.style.display='none'"/>
+    </div>
+    <div style="text-align:center;color:#fff;flex:1">
+      <div style="font-size:.8rem;opacity:.75;letter-spacing:.1em;text-transform:uppercase">Mundial 2026</div>
+      <div style="font-size:1.6rem;font-weight:800;letter-spacing:-.02em">⚽ Jordi Polla</div>
+      <div style="font-size:.85rem;opacity:.8;margin-top:.2rem">
+        Partidos jugados: <strong>{{ partidos_jugados }}</strong> / {{ total_partidos }}
+      </div>
+      <div style="background:rgba(255,255,255,.15);border-radius:20px;height:6px;margin:.5rem auto;max-width:200px">
+        <div style="background:#f4c430;border-radius:20px;height:6px;width:{% widthratio partidos_jugados total_partidos 100 %}%"></div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:flex-end;gap:.5rem">
+      <img src="{% static 'jugador3.png' %}" style="height:80px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))" onerror="this.style.display='none'"/>
+      <img src="{% static 'jugador4.png' %}" style="height:90px;object-fit:contain;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))" onerror="this.style.display='none'"/>
+    </div>
+  </div>
+</div>
+
+<!-- FELICITACIONES LIDER -->
+{% if tabla_f2 %}
+<div style="background:linear-gradient(135deg,#1a6b3c,#2e8b57);color:#fff;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;align-items:center;justify-content:center;gap:1rem;flex-wrap:wrap">
+  <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
+    <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
+  </video>
+  <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
+    <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
+  </video>
+  <div style="text-align:center">
+    <div style="font-size:1.5rem;margin-bottom:.25rem">🎉🏆🎉</div>
+    <div style="font-size:1rem;font-weight:700">¡Felicitaciones {{ tabla_f2.0.usuario.username }}!</div>
+    <div style="font-size:.85rem;opacity:.9;margin-top:.2rem">Vas liderando la Fase 2 con {{ tabla_f2.0.total_f2 }} puntos</div>
+  </div>
+  <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
+    <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
+  </video>
+  <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
+    <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
+  </video>
+</div>
+
+<!-- TABLA FASE 2 -->
 <div class="card">
-  <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem;margin-bottom:1rem">
-    <h1 style="margin-bottom:0">🏆 Tabla de posiciones — Fase Eliminatoria</h1>
-    <div style="font-size:.85rem;color:#666">
-      ⚽ Partidos jugados: <strong style="color:#1a6b3c">{{ partidos_elim_jugados_header }}</strong> / {{ partidos_elim_total }}
-    </div>
-  </div>
-
-  {% if tabla_f2 %}
-  <div style="background:linear-gradient(135deg,#1a6b3c,#2e8b57);color:#fff;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1.25rem;display:flex;align-items:center;justify-content:center;gap:.5rem;flex-wrap:wrap">
-    <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
-      <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
-    </video>
-    <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
-      <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
-    </video>
-    <div style="text-align:center;margin:0 1rem">
-      <div style="font-size:1.5rem;margin-bottom:.25rem">🎉🏆🎉</div>
-      <div style="font-size:1rem;font-weight:700">
-        ¡Felicitaciones {{ tabla_f2.0.usuario.username }}!
-      </div>
-      <div style="font-size:.85rem;opacity:.9;margin-top:.2rem">
-        Vas liderando la Fase 2 con {{ tabla_f2.0.total_f2 }} puntos
-      </div>
-    </div>
-    <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
-      <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
-    </video>
-    <video autoplay loop muted playsinline style="height:60px;border-radius:8px">
-      <source src="{% static 'celebracion.mp4' %}" type="video/mp4"/>
-    </video>
-  </div>
-
+  <h2 style="display:flex;align-items:center;gap:.5rem">
+    🏆 Fase Eliminatoria
+    <span style="font-size:.75rem;background:#1a6b3c;color:#fff;border-radius:20px;padding:.15rem .6rem;font-weight:400">EN CURSO</span>
+  </h2>
   <div class="table-wrap">
   <table>
-    <thead><tr>
-      <th>#</th>
-      <th></th>
-      <th style="text-align:left">Participante</th>
-      <th title="Plenos">⭐</th>
-      <th title="Resultados">✓</th>
-      <th title="Puntos">Pts</th>
-      <th title="Rendimiento">%</th>
-      <th title="Bonus final">🎁</th>
-      <th title="Total Fase 2"><strong>Total</strong></th>
+    <thead><tr style="background:linear-gradient(90deg,#0a3d1f,#1a6b3c);color:#fff">
+      <th style="color:#fff">#</th>
+      <th style="color:#fff"></th>
+      <th style="text-align:left;color:#fff">Participante</th>
+      <th title="Plenos" style="color:#f4c430">⭐</th>
+      <th title="Resultados" style="color:#90caf9">✓</th>
+      <th style="color:#fff">Pts</th>
+      <th style="color:#fff">%</th>
+      <th style="color:#f4c430">🎁</th>
+      <th style="color:#fff"><strong>Total</strong></th>
       {% if user.is_staff %}<th></th>{% endif %}
     </tr></thead>
     <tbody>
@@ -53,28 +74,25 @@
       <tr style="
         {% if forloop.counter == 1 %}background:linear-gradient(90deg,#fff9e6,transparent)
         {% elif forloop.counter == 2 %}background:linear-gradient(90deg,#f5f5f5,transparent)
-        {% elif forloop.last %}background:linear-gradient(90deg,#3a2a1a,transparent);color:#ddd
-        {% elif forloop.revcounter <= 2 %}background:linear-gradient(90deg,#4a3525,transparent);color:#eee
+        {% elif forloop.counter == 3 %}background:linear-gradient(90deg,#fdf0e0,transparent)
+        {% elif forloop.last %}background:linear-gradient(90deg,#2a1a0a,transparent);color:#ddd
+        {% elif forloop.revcounter <= 2 %}background:linear-gradient(90deg,#3a2510,transparent);color:#ccc
         {% endif %}">
-        <td>
+        <td style="font-weight:700">
           {% if forloop.counter == 1 %}🥇
           {% elif forloop.counter == 2 %}🥈
           {% elif forloop.counter == 3 %}🥉
           {% elif forloop.last %}💩
-          {% else %}<strong>{{ forloop.counter }}</strong>
-          {% endif %}
+          {% else %}{{ forloop.counter }}{% endif %}
         </td>
-        <td style="font-size:.85rem">{{ row.flecha }}</td>
-        <td style="text-align:left">{{ row.usuario.username }}</td>
+        <td>{{ row.flecha }}</td>
+        <td style="text-align:left;font-weight:600">{{ row.usuario.username }}</td>
         <td><span class="badge-3">{{ row.exactos_f2 }}</span></td>
         <td><span class="badge-1">{{ row.resultados_f2 }}</span></td>
-        <td><strong style="color:#1a6b3c">{{ row.pts_f2 }}</strong></td>
+        <td><strong style="color:#1a6b3c;font-size:.95rem">{{ row.pts_f2 }}</strong></td>
         <td style="font-size:.75rem;color:#888">{{ row.pct_f2 }}%</td>
-        <td>
-          {% if row.bonus > 0 %}<span class="badge-3">+{{ row.bonus }}</span>
-          {% else %}<span style="color:#ddd">—</span>{% endif %}
-        </td>
-        <td><strong style="color:#1a6b3c;font-size:1rem">{{ row.total_f2 }}</strong></td>
+        <td>{% if row.bonus > 0 %}<span class="badge-3">+{{ row.bonus }}</span>{% else %}<span style="color:#ddd">—</span>{% endif %}</td>
+        <td><strong style="color:#1a6b3c;font-size:1.05rem">{{ row.total_f2 }}</strong></td>
         {% if user.is_staff %}
         <td>
           <form method="post" action="{% url 'eliminar_usuario' row.usuario.id %}">
@@ -89,38 +107,37 @@
     </tbody>
   </table>
   </div>
-  {% else %}
-    <p style="color:#888">Aún no hay pronósticos de fase eliminatoria.</p>
-  {% endif %}
 </div>
+{% endif %}
 
+<!-- TABLA FASE 1 -->
 <div class="card">
-  <h2>📊 Tabla de posiciones — Fase Grupal</h2>
+  <h2>📊 Fase Grupal <span style="font-size:.75rem;background:#888;color:#fff;border-radius:20px;padding:.15rem .6rem;font-weight:400">FINALIZADA</span></h2>
   <div class="table-wrap">
   <table>
-    <thead><tr>
+    <thead><tr style="background:#f0f4f0">
       <th>#</th>
       <th style="text-align:left">Participante</th>
       <th title="Plenos">⭐</th>
       <th title="Resultados">✓</th>
-      <th title="Puntos">Pts</th>
-      <th title="Rendimiento">%</th>
+      <th>Pts</th>
+      <th>%</th>
     </tr></thead>
     <tbody>
     {% for row in tabla_f1 %}
       <tr style="
         {% if forloop.counter == 1 %}background:linear-gradient(90deg,#fff9e6,transparent)
         {% elif forloop.counter == 2 %}background:linear-gradient(90deg,#f5f5f5,transparent)
-        {% elif forloop.last %}background:linear-gradient(90deg,#3a2a1a,transparent);color:#ddd
-        {% elif forloop.revcounter <= 2 %}background:linear-gradient(90deg,#4a3525,transparent);color:#eee
+        {% elif forloop.counter == 3 %}background:linear-gradient(90deg,#fdf0e0,transparent)
+        {% elif forloop.last %}background:linear-gradient(90deg,#2a1a0a,transparent);color:#ddd
+        {% elif forloop.revcounter <= 2 %}background:linear-gradient(90deg,#3a2510,transparent);color:#ccc
         {% endif %}">
         <td>
           {% if forloop.counter == 1 %}🥇
           {% elif forloop.counter == 2 %}🥈
           {% elif forloop.counter == 3 %}🥉
           {% elif forloop.last %}💩
-          {% else %}<strong>{{ forloop.counter }}</strong>
-          {% endif %}
+          {% else %}{{ forloop.counter }}{% endif %}
         </td>
         <td style="text-align:left">{{ row.usuario.username }}</td>
         <td><span class="badge-3">{{ row.exactos_f1 }}</span></td>
@@ -134,39 +151,40 @@
   </div>
 </div>
 
+<!-- TABLA ACUMULADA -->
 <div class="card">
-  <h2>🏆 Ranking Acumulado Total (F1 + F2 + Bonus)</h2>
+  <h2>🌎 Ranking Total Acumulado</h2>
   <div class="table-wrap">
   <table>
-    <thead><tr>
-      <th>#</th>
-      <th style="text-align:left">Participante</th>
-      <th>PtsF1</th>
-      <th>PtsF2</th>
-      <th>🎁</th>
-      <th><strong>Total</strong></th>
+    <thead><tr style="background:linear-gradient(90deg,#0a3d1f,#1a6b3c);color:#fff">
+      <th style="color:#fff">#</th>
+      <th style="text-align:left;color:#fff">Participante</th>
+      <th style="color:#fff">F1</th>
+      <th style="color:#fff">F2</th>
+      <th style="color:#f4c430">🎁</th>
+      <th style="color:#fff"><strong>Total</strong></th>
     </tr></thead>
     <tbody>
     {% for row in tabla_acumulada %}
       <tr style="
         {% if forloop.counter == 1 %}background:linear-gradient(90deg,#fff9e6,transparent)
         {% elif forloop.counter == 2 %}background:linear-gradient(90deg,#f5f5f5,transparent)
-        {% elif forloop.last %}background:linear-gradient(90deg,#3a2a1a,transparent);color:#ddd
-        {% elif forloop.revcounter <= 2 %}background:linear-gradient(90deg,#4a3525,transparent);color:#eee
+        {% elif forloop.counter == 3 %}background:linear-gradient(90deg,#fdf0e0,transparent)
+        {% elif forloop.last %}background:linear-gradient(90deg,#2a1a0a,transparent);color:#ddd
+        {% elif forloop.revcounter <= 2 %}background:linear-gradient(90deg,#3a2510,transparent);color:#ccc
         {% endif %}">
         <td>
           {% if forloop.counter == 1 %}🥇
           {% elif forloop.counter == 2 %}🥈
           {% elif forloop.counter == 3 %}🥉
           {% elif forloop.last %}💩
-          {% else %}<strong>{{ forloop.counter }}</strong>
-          {% endif %}
+          {% else %}{{ forloop.counter }}{% endif %}
         </td>
-        <td style="text-align:left">{{ row.usuario.username }}</td>
+        <td style="text-align:left;font-weight:600">{{ row.usuario.username }}</td>
         <td>{{ row.pts_f1 }}</td>
         <td>{{ row.pts_f2 }}</td>
-        <td>{% if row.bonus > 0 %}+{{ row.bonus }}{% else %}—{% endif %}</td>
-        <td><strong style="color:#1a6b3c;font-size:1rem">{{ row.total_acum }}</strong></td>
+        <td>{% if row.bonus > 0 %}<span class="badge-3">+{{ row.bonus }}</span>{% else %}—{% endif %}</td>
+        <td><strong style="color:#1a6b3c;font-size:1.05rem">{{ row.total_acum }}</strong></td>
       </tr>
     {% endfor %}
     </tbody>
@@ -237,14 +255,9 @@
         </div>
         <div style="font-size:.85rem;margin-bottom:.75rem">
           💰 <strong>${{ item.desafio.monto|floatformat:"0" }}</strong>
-          {% if item.partido_obj.jugado %}
-            · Real: <strong>{{ item.partido_obj.goles_l }}-{{ item.partido_obj.goles_v }}</strong>
-          {% endif %}
-          {% if item.desafio.pagado %}
-            · <span style="color:#2e8b57">✅ Pagado</span>
-          {% endif %}
+          {% if item.partido_obj.jugado %}· Real: <strong>{{ item.partido_obj.goles_l }}-{{ item.partido_obj.goles_v }}</strong>{% endif %}
+          {% if item.desafio.pagado %}· <span style="color:#2e8b57">✅ Pagado</span>{% endif %}
         </div>
-
         {% if item.total_votos > 0 %}
         <div style="margin-bottom:.6rem;font-size:.78rem;color:#666">
           🗳️ {{ item.total_votos }} votos
@@ -270,38 +283,31 @@
           </div>
         </div>
         {% endif %}
-
         {% if item.comentarios %}
         <div style="margin-bottom:.6rem;border-top:1px solid #f0f0f0;padding-top:.5rem">
           {% for v in item.comentarios %}
             <div style="font-size:.75rem;margin-bottom:.3rem;background:#f0f4f0;border-radius:6px;padding:.3rem .5rem">
               <strong>{{ v.usuario.username }}</strong>
-              <span style="color:#888;font-size:.7rem">
-                {% if v.voto == '1' %}🟢{% elif v.voto == '2' %}🔵{% else %}⚪{% endif %}
-              </span>
+              <span style="color:#888;font-size:.7rem">{% if v.voto == '1' %}🟢{% elif v.voto == '2' %}🔵{% else %}⚪{% endif %}</span>
               — {{ v.comentario }}
             </div>
           {% endfor %}
         </div>
         {% endif %}
-
         {% if user.is_authenticated and not item.partido_obj.jugado %}
         <form method="post" action="{% url 'votar_desafio' item.desafio.id %}">
           {% csrf_token %}
           <div style="display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.4rem">
             <button type="submit" name="voto" value="1"
-                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;
-                    border:1px solid #1a6b3c;background:transparent;color:#1a6b3c">
+                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;border:1px solid #1a6b3c;background:transparent;color:#1a6b3c">
               🟢 {{ item.desafio.retador.username }}
             </button>
             <button type="submit" name="voto" value="2"
-                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;
-                    border:1px solid #1565c0;background:transparent;color:#1565c0">
+                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;border:1px solid #1565c0;background:transparent;color:#1565c0">
               🔵 {{ item.desafio.retado.username }}
             </button>
             <button type="submit" name="voto" value="0"
-                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;
-                    border:1px solid #888;background:transparent;color:#888">
+                    style="flex:1;padding:.3rem;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;border:1px solid #888;background:transparent;color:#888">
               ⚪ Ninguno
             </button>
           </div>
@@ -309,10 +315,7 @@
                  style="width:100%;font-size:.78rem;padding:.25rem .4rem;border:1px solid #ccc;border-radius:4px;margin-bottom:.4rem"/>
         </form>
         {% endif %}
-
-        <a href="{% url 'detalle_desafio' item.desafio.id %}" style="font-size:.78rem;color:#1a6b3c">
-          Ver detalle →
-        </a>
+        <a href="{% url 'detalle_desafio' item.desafio.id %}" style="font-size:.78rem;color:#1a6b3c">Ver detalle →</a>
       </div>
     </div>
   {% endfor %}
