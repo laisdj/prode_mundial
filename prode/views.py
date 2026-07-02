@@ -629,36 +629,34 @@ def pronosticos_eliminatoria(request):
     from django.utils import timezone
     from datetime import datetime as dt_class
 
-    limite_general = timezone.make_aware(dt_class(2026, 6, 29, 13, 0))
     limite_podio = timezone.make_aware(dt_class(2026, 6, 30, 10, 0))
 
     partidos = PartidoEliminatorio.objects.all().order_by('fecha')
     partidos_con_equipos = [p for p in partidos if p.local and p.visita]
 
-    # Lista de equipos clasificados (32 equipos del R32)
+    mi_podio, _ = PrediccionPodio.objects.get_or_create(usuario=request.user)
+    podio_bloqueado = timezone.now() >= limite_podio
+
     equipos_r32 = set()
-    for p in partidos.filter(ronda='R32'):
+    for p in PartidoEliminatorio.objects.filter(ronda='R32'):
         if p.local:
             equipos_r32.add(p.local)
         if p.visita:
             equipos_r32.add(p.visita)
     equipos_r32 = sorted(equipos_r32)
 
-    mi_podio, _ = PrediccionPodio.objects.get_or_create(usuario=request.user)
-    podio_bloqueado = timezone.now() >= limite_podio
-
     if request.method == 'POST':
         if 'guardar_podio' in request.POST and not podio_bloqueado:
             mi_podio.primero = request.POST.get('primero', '').strip()
             mi_podio.segundo = request.POST.get('segundo', '').strip()
             mi_podio.tercero = request.POST.get('tercero', '').strip()
-            mi_podio.cuarto = request.POST.get('cuarto', '').strip()
+            mi_podio.cuarto  = request.POST.get('cuarto', '').strip()
             mi_podio.save()
             messages.success(request, '¡Podio guardado!')
             return redirect('pronosticos_eliminatoria')
 
         for partido in partidos_con_equipos:
-            if timezone.now() >= limite_general:
+            if partido.fecha and timezone.now() >= partido.fecha:
                 continue
 
             gl = request.POST.get(f'gl_{partido.id}', '').strip()
@@ -726,7 +724,7 @@ def pronosticos_eliminatoria(request):
             elif pts == 1:
                 resultados.append(inicial)
 
-        bloqueado = timezone.now() >= limite_general
+        bloqueado = bool(p.fecha and timezone.now() >= p.fecha)
 
         partidos_ctx.append({
             'partido': p,
@@ -746,116 +744,6 @@ def pronosticos_eliminatoria(request):
         'mi_podio': mi_podio,
         'podio_bloqueado': podio_bloqueado,
     })
-
-    mis_prons = {
-        p.partido_id: p
-        for p in PronosticoEliminatorio.objects.filter(usuario=request.user)
-    }
-
-    todos_prons = {}
-    for pron in PronosticoEliminatorio.objects.select_related('usuario', 'partido').all():
-        if pron.partido_id not in todos_prons:
-            todos_prons[pron.partido_id] = []
-        todos_prons[pron.partido_id].append(pron)
-
-    rondas = {
-        'R32': 'Round of 32',
-        'R16': 'Round of 16',
-        'QF':  'Cuartos de final',
-        'SF':  'Semifinal',
-        '3PL': 'Tercer y cuarto lugar',
-        'FIN': 'Final',
-    }
-
-    partidos_ctx = []
-    for p in partidos_con_equipos:
-        pron = mis_prons.get(p.id)
-
-        prons_partido = todos_prons.get(p.id, [])
-        plenos = []
-        resultados = []
-        for otro_pron in prons_partido:
-            pts = otro_pron.puntos()
-            inicial = otro_pron.usuario.username[:2].capitalize()
-            if pts == 3:
-                plenos.append(inicial)
-            elif pts == 1:
-                resultados.append(inicial)
-
-        bloqueado = False
-        if p.fecha:
-            limite = p.fecha - timezone.timedelta(hours=1)
-            bloqueado = timezone.now() >= limite
-
-        partidos_ctx.append({
-            'partido': p,
-            'ronda_nombre': rondas.get(p.ronda, p.ronda),
-            'gl': pron.goles_l if pron else None,
-            'gv': pron.goles_v if pron else None,
-            'ganador_penales': pron.ganador_penales if pron else '',
-            'pts': pron.puntos() if pron else None,
-            'plenos': plenos,
-            'resultados': resultados,
-            'bloqueado': bloqueado,
-        })
-
-    return render(request, 'prode/pronosticos_eliminatoria.html', {
-        'partidos': partidos_ctx,
-    })
-
-
-def eliminatoria(request):
-    partidos = PartidoEliminatorio.objects.all().order_by('orden')
-
-    rondas = {
-        'R32': 'Round of 32',
-        'R16': 'Round of 16',
-        'QF':  'Cuartos de final',
-        'SF':  'Semifinal',
-        '3PL': 'Tercer y cuarto lugar',
-        'FIN': 'Final',
-    }
-
-    todos_prons = {}
-    for pron in PronosticoEliminatorio.objects.select_related('usuario', 'partido').all():
-        if pron.partido_id not in todos_prons:
-            todos_prons[pron.partido_id] = []
-        todos_prons[pron.partido_id].append(pron)
-
-    mi_pron = {}
-    if request.user.is_authenticated:
-        for pron in PronosticoEliminatorio.objects.filter(usuario=request.user):
-            mi_pron[pron.partido_id] = pron
-
-    partidos_ctx = []
-    for p in partidos:
-        prons_partido = todos_prons.get(p.id, [])
-        plenos = []
-        resultados = []
-        for pron in prons_partido:
-            pts = pron.puntos()
-            inicial = pron.usuario.username[:2].capitalize()
-            if pts == 3:
-                plenos.append(inicial)
-            elif pts == 1:
-                resultados.append(inicial)
-
-        mi = mi_pron.get(p.id)
-        mi_pred = f"{mi.goles_l}-{mi.goles_v}" if mi else None
-        mi_pts = mi.puntos() if mi else None
-
-        partidos_ctx.append({
-            'partido': p,
-            'ronda_nombre': rondas.get(p.ronda, p.ronda),
-            'local': p.local or p.slot_local,
-            'visita': p.visita or p.slot_visita,
-            'plenos': plenos,
-            'resultados': resultados,
-            'mi_pred': mi_pred,
-            'mi_pts': mi_pts,
-        })
-
-    return render(request, 'prode/eliminatoria.html', {'partidos': partidos_ctx})
 
 
 def bracket(request):
