@@ -724,7 +724,12 @@ def pronosticos_eliminatoria(request):
             elif pts == 1:
                 resultados.append(inicial)
 
-        bloqueado = bool(p.fecha and timezone.now() >= p.fecha)
+        if p.ronda == 'R32':
+            bloqueado = True
+        elif p.fecha:
+            bloqueado = timezone.now() >= p.fecha
+        else:
+            bloqueado = False
 
         partidos_ctx.append({
             'partido': p,

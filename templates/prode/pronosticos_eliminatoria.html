@@ -2,154 +2,168 @@
 {% block content %}
 <div class="card">
   <h1>🏆 Mis pronósticos — Fase Eliminatoria</h1>
-<div style="background:#fff8e1;border:2px solid #f4c430;border-radius:10px;padding:1rem;margin-bottom:1.5rem">
-  <h2 style="margin-bottom:.5rem">🏅 Tu podio final</h2>
-  <p style="font-size:.82rem;color:#666;margin-bottom:1rem">
-    Elige quién será 1°, 2°, 3° y 4° lugar del Mundial. Plazo hasta el 30/6 a las 10:00 hrs.
-  </p>
-  <form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="guardar_podio" value="1"/>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1rem">
-      <div>
-        <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥇 1° lugar</label>
-        <select name="primero" {% if podio_bloqueado %}disabled{% endif %}
-                style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
-          <option value="">--</option>
-          {% for eq in equipos_r32 %}
-            <option value="{{ eq }}" {% if mi_podio.primero == eq %}selected{% endif %}>{{ eq }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div>
-        <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥈 2° lugar</label>
-        <select name="segundo" {% if podio_bloqueado %}disabled{% endif %}
-                style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
-          <option value="">--</option>
-          {% for eq in equipos_r32 %}
-            <option value="{{ eq }}" {% if mi_podio.segundo == eq %}selected{% endif %}>{{ eq }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div>
-        <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥉 3° lugar</label>
-        <select name="tercero" {% if podio_bloqueado %}disabled{% endif %}
-                style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
-          <option value="">--</option>
-          {% for eq in equipos_r32 %}
-            <option value="{{ eq }}" {% if mi_podio.tercero == eq %}selected{% endif %}>{{ eq }}</option>
-          {% endfor %}
-        </select>
-      </div>
-      <div>
-        <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">4° lugar</label>
-        <select name="cuarto" {% if podio_bloqueado %}disabled{% endif %}
-                style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
-          <option value="">--</option>
-          {% for eq in equipos_r32 %}
-            <option value="{{ eq }}" {% if mi_podio.cuarto == eq %}selected{% endif %}>{{ eq }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </div>
-    {% if podio_bloqueado %}
-      <div style="background:#fde8e8;color:#c0392b;padding:.5rem 1rem;border-radius:6px;font-size:.85rem">
-        🔒 El plazo para elegir tu podio venció.
-      </div>
-    {% else %}
-      <button class="btn" type="submit">💾 Guardar podio</button>
-    {% endif %}
-  </form>
-</div>
   <p style="font-size:.85rem;color:#666;margin-bottom:1rem">
-    Local/Visita = 1 pt · Marcador exacto = 3 pts. Si hay empate, elige quién pasa en penales.
-    Los pronósticos se cierran 1 hora antes de cada partido.
+    Local/Visita = 1 pt · Marcador exacto = 3 pts. Si hay empate elige quién pasa en penales.
+    Cada partido se bloquea a su hora de inicio.
   </p>
+
+  <!-- PODIO -->
+  <div style="background:#fff8e1;border:2px solid #f4c430;border-radius:10px;padding:1rem;margin-bottom:1.5rem">
+    <h2 style="margin-bottom:.5rem">🏅 Tu podio final</h2>
+    <p style="font-size:.82rem;color:#666;margin-bottom:1rem">
+      Elige quién será 1°, 2°, 3° y 4° lugar. Plazo hasta el 30/6 a las 10:00 hrs.
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <input type="hidden" name="guardar_podio" value="1"/>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.75rem;margin-bottom:1rem">
+        <div>
+          <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥇 1° lugar</label>
+          <select name="primero" {% if podio_bloqueado %}disabled{% endif %}
+                  style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+            <option value="">--</option>
+            {% for eq in equipos_r32 %}
+              <option value="{{ eq }}" {% if mi_podio.primero == eq %}selected{% endif %}>{{ eq }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥈 2° lugar</label>
+          <select name="segundo" {% if podio_bloqueado %}disabled{% endif %}
+                  style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+            <option value="">--</option>
+            {% for eq in equipos_r32 %}
+              <option value="{{ eq }}" {% if mi_podio.segundo == eq %}selected{% endif %}>{{ eq }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">🥉 3° lugar</label>
+          <select name="tercero" {% if podio_bloqueado %}disabled{% endif %}
+                  style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+            <option value="">--</option>
+            {% for eq in equipos_r32 %}
+              <option value="{{ eq }}" {% if mi_podio.tercero == eq %}selected{% endif %}>{{ eq }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div>
+          <label style="font-size:.78rem;color:#666;display:block;margin-bottom:.25rem">4° lugar</label>
+          <select name="cuarto" {% if podio_bloqueado %}disabled{% endif %}
+                  style="width:100%;padding:.4rem;border:1px solid #ccc;border-radius:6px;font-size:.85rem">
+            <option value="">--</option>
+            {% for eq in equipos_r32 %}
+              <option value="{{ eq }}" {% if mi_podio.cuarto == eq %}selected{% endif %}>{{ eq }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      {% if podio_bloqueado %}
+        <div style="background:#fde8e8;color:#c0392b;padding:.5rem 1rem;border-radius:6px;font-size:.85rem">
+          🔒 El plazo para elegir tu podio venció.
+        </div>
+      {% else %}
+        <button class="btn" type="submit">💾 Guardar podio</button>
+      {% endif %}
+    </form>
+  </div>
 
   {% if not partidos %}
     <div style="text-align:center;padding:2rem;color:#888">
       ⏳ Los equipos clasificados aún no han sido confirmados.
     </div>
   {% else %}
-  <form method="post">
+  <form method="post" id="form-pronosticos">
     {% csrf_token %}
-    <div class="table-wrap">
-    <table>
-      <thead><tr>
-        <th>Ronda</th>
-        <th style="text-align:left">Partido</th>
-        <th>Fecha</th>
-        <th>Tu pronóstico</th>
-        <th>Real</th>
-        <th style="text-align:left">⭐ Plenos</th>
-        <th style="text-align:left">✓ Result.</th>
-        <th>Pts</th>
-      </tr></thead>
-      <tbody>
-      {% for item in partidos %}
-        <tr style="{% if item.bloqueado %}background:#f7f7f7{% endif %}">
-          <td style="font-size:.75rem">{{ item.ronda_nombre }}</td>
-          <td style="text-align:left;white-space:normal">
-            {{ item.partido.local }} vs {{ item.partido.visita }}
-            {% if item.bloqueado %}<span style="color:#c0392b;font-size:.7rem">🔒</span>{% endif %}
-          </td>
-          <td style="font-size:.78rem;color:#666;white-space:nowrap">
-            {{ item.partido.fecha|date:"d/m H:i" }}
-          </td>
-          <td style="white-space:nowrap">
-            <input class="inp-score gl-input" type="number" min="0" max="20"
-                   name="gl_{{ item.partido.id }}"
-                   {% if item.gl != None %}value="{{ item.gl }}"{% endif %}
-                   {% if item.bloqueado %}disabled{% endif %}
-                   placeholder="-"/>
-            <span style="color:#aaa">:</span>
-            <input class="inp-score gv-input" type="number" min="0" max="20"
-                   name="gv_{{ item.partido.id }}"
-                   {% if item.gv != None %}value="{{ item.gv }}"{% endif %}
-                   {% if item.bloqueado %}disabled{% endif %}
-                   placeholder="-"/>
-            <div class="penales-wrap" style="display:none;margin-top:.3rem;font-size:.72rem">
-              <label><input type="radio" name="gan_{{ item.partido.id }}" value="{{ item.partido.local }}"
-                     {% if item.ganador_penales == item.partido.local %}checked{% endif %}
-                     {% if item.bloqueado %}disabled{% endif %}/> {{ item.partido.local }}</label>
-              <label style="margin-left:.4rem"><input type="radio" name="gan_{{ item.partido.id }}" value="{{ item.partido.visita }}"
-                     {% if item.ganador_penales == item.partido.visita %}checked{% endif %}
-                     {% if item.bloqueado %}disabled{% endif %}/> {{ item.partido.visita }}</label>
-            </div>
-          </td>
-          <td style="white-space:nowrap">
-            {% if item.partido.jugado %}
-              <strong>{{ item.partido.goles_l }}-{{ item.partido.goles_v }}</strong>
-            {% else %}
-              <span style="color:#aaa">—</span>
-            {% endif %}
-          </td>
-          <td style="white-space:normal;min-width:70px">
-            {% for i in item.plenos %}
-              <span style="display:inline-flex;align-items:center;justify-content:center;
-                background:#1a6b3c;color:#fff;border-radius:50%;width:24px;height:24px;
-                font-size:.62rem;font-weight:700;margin:1px">{{ i }}</span>
-            {% endfor %}
-          </td>
-          <td style="white-space:normal;min-width:70px">
-            {% for i in item.resultados %}
-              <span style="display:inline-flex;align-items:center;justify-content:center;
-                background:#1565c0;color:#fff;border-radius:50%;width:24px;height:24px;
-                font-size:.62rem;font-weight:700;margin:1px">{{ i }}</span>
-            {% endfor %}
-          </td>
-          <td>
-            {% if item.pts == 3 %}<span class="badge-3">3⭐</span>
-            {% elif item.pts == 1 %}<span class="badge-1">1✓</span>
-            {% elif item.gl != None %}<span style="color:#aaa">{{ item.pts }}</span>
-            {% else %}<span style="color:#ddd">·</span>
-            {% endif %}
-          </td>
-        </tr>
-      {% endfor %}
-      </tbody>
-    </table>
-    </div>
+
+    <!-- Acordeones por ronda -->
+    {% regroup partidos by ronda_nombre as partidos_por_ronda %}
+    {% for ronda in partidos_por_ronda %}
+    <details {% if forloop.first %}open{% endif %}
+             style="border:1px solid #e0e0e0;border-radius:10px;overflow:hidden;margin-bottom:.75rem">
+      <summary style="padding:.75rem 1rem;background:#f0faf4;cursor:pointer;font-size:.9rem;
+                      font-weight:700;color:#1a6b3c;list-style:none;display:flex;justify-content:space-between;align-items:center">
+        <span>{{ ronda.grouper }}</span>
+        <span style="font-size:.75rem;color:#888">{{ ronda.list|length }} partidos ▼</span>
+      </summary>
+      <div style="overflow-x:auto">
+      <table style="width:100%;border-collapse:collapse;min-width:500px">
+        <thead><tr style="background:#f9f9f9">
+          <th style="padding:.4rem .5rem;font-size:.75rem;color:#888;text-align:left">Partido</th>
+          <th style="padding:.4rem .5rem;font-size:.75rem;color:#888">Fecha</th>
+          <th style="padding:.4rem .5rem;font-size:.75rem;color:#888">Tu pronóstico</th>
+          <th style="padding:.4rem .5rem;font-size:.75rem;color:#888">Real</th>
+          <th style="padding:.4rem .5rem;font-size:.75rem;color:#888;text-align:left">⭐</th>
+          <th style="padding:.4rem .5rem;font-size:.75rem;color:#888;text-align:left">✓</th>
+          <th style="padding:.4rem .5rem;font-size:.75rem;color:#888">Pts</th>
+        </tr></thead>
+        <tbody>
+        {% for item in ronda.list %}
+          <tr style="border-bottom:1px solid #f0f0f0;{% if item.bloqueado %}background:#fafafa{% endif %}">
+            <td style="padding:.4rem .5rem;font-size:.82rem;white-space:normal">
+              {{ item.partido.local }} vs {{ item.partido.visita }}
+              {% if item.bloqueado %}<span style="color:#c0392b;font-size:.7rem">🔒</span>{% endif %}
+            </td>
+            <td style="padding:.4rem .5rem;font-size:.75rem;color:#666;white-space:nowrap">
+              {{ item.partido.fecha|date:"d/m H:i" }}
+            </td>
+            <td style="padding:.4rem .5rem;white-space:nowrap">
+              <input class="inp-score gl-input" type="number" min="0" max="20"
+                     name="gl_{{ item.partido.id }}"
+                     {% if item.gl != None %}value="{{ item.gl }}"{% endif %}
+                     {% if item.bloqueado %}disabled{% endif %}
+                     placeholder="-"/>
+              <span style="color:#aaa">:</span>
+              <input class="inp-score gv-input" type="number" min="0" max="20"
+                     name="gv_{{ item.partido.id }}"
+                     {% if item.gv != None %}value="{{ item.gv }}"{% endif %}
+                     {% if item.bloqueado %}disabled{% endif %}
+                     placeholder="-"/>
+              <div class="penales-wrap" style="display:none;margin-top:.3rem;font-size:.72rem">
+                <label><input type="radio" name="gan_{{ item.partido.id }}" value="{{ item.partido.local }}"
+                       {% if item.ganador_penales == item.partido.local %}checked{% endif %}
+                       {% if item.bloqueado %}disabled{% endif %}/> {{ item.partido.local }}</label>
+                <label style="margin-left:.4rem"><input type="radio" name="gan_{{ item.partido.id }}" value="{{ item.partido.visita }}"
+                       {% if item.ganador_penales == item.partido.visita %}checked{% endif %}
+                       {% if item.bloqueado %}disabled{% endif %}/> {{ item.partido.visita }}</label>
+              </div>
+            </td>
+            <td style="padding:.4rem .5rem;white-space:nowrap;text-align:center">
+              {% if item.partido.jugado %}
+                <strong>{{ item.partido.goles_l }}-{{ item.partido.goles_v }}</strong>
+              {% else %}
+                <span style="color:#aaa">—</span>
+              {% endif %}
+            </td>
+            <td style="padding:.4rem .5rem;white-space:normal;min-width:60px">
+              {% for i in item.plenos %}
+                <span style="display:inline-flex;align-items:center;justify-content:center;
+                  background:#1a6b3c;color:#fff;border-radius:50%;width:22px;height:22px;
+                  font-size:.6rem;font-weight:700;margin:1px">{{ i }}</span>
+              {% endfor %}
+            </td>
+            <td style="padding:.4rem .5rem;white-space:normal;min-width:60px">
+              {% for i in item.resultados %}
+                <span style="display:inline-flex;align-items:center;justify-content:center;
+                  background:#1565c0;color:#fff;border-radius:50%;width:22px;height:22px;
+                  font-size:.6rem;font-weight:700;margin:1px">{{ i }}</span>
+              {% endfor %}
+            </td>
+            <td style="padding:.4rem .5rem;text-align:center">
+              {% if item.pts == 3 %}<span class="badge-3">3⭐</span>
+              {% elif item.pts == 1 %}<span class="badge-1">1✓</span>
+              {% elif item.gl != None %}<span style="color:#aaa">{{ item.pts }}</span>
+              {% else %}<span style="color:#ddd">·</span>
+              {% endif %}
+            </td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      </div>
+    </details>
+    {% endfor %}
+
     <div style="margin-top:1.25rem">
       <button class="btn" type="submit">💾 Guardar pronósticos</button>
     </div>
@@ -163,9 +177,9 @@ function actualizarPenales(row) {
   const gv = row.querySelector('.gv-input');
   if (!gl || !gv || gl.disabled) return;
   const wrap = row.querySelector('.penales-wrap');
-  if (gl.value !== '' && gv.value !== '' && gl.value === gv.value) {
+  if (wrap && gl.value !== '' && gv.value !== '' && gl.value === gv.value) {
     wrap.style.display = 'block';
-  } else {
+  } else if (wrap) {
     wrap.style.display = 'none';
   }
 }
